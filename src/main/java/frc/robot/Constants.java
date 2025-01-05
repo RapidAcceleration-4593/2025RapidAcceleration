@@ -12,7 +12,7 @@ import swervelib.math.Matter;
 
 public final class Constants {
     public static final double FIELD_LENGTH = 16.54; // Meters
-    public static final double ROBOT_MASS = (60) * 0.453592; // 60lbs in kg
+    public static final double ROBOT_MASS = (60) * 0.453592; // 60 lbs
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag
     public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration
