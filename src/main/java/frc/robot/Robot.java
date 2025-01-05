@@ -4,69 +4,137 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+/**
+ * This class's methods are called automatically for each mode per TimedRobot documentation.
+ * Update Main.java if the class or package name changes.
+ */
 public class Robot extends TimedRobot {
-  private Command m_autonomousCommand;
+    private static Robot instance;
+    private Command m_autonomousCommand;
 
-  private final RobotContainer m_robotContainer;
+    private RobotContainer m_robotContainer;
 
-  public Robot() {
-    m_robotContainer = new RobotContainer();
-  }
+    private Timer disabledTimer;
 
-  @Override
-  public void robotPeriodic() {
-    CommandScheduler.getInstance().run();
-  }
-
-  @Override
-  public void disabledInit() {}
-
-  @Override
-  public void disabledPeriodic() {}
-
-  @Override
-  public void disabledExit() {}
-
-  @Override
-  public void autonomousInit() {
-    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
-
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.schedule();
+    public Robot() {
+        instance = this;
     }
-  }
 
-  @Override
-  public void autonomousPeriodic() {}
-
-  @Override
-  public void autonomousExit() {}
-
-  @Override
-  public void teleopInit() {
-    if (m_autonomousCommand != null) {
-      m_autonomousCommand.cancel();
+    public static Robot getInstance() {
+        return instance;
     }
-  }
 
-  @Override
-  public void teleopPeriodic() {}
+    /** This function is run when the robot is first started up and should be used for any initialization code. */
+    @Override
+    public void robotInit() {
+        // Instantiate our RobotContainer. This will perform all our button bindings, and put our autonomous chooser on the dashboard.
+        m_robotContainer = new RobotContainer();
 
-  @Override
-  public void teleopExit() {}
+        // Create a timer to disable motor brake a few seconds after disable. This will let the robot stop
+        // immediately when disabled, but then also let it be pushed more.
+        disabledTimer = new Timer();
 
-  @Override
-  public void testInit() {
-    CommandScheduler.getInstance().cancelAll();
-  }
+        if (isSimulation()) {
+            DriverStation.silenceJoystickConnectionWarning(true);
+        }
+    }
 
-  @Override
-  public void testPeriodic() {}
+    /**
+     * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
+     * that you want ran during disabled, autonomous, teleoperated, and test.
+     * 
+     * <p>This runs after the mode specific periodic functions, but before LiveWindow and
+     * SmartDashboard integrated updating.
+     */
+    @Override
+    public void robotPeriodic() {
+        // Runs the Scheduler. This is responsible for polling buttons, adding newly-scheduled
+        // commands, running already-scheduled commands, removing finished or interrupted commands,
+        // and running subsystem periodic() methods. This must be called from the robot's periodic
+        // block in order for anything in the Command-based framework to work.
+        CommandScheduler.getInstance().run();
+    }
 
-  @Override
-  public void testExit() {}
+    /** Called once when the robot enters Disabled mode. */
+    @Override
+    public void disabledInit() {
+        m_robotContainer.setMotorBrake(true);
+        disabledTimer.reset();
+        disabledTimer.start();
+    }
+
+    /** Called periodically during Disabled mode. */
+    @Override
+    public void disabledPeriodic() {
+        if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_LOCK_TIME)) {
+            m_robotContainer.setMotorBrake(false);
+            disabledTimer.stop();
+        }
+    }
+
+    /** Called once when the robot exits Disabled mode. */
+    @Override
+    public void disabledExit() {}
+
+    /** Runs the autonomous command selected in {@link RobotContainer} class. */
+    @Override
+    public void autonomousInit() {
+        m_robotContainer.setMotorBrake(true);
+        m_autonomousCommand = m_robotContainer.getAutonomousCommand();
+
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.schedule();
+        }
+    }
+
+    /** Called periodically during Autonomous mode. */
+    @Override
+    public void autonomousPeriodic() {}
+
+    /** Called once when the robot exits Autonomous mode. */
+    @Override
+    public void autonomousExit() {}
+
+    /** Called once when the robot enters Teleop mode. */
+    @Override
+    public void teleopInit() {
+        // This makes sure that the autonomous stops running when teleop starts running.
+        // If you want the autonomous to continue until interrupted by another command, 
+        // remove this line or comment it out
+        if (m_autonomousCommand != null) {
+            m_autonomousCommand.cancel();
+        } else {
+            CommandScheduler.getInstance().cancelAll();
+        }
+        m_robotContainer.setDriveMode();
+    }
+
+    /** Called periodically during Teleop mode. */
+    @Override
+    public void teleopPeriodic() {}
+
+    /** Called once when the robot exits Teleop mode. */
+    @Override
+    public void teleopExit() {}
+
+    /** Called once when the robot enters Test mode. */
+    @Override
+    public void testInit() {
+        CommandScheduler.getInstance().cancelAll();
+        m_robotContainer.setDriveMode();
+    }
+
+    /** Called periodically during Test mode. */
+    @Override
+    public void testPeriodic() {}
+
+    /** Called once when the robot exits Test mode. */
+    @Override
+    public void testExit() {}
 }
