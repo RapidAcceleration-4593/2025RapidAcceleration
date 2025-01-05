@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.ExampleCommand;
-import frc.robot.commands.auton.NoneAuton;
+import frc.robot.commands.auton.ExampleAuton;
 import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
@@ -73,7 +73,7 @@ public class RobotContainer {
   }
 
   public Command getAutonomousCommand() {
-    return new NoneAuton();
+    return new ExampleAuton();
   }
 
   public void setDriveMode() {
