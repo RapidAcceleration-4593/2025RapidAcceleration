@@ -11,13 +11,18 @@ import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.commands.ExampleCommand;
+import frc.robot.commands.auton.NoneAuton;
+import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
 public class RobotContainer {
   // Subsystem(s)
-  public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+  public final static SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+  private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
   // Controller(s)
   private final CommandXboxController driverController = new CommandXboxController(0);
@@ -58,10 +63,17 @@ public class RobotContainer {
                                 driveFieldOrientedDirectAngleSim);
 
     driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+
+    // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+    new Trigger(exampleSubsystem::exampleCondition)
+      .onTrue(new ExampleCommand(exampleSubsystem));
+
+    // Schedule `exampleMethodCommand` when the Xbox Controller's B Button is pressed, cancelling on release
+    driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
   }
 
   public Command getAutonomousCommand() {
-    return Commands.print("No autonomous command configured");
+    return new NoneAuton();
   }
 
   public void setDriveMode() {

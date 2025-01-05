@@ -17,6 +17,20 @@ public final class Constants {
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag
     public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration
 
+    public static final class ModuleConfiguration {
+        public static final double MOI = 6.883;
+        public static final double WHEEL_COF = 1.19;
+        public static final double WHEEL_RADIUS = Units.inchesToMeters(2);
+        public static final double TRACK_WIDTH = 0.530225;
+    }
+
+    public static final class RobotConfiguration {
+        public static final double MAX_DRIVE_VELOCITY = 3.0;
+        public static final double MAX_DRIVE_ACCELERATION = 4.0;
+        public static final double MAX_ANGULAR_VELOCITY = Units.degreesToRadians(540);
+        public static final double MAX_ANGULAR_ACCELERATION = Units.degreesToRadians(720);
+    }
+
     public static final class AutonConstants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
