@@ -83,6 +83,7 @@ public class RobotContainer {
                                     driveFieldOrientedDirectAngleSim);
 
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+        // driverController.a().onTrue(drivebase.pathfindToNearestReef());
 
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
         new Trigger(exampleSubsystem::exampleCondition)

@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
+import frc.robot.RobotContainer;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
@@ -33,11 +34,12 @@ public class ExampleAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                AutoBuilder.followPath(paths.get(0)),
-                AutoBuilder.followPath(paths.get(1)),
-                AutoBuilder.followPath(paths.get(2)),
-                AutoBuilder.followPath(paths.get(3)),
-                AutoBuilder.followPath(paths.get(4))
+                // AutoBuilder.followPath(paths.get(0)),
+                // AutoBuilder.followPath(paths.get(1)),
+                // AutoBuilder.followPath(paths.get(2)),
+                // AutoBuilder.followPath(paths.get(3)),
+                // AutoBuilder.followPath(paths.get(4))
+                AutoBuilder.pathfindToPose(RobotContainer.drivebase.findClosestReefPose(RobotContainer.drivebase.getPose(), RobotContainer.drivebase.isRedAlliance(), 1.5), AutonUtils.CONSTRAINTS)
             )
         );
     }

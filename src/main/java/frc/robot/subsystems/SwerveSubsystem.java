@@ -15,11 +15,8 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
-import edu.wpi.first.apriltag.AprilTagFieldLayout;
-import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -27,23 +24,21 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.subsystems.VisionUtils.Cameras;
+import frc.robot.Constants.FieldConstants;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
-import org.photonvision.targeting.PhotonPipelineResult;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -60,7 +55,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
 
     /** AprilTag field layout. */
-    private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+    // private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
     
     /** Enable vision odometry updates while driving. */
     private final boolean visionDriveTest = true;
@@ -131,6 +126,7 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveDrive.updateOdometry();
             vision.updatePoseEstimation(swerveDrive);
         }
+        SmartDashboard.putNumber("MatchTime", DriverStation.getMatchTime());
     }
 
     /** Setup AutoBuilder for PathPlanner. */
@@ -192,62 +188,69 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Get the distance to the speaker.
-     * @return Distance to speaker in meters.
+     * Calculate the robot's Pose2d based on the alliance color, a specified side, and
+     * a given distance from the center of the reef.
+     * @param robotPose                 The current global pose of the robot.
+     * @param isRedAlliance             Indicates if the robot is on the red alliance.
+     * @param distanceOffset            Distance between the center of the reef and desired
+     *                                  robot pose, between 1.2 and 3.0, in meters.
+     * @return                          A {@link Pose2d} object representing the calculated
+     *                                  closest position and orientation of a reef.
+     * @throws IllegalArgumentException If the provided side is not between 1 and 6, or
+     *                                  if the distance is not between 1.2 and 3.0 (inclusive).
      */
-    public double getDistanceToSpeaker() {
-        int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-        // Taken from PhotonUtils.getDistanceToPose
-        Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-        return getPose().getTranslation().getDistance(speakerAprilTagPose.toPose2d().getTranslation());
-    }
+    public Pose2d findClosestReefPose(Pose2d robotPose, boolean isRedAlliance, double distanceOffset) {
+        // Validate distance is within the valid range, in meters.
+        if (distanceOffset < 1.2 || distanceOffset > 3.0) {
+            throw new IllegalArgumentException("Distance must be between 1.2 and 3.0. Provided: " + distanceOffset);
+        }
 
-    /**
-     * Get the yaw to aim at the speaker.
-     * @return {@link Rotation2d} of which you need to achieve.
-     */
-    public Rotation2d getSpeakerYaw() {
-        int allianceAprilTag = DriverStation.getAlliance().get() == Alliance.Blue ? 7 : 4;
-        // Taken from PhotonUtils.getYawToPose()
-        Pose3d speakerAprilTagPose = aprilTagFieldLayout.getTagPose(allianceAprilTag).get();
-        Translation2d relativeTrl = speakerAprilTagPose.toPose2d().relativeTo(getPose()).getTranslation();
-        return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerveDrive.getOdometryHeading());
-    }
+        double minDistance = Double.MAX_VALUE; // Initial, large number.
+        Pose2d closestPose = null;
 
-    /**
-     * Aim the robot at the speaker.
-     * @param tolerance Tolerance in degrees.
-     * @return Command to turn the robot to the speaker.
-     */
-    public Command aimAtSpeaker(double tolerance) {
-        SwerveController controller = swerveDrive.getSwerveController();
-        return run(
-            () -> {
-            ChassisSpeeds speeds = ChassisSpeeds.fromFieldRelativeSpeeds(0, 0,
-                                                    controller.headingCalculate(getHeading().getRadians(),
-                                                                                getSpeakerYaw().getRadians()) * 1.75,
-                                                                        getHeading());
-            drive(speeds);
-            }).until(() -> Math.abs(getSpeakerYaw().minus(getHeading()).getDegrees()) < tolerance);
-    }
+        // Iterate through all sides (1 through 6) of the reef.
+        for (int side = 1; side <= 6; side++) {
+            double rotationDegrees = 60 * (side - 1); // Calculate rotation in degrees based on the side selected.
+            double rotationRadians = Math.toRadians(rotationDegrees + 180); // Convert rotation, plus 180, to radians for calculations.
 
-    /**
-     * Aim the robot at the target returned by PhotonVision.
-     * @return A {@link Command} which will run the alignment.
-     */
-    public Command aimAtTarget(Cameras camera) {
-        return run(() -> {
-        Optional<PhotonPipelineResult> resultO = camera.getBestResult();
-        if (resultO.isPresent()) {
-            var result = resultO.get();
-            if (result.hasTargets()) {
-                drive(getTargetSpeeds(0,
-                                      0,
-                                      Rotation2d.fromDegrees(result.getBestTarget()
-                                                                    .getYaw()))); // Not sure if this will work, more math may be required.
+            // Calculate horizontal and vertical offsets using trigonometry.
+            double horizontalOffset = distanceOffset * Math.cos(rotationRadians);
+            double verticalOffset = distanceOffset * Math.sin(rotationRadians);
+
+            // Select the appropriate reef position based on alliance color.
+            double[] allianceReef = isRedAlliance ? FieldConstants.RED_REEF_POSE : FieldConstants.BLUE_REEF_POSE;
+
+            // Calculate the final position with offsets.
+            double xPosition = allianceReef[0] + horizontalOffset;
+            double yPosition = allianceReef[1] + verticalOffset;
+
+            // Calculate pose for the current side.
+            Pose2d sidePose = new Pose2d(xPosition, yPosition, Rotation2d.fromDegrees(rotationDegrees));
+
+            // Calculate distance from the robot's pose to the side's pose.
+            double distance = calculatePoseDistance(robotPose, sidePose);
+
+            // Check if current pose is closer than previous closest.
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPose = sidePose;
             }
         }
-        });
+
+        return closestPose;
+    }
+
+    /**
+     * Calculates the Euclidean distance between two poses.
+     * @param pose1 The first pose.
+     * @param pose2 The second pose.
+     * @return      The distance between the two poses.
+     */
+    private double calculatePoseDistance(Pose2d pose1, Pose2d pose2) {
+        double dx = pose1.getX() - pose2.getX();
+        double dy = pose1.getY() - pose2.getY();
+
+        return Math.hypot(dx, dy);
     }
 
     /**
@@ -314,7 +317,6 @@ public class SwerveSubsystem extends SubsystemBase {
         }
         return Commands.none();
     }
-
 
     /**
      * Command to characterize the robot drive motors using SysId
