@@ -10,6 +10,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
 import frc.robot.RobotContainer;
@@ -18,6 +19,8 @@ import frc.robot.commands.auton.utils.AutonUtils;
 
 public class ExampleAuton extends AutonCommand {
     private final List<PathPlannerPath> paths;
+
+    double targetPose = SmartDashboard.getNumber("TargetReefPose", 1);
 
     public ExampleAuton() {
         paths = List.of(
@@ -39,7 +42,8 @@ public class ExampleAuton extends AutonCommand {
                 // AutoBuilder.followPath(paths.get(2)),
                 // AutoBuilder.followPath(paths.get(3)),
                 // AutoBuilder.followPath(paths.get(4))
-                AutoBuilder.pathfindToPose(RobotContainer.drivebase.findClosestReefPose(RobotContainer.drivebase.getPose(), RobotContainer.drivebase.isRedAlliance(), 1.5), AutonUtils.CONSTRAINTS)
+                // AutoBuilder.pathfindToPose(RobotContainer.drivebase.findClosestReefPose(RobotContainer.drivebase.getPose(), RobotContainer.drivebase.isRedAlliance(), 1.5), AutonUtils.CONSTRAINTS)
+                AutoBuilder.pathfindToPose(RobotContainer.drivebase.selectBranchPose(targetPose, RobotContainer.drivebase.isRedAlliance()), AutonUtils.CONSTRAINTS)
             )
         );
     }

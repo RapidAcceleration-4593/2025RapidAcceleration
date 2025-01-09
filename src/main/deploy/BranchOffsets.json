@@ -1,0 +1,29 @@
+{
+    "branches": [
+        {"branch": 1, "horizontalOffset": 1.1557, "verticalOffset": 0.1651, "rotationalOffset": 0, "redAlliance": true},
+        {"branch": 2, "horizontalOffset": 1.1557, "verticalOffset": -0.1651, "rotationalOffset": 0, "redAlliance": true},
+        {"branch": 3, "horizontalOffset": 0.7208, "verticalOffset": -0.9183, "rotationalOffset": 120, "redAlliance": true},
+        {"branch": 4, "horizontalOffset": 0.4349, "verticalOffset": -1.0834, "rotationalOffset": 120, "redAlliance": true},
+        {"branch": 5, "horizontalOffset": -0.4349, "verticalOffset": -1.0834, "rotationalOffset": 60, "redAlliance": true},
+        {"branch": 6, "horizontalOffset": -0.7208, "verticalOffset": -0.9183, "rotationalOffset": 60, "redAlliance": true},
+        {"branch": 7, "horizontalOffset": -1.1557, "verticalOffset": -0.1651, "rotationalOffset": 180, "redAlliance": true},
+        {"branch": 8, "horizontalOffset": -1.1557, "verticalOffset": 0.1651, "rotationalOffset": 180, "redAlliance": true},
+        {"branch": 9, "horizontalOffset": -0.7208, "verticalOffset": 0.9183, "rotationalOffset": 300, "redAlliance": true},
+        {"branch": 10, "horizontalOffset": -0.4349, "verticalOffset": 1.0834, "rotationalOffset": 300, "redAlliance": true},
+        {"branch": 11, "horizontalOffset": 0.4349, "verticalOffset": 1.0834, "rotationalOffset": 240, "redAlliance": true},
+        {"branch": 12, "horizontalOffset": 0.7208, "verticalOffset": 0.9183, "rotationalOffset": 240, "redAlliance": true},
+
+        {"branch": 1, "horizontalOffset": 1.1557, "verticalOffset": -0.1651, "rotationalOffset": 0, "redAlliance": false},
+        {"branch": 2, "horizontalOffset": -1.1557, "verticalOffset": 0.1651, "rotationalOffset": 0, "redAlliance": false},
+        {"branch": 3, "horizontalOffset": -0.7203, "verticalOffset": 0.9183, "rotationalOffset": 300, "redAlliance": false},
+        {"branch": 4, "horizontalOffset": -0.4349, "verticalOffset": 1.0834, "rotationalOffset": 300, "redAlliance": false},
+        {"branch": 5, "horizontalOffset": 0.4349, "verticalOffset": 1.0834, "rotationalOffset": 240, "redAlliance": false},
+        {"branch": 6, "horizontalOffset": 0.7208, "verticalOffset": 0.9183, "rotationalOffset": 240, "redAlliance": false},
+        {"branch": 7, "horizontalOffset": 1.1557, "verticalOffset": 0.1651, "rotationalOffset": 180, "redAlliance": false},
+        {"branch": 8, "horizontalOffset": 1.1557, "verticalOffset": -0.1651, "rotationalOffset": 180, "redAlliance": false},
+        {"branch": 9, "horizontalOffset": 0.7208, "verticalOffset": -0.9183, "rotationalOffset": 120, "redAlliance": false},
+        {"branch": 10, "horizontalOffset": 0.4349, "verticalOffset": -1.0834, "rotationalOffset": 120, "redAlliance": false},
+        {"branch": 11, "horizontalOffset": -0.4349, "verticalOffset": -1.0834, "rotationalOffset": 60, "redAlliance": false},
+        {"branch": 12, "horizontalOffset": -0.7208, "verticalOffset": -0.9183, "rotationalOffset": 60, "redAlliance": false}
+    ]
+}

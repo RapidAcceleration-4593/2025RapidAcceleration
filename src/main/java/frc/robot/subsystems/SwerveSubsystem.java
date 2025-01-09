@@ -6,6 +6,8 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
@@ -24,6 +26,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,6 +41,7 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
+
 import org.json.simple.parser.ParseException;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -251,6 +255,43 @@ public class SwerveSubsystem extends SubsystemBase {
         double dy = pose1.getY() - pose2.getY();
 
         return Math.hypot(dx, dy);
+    }
+
+    public Pose2d selectBranchPose(double targetBranch, boolean isRedAlliance) {
+        try {
+            File jsonFile = new File(Filesystem.getDeployDirectory(), "BranchOffsets.json");
+            
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode rootNode = mapper.readTree(jsonFile);
+
+            JsonNode branches = rootNode.get("branches");
+
+            boolean targetRedAlliance = true;
+            double targetBranchNumber = targetBranch;
+
+            for (JsonNode branch : branches) {
+                if (branch.get("redAlliance").asBoolean() == targetRedAlliance &&
+                    branch.get("branch").asInt() == targetBranchNumber) {
+                        double horizontalOffset = branch.get("horizontalOffset").asDouble();
+                        double verticalOffset = branch.get("verticalOffset").asDouble();
+                        double rotationalOffset = branch.get("rotationalOffset").asDouble();
+
+                        double[] basePose = isRedAlliance
+                            ? FieldConstants.RED_REEF_POSE
+                            : FieldConstants.BLUE_REEF_POSE;
+
+                        return new Pose2d(
+                            basePose[0] + horizontalOffset,
+                            basePose[1] + verticalOffset,
+                            Rotation2d.fromDegrees(rotationalOffset)
+                        );
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        throw new IllegalArgumentException("Branch not found or invalid alliance color!");
     }
 
     /**
