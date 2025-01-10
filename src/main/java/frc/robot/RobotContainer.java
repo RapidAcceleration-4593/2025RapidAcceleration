@@ -9,6 +9,7 @@ import java.io.File;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -84,6 +85,12 @@ public class RobotContainer {
 
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
         // driverController.a().onTrue(drivebase.pathfindToNearestReef());
+
+        boolean conditional = SmartDashboard.getBoolean("ConfirmedCondition", false);
+        double pose = SmartDashboard.getNumber("TargetReefPose", 1);
+
+        // new Trigger(conditional)
+        //     .onTrue(drivebase.driveToBranchPose(pose, drivebase.isRedAlliance()));
 
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
         new Trigger(exampleSubsystem::exampleCondition)

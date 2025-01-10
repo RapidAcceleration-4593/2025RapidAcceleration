@@ -257,7 +257,7 @@ public class SwerveSubsystem extends SubsystemBase {
         return Math.hypot(dx, dy);
     }
 
-    public Pose2d selectBranchPose(double targetBranch, boolean isRedAlliance) {
+    public Command driveToBranchPose(double targetBranch, boolean isRedAlliance) {
         try {
             File jsonFile = new File(Filesystem.getDeployDirectory(), "BranchOffsets.json");
             
@@ -280,10 +280,22 @@ public class SwerveSubsystem extends SubsystemBase {
                             ? FieldConstants.RED_REEF_POSE
                             : FieldConstants.BLUE_REEF_POSE;
 
-                        return new Pose2d(
+                        Pose2d targetPose = new Pose2d(
                             basePose[0] + horizontalOffset,
                             basePose[1] + verticalOffset,
                             Rotation2d.fromDegrees(rotationalOffset)
+                        );
+
+                        // Create the constraints to use while pathfinding
+                        PathConstraints constraints = new PathConstraints(
+                            swerveDrive.getMaximumChassisVelocity(), 4.0,
+                            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+
+                        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+                        return AutoBuilder.pathfindToPose(
+                            targetPose,
+                            constraints,
+                            edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
                         );
                 }
             }
