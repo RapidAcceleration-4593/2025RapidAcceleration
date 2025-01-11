@@ -10,11 +10,11 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+// import edu.wpi.first.wpilibj2.command.InstantCommand;
+// import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
@@ -90,19 +90,19 @@ public class RobotContainer {
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
         // driverController.a().onTrue(drivebase.pathfindToNearestReef());
 
-        new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
-            .onTrue(new SequentialCommandGroup(
-                drivebase.driveToBranchPose(
-                    (int) SmartDashboard.getNumber("TargetReefPose", 1),
-                    drivebase.isRedAlliance()
-                ),
-                new InstantCommand(() ->  {
-                    SmartDashboard.putBoolean("CompletedCondition", true);
-                })
-            ))
-            .onFalse(new InstantCommand(() ->  {
-                SmartDashboard.putBoolean("CompletedCondition", false);
-            }));
+        // new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
+        //     .onTrue(new SequentialCommandGroup(
+        //         drivebase.driveToBranchPose(
+        //             (int) SmartDashboard.getNumber("TargetReefPose", 1),
+        //             drivebase.isRedAlliance()
+        //         ),
+        //         new InstantCommand(() ->  {
+        //             SmartDashboard.putBoolean("CompletedCondition", true);
+        //         })
+        //     ))
+        //     .onFalse(new InstantCommand(() ->  {
+        //         SmartDashboard.putBoolean("CompletedCondition", false);
+        //     }));
 
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
         new Trigger(exampleSubsystem::exampleCondition)
