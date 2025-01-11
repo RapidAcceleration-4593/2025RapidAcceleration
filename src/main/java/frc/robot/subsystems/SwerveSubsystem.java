@@ -31,6 +31,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
@@ -62,7 +63,7 @@ public class SwerveSubsystem extends SubsystemBase {
     // private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
     
     /** Enable vision odometry updates while driving. */
-    private final boolean visionDriveTest = true;
+    private final boolean visionDriveTest = false;
 
     /** PhotonVision class to keep an accurate odometry. */
     private VisionUtils vision;
@@ -257,21 +258,17 @@ public class SwerveSubsystem extends SubsystemBase {
         return Math.hypot(dx, dy);
     }
 
-    public Command driveToBranchPose(double targetBranch, boolean isRedAlliance) {
+    public Command driveToBranchPose(int targetBranch, boolean isRedAlliance) {
         try {
             File jsonFile = new File(Filesystem.getDeployDirectory(), "BranchOffsets.json");
             
             ObjectMapper mapper = new ObjectMapper();
             JsonNode rootNode = mapper.readTree(jsonFile);
-
             JsonNode branches = rootNode.get("branches");
 
-            boolean targetRedAlliance = true;
-            double targetBranchNumber = targetBranch;
-
             for (JsonNode branch : branches) {
-                if (branch.get("redAlliance").asBoolean() == targetRedAlliance &&
-                    branch.get("branch").asInt() == targetBranchNumber) {
+                if (branch.get("redAlliance").asBoolean() == isRedAlliance &&
+                    branch.get("branch").asInt() == targetBranch) {
                         double horizontalOffset = branch.get("horizontalOffset").asDouble();
                         double verticalOffset = branch.get("verticalOffset").asDouble();
                         double rotationalOffset = branch.get("rotationalOffset").asDouble();
@@ -295,7 +292,7 @@ public class SwerveSubsystem extends SubsystemBase {
                         return AutoBuilder.pathfindToPose(
                             targetPose,
                             constraints,
-                            edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+                            edu.wpi.first.units.Units.MetersPerSecond.of(0)
                         );
                 }
             }
@@ -303,7 +300,8 @@ public class SwerveSubsystem extends SubsystemBase {
             e.printStackTrace();
         }
 
-        throw new IllegalArgumentException("Branch not found or invalid alliance color!");
+        System.err.println("Branch not found or invalid alliance color!");
+        return new InstantCommand();
     }
 
     /**
