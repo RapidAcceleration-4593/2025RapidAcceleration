@@ -6,8 +6,6 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meter;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.PathfindingCommand;
 import com.pathplanner.lib.config.PIDConstants;
@@ -26,24 +24,24 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
-
 import org.json.simple.parser.ParseException;
+
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.SwerveDriveTest;
@@ -58,9 +56,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Swerve drive object. */
     private final SwerveDrive swerveDrive;
-
-    /** AprilTag field layout. */
-    // private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
     
     /** Enable vision odometry updates while driving. */
     private final boolean visionDriveTest = false;
@@ -184,12 +179,111 @@ public class SwerveSubsystem extends SubsystemBase {
                 }, this);
 
         } catch (Exception e) {
-            // Handle exception as needed
+            // Handle exception, as needed
             e.printStackTrace();
         }
 
         // Preload PathPlanner PathFinding
         PathfindingCommand.warmupCommand().schedule();
+    }
+
+    /**
+     * Calculates the robot pose offsets of each branch around the reef.
+     * <p>
+     * The method generates 12 poses around the reef: 2 poses per side. Each pose is offset
+     * from the branches that extend from the reef. The robot's heading is calculated to face
+     * the center of the reef for each pose.
+     * @param distanceToReef The distance of {@link Pose2d} objects representing the robot's
+     *                       center to the reef, in meters. This is the adjustable offset for
+     *                       the robot's position. 
+     * @return               A list of {@link Pose2d} objects representing the robot's position
+     *                       and orientation offsets around the hexagonal reef.
+     * @throws IllegalArgumentException If the distance is not between 0.4 and 1.5 (inclusive).
+     */
+    public static List<Pose2d> getReefBranchOffsets(double distanceToReef) {
+        // Validate distance is within the valid range, in meters.
+        if (distanceToReef < 0.4 || distanceToReef > 1.5) {
+            throw new IllegalArgumentException("Distance must be between 1.2 and 3.0. Provided: " + distanceToReef);
+        }
+
+        List<Pose2d> poses = new ArrayList<>();
+
+        // Hexagon parameters.
+        int numSides = 6;
+        double radius = 0.83185; // Meters.
+        double branchOffset = 0.1651; // Meters.
+        double angleIncrement = Math.toRadians(360.0 / numSides);
+
+        // Loop through each side of the hexagon.
+        for (int i = 0; i < numSides; i++) {
+            // Midpoint angle for each side.
+            double sideAngle = i * angleIncrement;
+
+            // Midpoint of the current hexagon side.
+            double midX = radius * Math.cos(sideAngle);
+            double midY = radius * Math.sin(sideAngle);
+
+            // Heading angle to face the cneter of the hexagon.
+            double headingAngle = Math.atan2(-midY, -midX);
+
+            // Vector components along the side direction.
+            double sideDirX = -Math.sin(sideAngle); // Perpendicular to the normal side.
+            double sideDirY = Math.cos(sideAngle);
+
+            // Calculate branch positions.
+            double branch1X = midX + branchOffset * sideDirX;
+            double branch1Y = midY + branchOffset * sideDirY;
+
+            double branch2X = midX - branchOffset * sideDirX;
+            double branch2Y = midY - branchOffset * sideDirY;
+
+            // Offset outward from each branch to determine robot's poses.
+            double pose1X = branch1X + distanceToReef * Math.cos(sideAngle);
+            double pose1Y = branch1Y + distanceToReef * Math.sin(sideAngle);
+
+            double pose2X = branch2X + distanceToReef * Math.cos(sideAngle);
+            double pose2Y = branch2Y + distanceToReef * Math.sin(sideAngle);
+
+            poses.add(new Pose2d(new Translation2d(pose1X, pose1Y), new Rotation2d(headingAngle)));
+            poses.add(new Pose2d(new Translation2d(pose2X, pose2Y), new Rotation2d(headingAngle)));
+        }
+
+        return poses;
+    }
+
+    /**
+     * Finds the pose of a specific branch with a specified offset distance and alliance side.
+     * @param distanceToReef The distance from the reef side to the intended center robot pose.
+     * @param targetBranch   The specified branch of the reef to target.
+     * @param isRedAlliance  Conditional of if the robot is on the red alliance or not.
+     * @return The target robot pose for scoring on a specified branch at the alliance's reef.
+     */
+    public Pose2d findBranchPose(double distanceToReef, int targetBranch, boolean isRedAlliance) {
+        if (targetBranch < 1 || targetBranch > 12) {
+            throw new IllegalArgumentException("TargetBranch must be between 1 and 12.");
+        }
+
+        // Convert targetBranch to zero-based index.
+        int branchIndex = targetBranch - 1;
+
+        // Get the base reef position for the specified alliance.
+        double[] basePose = isRedAlliance
+            ? FieldConstants.RED_REEF_POSE
+            : FieldConstants.BLUE_REEF_POSE;
+
+        // Get the offsets for all reef branches.
+        List<Pose2d> reefBranchOffsets = getReefBranchOffsets(distanceToReef);
+
+        // Get the target branch offset.
+        Pose2d offsetPose = reefBranchOffsets.get(branchIndex);
+
+        // Transform the offset pose to the global field position.
+        double transformedX = basePose[0] + offsetPose.getX();
+        double transformedY = basePose[1] + offsetPose.getY();
+        Rotation2d transformedHeading = offsetPose.getRotation();
+
+        // Transformed pose from calculations above.
+        return new Pose2d(new Translation2d(transformedX, transformedY), transformedHeading);
     }
 
     /**
@@ -204,7 +298,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @throws IllegalArgumentException If the provided side is not between 1 and 6, or
      *                                  if the distance is not between 1.2 and 3.0 (inclusive).
      */
-    public Pose2d findClosestReefPose(Pose2d robotPose, boolean isRedAlliance, double distanceOffset) {
+    public Pose2d findClosestReefSidePose(Pose2d robotPose, boolean isRedAlliance, double distanceOffset) {
         // Validate distance is within the valid range, in meters.
         if (distanceOffset < 1.2 || distanceOffset > 3.0) {
             throw new IllegalArgumentException("Distance must be between 1.2 and 3.0. Provided: " + distanceOffset);
@@ -256,52 +350,6 @@ public class SwerveSubsystem extends SubsystemBase {
         double dy = pose1.getY() - pose2.getY();
 
         return Math.hypot(dx, dy);
-    }
-
-    public Command driveToBranchPose(int targetBranch, boolean isRedAlliance) {
-        try {
-            File jsonFile = new File(Filesystem.getDeployDirectory(), "BranchOffsets.json");
-            
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode rootNode = mapper.readTree(jsonFile);
-            JsonNode branches = rootNode.get("branches");
-
-            for (JsonNode branch : branches) {
-                if (branch.get("redAlliance").asBoolean() == isRedAlliance &&
-                    branch.get("branch").asInt() == targetBranch) {
-                        double horizontalOffset = branch.get("horizontalOffset").asDouble();
-                        double verticalOffset = branch.get("verticalOffset").asDouble();
-                        double rotationalOffset = branch.get("rotationalOffset").asDouble();
-
-                        double[] basePose = isRedAlliance
-                            ? FieldConstants.RED_REEF_POSE
-                            : FieldConstants.BLUE_REEF_POSE;
-
-                        Pose2d targetPose = new Pose2d(
-                            basePose[0] + horizontalOffset,
-                            basePose[1] + verticalOffset,
-                            Rotation2d.fromDegrees(rotationalOffset)
-                        );
-
-                        // Create the constraints to use while pathfinding
-                        PathConstraints constraints = new PathConstraints(
-                            swerveDrive.getMaximumChassisVelocity(), 4.0,
-                            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
-
-                        // Since AutoBuilder is configured, we can use it to build pathfinding commands
-                        return AutoBuilder.pathfindToPose(
-                            targetPose,
-                            constraints,
-                            edu.wpi.first.units.Units.MetersPerSecond.of(0)
-                        );
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        System.err.println("Branch not found or invalid alliance color!");
-        return new InstantCommand();
     }
 
     /**
