@@ -38,6 +38,7 @@ public class ExampleAuton extends AutonCommand {
                 AutoBuilder.followPath(paths.get(2)),
                 AutoBuilder.followPath(paths.get(3)),
                 AutoBuilder.followPath(paths.get(4))
+                // RobotContainer.drivebase.driveToBranchPose(8, RobotContainer.drivebase.isRedAlliance())
             )
         );
     }
@@ -53,7 +54,7 @@ public class ExampleAuton extends AutonCommand {
     @Override
     public Pose2d getStartingPose() {
         return paths.get(0)
-            .generateTrajectory(new ChassisSpeeds(), new Rotation2d(), AutonUtils.robotConfig)
+            .generateTrajectory(new ChassisSpeeds(), new Rotation2d(), AutonUtils.getRobotConfig())
             .getInitialPose();
     }
 }

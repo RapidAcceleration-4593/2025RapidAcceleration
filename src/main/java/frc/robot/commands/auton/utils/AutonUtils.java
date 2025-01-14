@@ -1,59 +1,45 @@
 package frc.robot.commands.auton.utils;
 
-import java.util.ArrayList;
-
-import com.pathplanner.lib.config.ModuleConfig;
 import com.pathplanner.lib.config.RobotConfig;
-import com.pathplanner.lib.path.GoalEndState;
-import com.pathplanner.lib.path.IdealStartingState;
-import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.RobotContainer;
+import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
-    /** Robot Constraints for Pathfinding. */
-    public static final PathConstraints CONSTRAINTS = new PathConstraints(Constants.RobotConfiguration.MAX_DRIVE_VELOCITY, Constants.RobotConfiguration.MAX_DRIVE_ACCELERATION, Constants.RobotConfiguration.MAX_ANGULAR_VELOCITY, Constants.RobotConfiguration.MAX_ANGULAR_ACCELERATION);
 
-    /** Robot Configuration for generating trajectories. */
-    public static RobotConfig robotConfig;
+    /** SwerveSubsystem object. */
+    private static final SwerveSubsystem drivebase = RobotContainer.drivebase;
 
-    static {
-        ModuleConfig moduleConfig = new ModuleConfig(Constants.ModuleConfiguration.WHEEL_RADIUS, Constants.RobotConfiguration.MAX_DRIVE_VELOCITY, Constants.ModuleConfiguration.WHEEL_COF, DCMotor.getKrakenX60(1), 60.0, 1);
-
-        try {
-            robotConfig = RobotConfig.fromGUISettings();
-        } catch (Exception e) {
-            System.err.println("Error loading robot configuration from GUI settings. Using default values.");
-            e.printStackTrace();
-            robotConfig = new RobotConfig(Constants.ROBOT_MASS, Constants.ModuleConfiguration.MOI, moduleConfig, Constants.ModuleConfiguration.TRACK_WIDTH);
-        }
-    }
-    
-    public static Command resetOdometry(PathPlannerPath choreoPath) {
-        return RobotContainer.drivebase.runOnce(
+    /**
+     * Command to reset the robot's odometry to initial pose, adjusted for the current
+     * alliance color by flipping it if necessary.
+     * @param choreoPath The PathPlannerPath containing the trajectory to use for
+     *                   resetting the robot's odometry.
+     * @return           A command that, when run, resets the robot's odometry to the
+     *                   initial pose of given path.
+     */
+    public static Command resetOdometry(PathPlannerPath path) {
+        return drivebase.runOnce(
             () -> {
-                Pose2d pose = choreoPath
-                    .generateTrajectory(new ChassisSpeeds(), new Rotation2d(Math.PI), robotConfig)
+                RobotConfig config = getRobotConfig();
+
+                Pose2d pose = path
+                    .generateTrajectory(new ChassisSpeeds(), new Rotation2d(Math.PI), config)
                     .getInitialPose();
 
-            if (RobotContainer.drivebase.isRedAlliance()) {
-                pose = flipFieldPose(pose);
-            }
-
-            RobotContainer.drivebase.resetOdometry(pose);
+                if (drivebase.isRedAlliance()) {
+                    pose = flipFieldPose(pose);
+                }
+    
+                drivebase.resetOdometry(pose);
         });
-    }
-
-    public static Command aimAtSpeaker() {
-        return RobotContainer.drivebase.aimAtSpeaker(1.0);
     }
 
     /**
@@ -65,22 +51,10 @@ public class AutonUtils {
         try {
             return PathPlannerPath.fromPathFile(pathName);
         } catch (Exception e) {
-            System.err.println("Failed to load path: " + pathName);
+            // Handle exception, as needed.
             e.printStackTrace();
+            throw new RuntimeException("Failed to load path: " + pathName, e);
         }
-
-        // Return an empty path as fallback.
-        return generateEmptyPath();
-    }
-
-    /** Result an empty path with zero constraints and no waypoints. */
-    private static PathPlannerPath generateEmptyPath() {
-        return new PathPlannerPath(
-            new ArrayList<>(),
-            new PathConstraints(0, 0, 0, 0),
-            new IdealStartingState(0, new Rotation2d()),
-            new GoalEndState(0, new Rotation2d())
-        );
     }
 
     /**
@@ -89,7 +63,7 @@ public class AutonUtils {
      * @return The flipped position.
      */
     private static Translation2d flipFieldPosition(Translation2d position) {
-        return new Translation2d(Constants.FIELD_LENGTH - position.getX(), position.getY());
+        return new Translation2d(FieldConstants.FIELD_LENGTH - position.getX(), position.getY());
     }
 
     /**
@@ -108,5 +82,20 @@ public class AutonUtils {
      */
     private static Pose2d flipFieldPose(Pose2d pose) {
         return new Pose2d(flipFieldPosition(pose.getTranslation()), flipFieldRotation(pose.getRotation()));
+    }
+
+    /**
+     * Retrieves the robot configuration from Deploy Settings.
+     * @return The RobotConfig instance generated by PathPlanner.
+     * @throws RuntimeException If failed to retrieve configuration.
+     */
+    public static RobotConfig getRobotConfig() {
+        try {
+            return RobotConfig.fromGUISettings();
+        } catch (Exception e) {
+            System.err.println("Failed to retrieve RobotConfig from Deploy Settings.");
+            e.printStackTrace();
+            throw new RuntimeException("Error retrieving RobotConfig.", e);
+        }
     }
 }

@@ -72,14 +72,14 @@ public class VisionUtils {
         this.field2d = field;
 
         if (Robot.isSimulation()) {
-        visionSim = new VisionSystemSim("Vision");
-        visionSim.addAprilTags(fieldLayout);
+            visionSim = new VisionSystemSim("Vision");
+            visionSim.addAprilTags(fieldLayout);
 
-        for (Cameras c : Cameras.values()) {
-            c.addToVisionSim(visionSim);
-        }
+            for (Cameras c : Cameras.values()) {
+                c.addToVisionSim(visionSim);
+            }
 
-        openSimCameraViews();
+            openSimCameraViews();
         }
     }
 
@@ -154,8 +154,8 @@ public class VisionUtils {
             if (poseEst.isPresent()) {
                 var pose = poseEst.get();
                 swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
-                                                pose.timestampSeconds,
-                                                camera.curStdDevs);
+                                                 pose.timestampSeconds,
+                                                 camera.curStdDevs);
             }
         }
     }

@@ -7,8 +7,10 @@ package frc.robot;
 import java.io.File;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -74,21 +76,33 @@ public class RobotContainer {
 
     public RobotContainer() {
         configureBindings();
+        DriverStation.silenceJoystickConnectionWarning(true);
     }
 
     private void configureBindings() {
-        // (Condition) ? Return-On-True : Return-On-False
+        // (Condition) ? Return-On-True : Return-On-False.
         drivebase.setDefaultCommand(!RobotBase.isSimulation() ?
                                     driveFieldOrientedAngularVelocity :
                                     driveFieldOrientedDirectAngleSim);
 
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+        // Dashboard input for driving to branch pose based on alliance side.
+        new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
+            .onTrue(Commands.runOnce(() -> {
+                drivebase.driveToPose(drivebase.findBranchPose(
+                        0.5,
+                        drivebase.targetReefBranch,
+                        drivebase.isRedAlliance()
+                    )).schedule();    
+            }));
+                
+
+        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`.
         new Trigger(exampleSubsystem::exampleCondition)
             .onTrue(new ExampleCommand(exampleSubsystem));
 
-        // Schedule `exampleMethodCommand` when the Xbox Controller's B Button is pressed, cancelling on release
+        // Schedule `exampleMethodCommand` when the Xbox Controller's B Button is pressed, cancelling on release.
         driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
     }
 
@@ -98,10 +112,6 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         return new ExampleAuton();
-    }
-
-    public void setDriveMode() {
-        configureBindings();
     }
 
     public void setMotorBrake(boolean brake) {
