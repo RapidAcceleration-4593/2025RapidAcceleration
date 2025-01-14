@@ -129,23 +129,27 @@ public class SwerveSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("MatchTime", DriverStation.getMatchTime());
     }
 
+    @Override
+    public void simulationPeriodic() {
+
+    }
+
     /** Setup AutoBuilder for PathPlanner. */
     public void setupPathPlanner() {
-        // Load the RobotConfig from the GUI settings. You should probably
-        // store this in your Constants file
+        // Load the RobotConfig from the GUI settings. Store this in Constants file.
         RobotConfig config;
         try {
             config = RobotConfig.fromGUISettings();
 
             final boolean enableFeedforward = true;
-            // Configure AutoBuilder last
+            // Configure AutoBuilder last.
             AutoBuilder.configure(
                 this::getPose,
-                // Robot pose supplier
+                // Robot pose supplier.
                 this::resetOdometry,
-                // Method to reset odometry (will be called if your auto has a starting pose)
+                // Method to reset odometry (will be called if your auto has a starting pose).
                 this::getRobotVelocity,
-                // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
+                // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE.
                 (speedsRobotRelative, moduleFeedForwards) -> {
                     if (enableFeedforward) {
                         swerveDrive.drive(
@@ -156,20 +160,20 @@ public class SwerveSubsystem extends SubsystemBase {
                         swerveDrive.setChassisSpeeds(speedsRobotRelative);
                     }
                 },
-                // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards
+                // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards.
                 new PPHolonomicDriveController(
-                    // PPHolonomicController is the built in path following controller for holonomic drive trains
+                    // PPHolonomicController is the built in path following controller for holonomic drive trains.
                     new PIDConstants(5.0, 0.0, 0.0),
-                    // Translation PID constants
+                    // Translation PID constants.
                     new PIDConstants(5.0, 0.0, 0.0)
-                    // Rotation PID constants
+                    // Rotation PID constants.
                 ),
                 config,
                 // The robot configuration
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.
-                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
+                    // THE ORIGIN WILL REMAIN ON THE BLUE SIDE.
 
                     var alliance = DriverStation.getAlliance();
                     if (alliance.isPresent()) {
@@ -179,11 +183,11 @@ public class SwerveSubsystem extends SubsystemBase {
                 }, this);
 
         } catch (Exception e) {
-            // Handle exception, as needed
+            // Handle exception, as needed.
             e.printStackTrace();
         }
 
-        // Preload PathPlanner PathFinding
+        // Preload PathPlanner PathFinding.
         PathfindingCommand.warmupCommand().schedule();
     }
 
@@ -502,16 +506,15 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier headingX, DoubleSupplier headingY) {
         // swerveDrive.setHeadingCorrection(true); // Normally you would want heading correction for this kind of control.
         return run(() -> {
+            Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
+                                                                                        translationY.getAsDouble()), 0.8);
 
-        Translation2d scaledInputs = SwerveMath.scaleTranslation(new Translation2d(translationX.getAsDouble(),
-                                                                                    translationY.getAsDouble()), 0.8);
-
-        // Make the robot move
-        driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
-                                                                        headingX.getAsDouble(),
-                                                                        headingY.getAsDouble(),
-                                                                        swerveDrive.getOdometryHeading().getRadians(),
-                                                                        swerveDrive.getMaximumChassisVelocity()));
+            // Make the robot move
+            driveFieldOriented(swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(), scaledInputs.getY(),
+                                                                            headingX.getAsDouble(),
+                                                                            headingY.getAsDouble(),
+                                                                            swerveDrive.getOdometryHeading().getRadians(),
+                                                                            swerveDrive.getMaximumChassisVelocity()));
         });
     }
 

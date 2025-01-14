@@ -112,7 +112,6 @@ public class Robot extends TimedRobot {
         } else {
             CommandScheduler.getInstance().cancelAll();
         }
-        m_robotContainer.setDriveMode();
     }
 
     /** Called periodically during Teleop mode. */
@@ -127,7 +126,6 @@ public class Robot extends TimedRobot {
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
-        m_robotContainer.setDriveMode();
     }
 
     /** Called periodically during Test mode. */
@@ -137,4 +135,12 @@ public class Robot extends TimedRobot {
     /** Called once when the robot exits Test mode. */
     @Override
     public void testExit() {}
+
+    /** Called once whent he robot is first started up. */
+    @Override
+    public void simulationInit() {}
+
+    /** Called periodically while in simulation */
+    @Override
+    public void simulationPeriodic() {}
 }

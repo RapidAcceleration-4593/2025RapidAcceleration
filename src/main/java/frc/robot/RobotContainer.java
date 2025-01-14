@@ -111,10 +111,6 @@ public class RobotContainer {
         return new ExampleAuton();
     }
 
-    public void setDriveMode() {
-        configureBindings();
-    }
-
     public void setMotorBrake(boolean brake) {
         drivebase.setMotorBrake(brake);
     }
