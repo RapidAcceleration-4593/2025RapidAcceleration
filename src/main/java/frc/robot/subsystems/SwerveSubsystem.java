@@ -63,6 +63,9 @@ public class SwerveSubsystem extends SubsystemBase {
     /** PhotonVision class to keep an accurate odometry. */
     private VisionUtils vision;
 
+    /** TargetReefBranch to be updated periodically through SmartDashboard. */
+    public int targetReefBranch;
+
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
      * @param directory Directory of swerve drive config files.
@@ -127,6 +130,7 @@ public class SwerveSubsystem extends SubsystemBase {
             vision.updatePoseEstimation(swerveDrive);
         }
         SmartDashboard.putNumber("MatchTime", DriverStation.getMatchTime());
+        targetReefBranch = (int) SmartDashboard.getNumber("TargetReefBranch", 0);
     }
 
     @Override
@@ -248,8 +252,8 @@ public class SwerveSubsystem extends SubsystemBase {
             double pose2X = branch2X + distanceToReef * Math.cos(sideAngle);
             double pose2Y = branch2Y + distanceToReef * Math.sin(sideAngle);
 
-            poses.add(new Pose2d(new Translation2d(pose1X, pose1Y), new Rotation2d(headingAngle)));
             poses.add(new Pose2d(new Translation2d(pose2X, pose2Y), new Rotation2d(headingAngle)));
+            poses.add(new Pose2d(new Translation2d(pose1X, pose1Y), new Rotation2d(headingAngle)));
         }
 
         return poses;

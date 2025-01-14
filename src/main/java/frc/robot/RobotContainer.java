@@ -80,26 +80,29 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // (Condition) ? Return-On-True : Return-On-False
+        // (Condition) ? Return-On-True : Return-On-False.
         drivebase.setDefaultCommand(!RobotBase.isSimulation() ?
                                     driveFieldOrientedAngularVelocity :
                                     driveFieldOrientedDirectAngleSim);
 
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
-        // new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
-        driverController.a()
-            .onTrue(drivebase.driveToPose(drivebase.findBranchPose(
+        // Dashboard input for driving to branch pose based on alliance side.
+        new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
+            .onTrue(Commands.runOnce(() -> {
+                drivebase.driveToPose(drivebase.findBranchPose(
                         0.5,
-                        (int) SmartDashboard.getNumber("TargetReefPose", 0),
+                        drivebase.targetReefBranch,
                         drivebase.isRedAlliance()
-                    )));
+                    )).schedule();    
+            }));
+                
 
-        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`
+        // Schedule `ExampleCommand` when `exampleCondition` changes to `true`.
         new Trigger(exampleSubsystem::exampleCondition)
             .onTrue(new ExampleCommand(exampleSubsystem));
 
-        // Schedule `exampleMethodCommand` when the Xbox Controller's B Button is pressed, cancelling on release
+        // Schedule `exampleMethodCommand` when the Xbox Controller's B Button is pressed, cancelling on release.
         driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
     }
 
