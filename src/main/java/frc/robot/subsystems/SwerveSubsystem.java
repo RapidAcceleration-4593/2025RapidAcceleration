@@ -32,15 +32,19 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.subsystems.VisionUtils.Cameras;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
 import java.util.function.Supplier;
 import org.json.simple.parser.ParseException;
+import org.photonvision.targeting.PhotonPipelineResult;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -81,8 +85,8 @@ public class SwerveSubsystem extends SubsystemBase {
             // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
             swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
                                                                         new Pose2d(new Translation2d(Meter.of(1),
-                                                                                                    Meter.of(4)),
-                                                                                    Rotation2d.fromDegrees(0)));
+                                                                                                     Meter.of(4)),
+                                                                                   Rotation2d.fromDegrees(0)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -90,8 +94,8 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setHeadingCorrection(false); // Heading correction should only be used while controlling the robot via angle.
         swerveDrive.setCosineCompensator(false);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
         swerveDrive.setAngularVelocityCompensation(true,
-                                                true,
-                                                0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
+                                                     true,
+                                          0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false,
                                                     1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
@@ -191,6 +195,26 @@ public class SwerveSubsystem extends SubsystemBase {
 
         // Preload PathPlanner PathFinding.
         PathfindingCommand.warmupCommand().schedule();
+    }
+
+    /**
+     * Aim the robot at the target returned by PhotonVision.
+     * @param camera The expected camera.
+     * @return A {@link Command} which will run the alignment.
+     */
+    public Command aimAtTarget(Cameras camera) {
+        return run(() -> {
+            Optional<PhotonPipelineResult> resultO = camera.getBestResult();
+            if (resultO.isPresent()) {
+                var result = resultO.get();
+                if (result.hasTargets()) {
+                    drive(getTargetSpeeds(0,
+                                          0,
+                                          Rotation2d.fromDegrees(result.getBestTarget()
+                                                                 .getYaw())));
+                }
+            }
+        });
     }
 
     /**
@@ -424,14 +448,14 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Command to characterize the robot drive motors using SysId
-     * @return SysId Drive Command
+     * Command to characterize the robot drive motors using SysId.
+     * @return SysId Drive Command.
      */
     public Command sysIdDriveMotorCommand() {
         return SwerveDriveTest.generateSysIdCommand(
             SwerveDriveTest.setDriveSysIdRoutine(
                 new Config(),
-                this, swerveDrive, 12),
+                this, swerveDrive, 12, true),
             3.0, 5.0, 3.0);
     }
 

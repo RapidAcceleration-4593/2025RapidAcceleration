@@ -7,6 +7,9 @@ package frc.robot;
 import java.io.File;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
@@ -57,7 +60,16 @@ public class RobotContainer {
                                                                 .scaleTranslation(1.0)
                                                                 .allianceRelativeControl(true);
 
+    /** Clones the angular velocity input stream and converts it to a fieldRelative input stream. */
+    SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(driverController::getRightX,
+                                                                                               driverController::getRightY)
+                                                                                            .headingWhile(true);
+
+    Command driveFieldOrientedDirectAngle = drivebase.driveFieldOriented(driveDirectAngle);
+
     Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+
+    Command driveSetpointGen = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle);
 
     SwerveInputStream driveAngularVelocitySim = SwerveInputStream.of(drivebase.getSwerveDrive(),
                                                                     () -> -driverController.getLeftY(),
@@ -66,13 +78,17 @@ public class RobotContainer {
                                                                   .deadband(OperatorConstants.DEADBAND)
                                                                   .scaleTranslation(0.8)
                                                                   .allianceRelativeControl(true);
-
+                                             
     SwerveInputStream driveDirectAngleSim = driveAngularVelocitySim.copy()
         .withControllerHeadingAxis(() -> Math.sin(driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2),
                                    () -> Math.cos(driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2))
         .headingWhile(true);
 
-    Command driveFieldOrientedDirectAngleSim = drivebase.driveFieldOriented(driveAngularVelocitySim);
+    Command driveFieldOrientedDirectAngleSim = drivebase.driveFieldOriented(driveDirectAngleSim);
+
+    Command driveFieldOrientedAngularVelocitySim = drivebase.driveFieldOriented(driveAngularVelocitySim);
+
+    Command driveSetpointGenSim = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleSim);
 
     public RobotContainer() {
         configureBindings();
@@ -83,9 +99,16 @@ public class RobotContainer {
         // (Condition) ? Return-On-True : Return-On-False.
         drivebase.setDefaultCommand(!RobotBase.isSimulation() ?
                                     driveFieldOrientedAngularVelocity :
-                                    driveFieldOrientedDirectAngleSim);
+                                    driveFieldOrientedAngularVelocitySim);
 
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+        driverController.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
+
+        driverController.b().whileTrue(
+            drivebase.driveToPose(
+                new Pose2d(new Translation2d(4, 4), Rotation2d.fromDegrees(0))
+            )
+        );
 
         // Dashboard input for driving to branch pose based on alliance side.
         new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
