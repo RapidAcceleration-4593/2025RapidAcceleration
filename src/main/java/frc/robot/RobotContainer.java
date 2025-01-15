@@ -16,10 +16,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.commands.ExampleCommand;
+// import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.auton.ExampleAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
-import frc.robot.subsystems.ExampleSubsystem;
+// import frc.robot.subsystems.ExampleSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -30,7 +30,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public final static SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-    private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
+    // private final ExampleSubsystem exampleSubsystem = new ExampleSubsystem();
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(0);
@@ -50,11 +50,11 @@ public class RobotContainer {
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                  () -> driverController.getLeftY() * 1,
-                                                                  () -> driverController.getLeftX() * 1)
-                                                                .withControllerRotationAxis(driverController::getRightX)
+                                                                  () -> driverController.getLeftY() * -1,
+                                                                  () -> driverController.getLeftX() * -1)
+                                                                .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
-                                                                .scaleTranslation(0.8)
+                                                                .scaleTranslation(1.0)
                                                                 .allianceRelativeControl(true);
 
     Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
@@ -96,14 +96,13 @@ public class RobotContainer {
                         drivebase.isRedAlliance()
                     )).schedule();    
             }));
-                
 
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`.
-        new Trigger(exampleSubsystem::exampleCondition)
-            .onTrue(new ExampleCommand(exampleSubsystem));
+        // new Trigger(exampleSubsystem::exampleCondition)
+        //     .onTrue(new ExampleCommand(exampleSubsystem));
 
         // Schedule `exampleMethodCommand` when the Xbox Controller's B Button is pressed, cancelling on release.
-        driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
+        // driverController.b().whileTrue(exampleSubsystem.exampleMethodCommand());
     }
 
     /**

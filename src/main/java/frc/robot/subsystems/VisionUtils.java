@@ -105,34 +105,34 @@ public class VisionUtils {
      * @param robotToCameraOffset The offset {@link Transform2d} of the robot to apply to the pose for the robot to position.
      * @return The target pose of the object detected by the camera.
      */
-    public static Optional<Pose2d> getObjectPose(Pose2d robotPose, Transform2d robotToCameraOffset) {
-        Optional<PhotonPipelineResult> latestResultOptional = Cameras.OBJECT_DETECTION.getLatestResult();
+    // public static Optional<Pose2d> getObjectPose(Pose2d robotPose, Transform2d robotToCameraOffset) {
+    //     Optional<PhotonPipelineResult> latestResultOptional = Cameras.OBJECT_DETECTION.getLatestResult();
         
-        if (latestResultOptional.isPresent()) {
-            PhotonTrackedTarget bestTarget = latestResultOptional.get().getBestTarget();
+    //     if (latestResultOptional.isPresent()) {
+    //         PhotonTrackedTarget bestTarget = latestResultOptional.get().getBestTarget();
 
-            if (bestTarget.getDetectedObjectConfidence() > 0.75) {
-                Transform3d cameraToTarget = bestTarget.getBestCameraToTarget();
+    //         if (bestTarget.getDetectedObjectConfidence() > 0.75) {
+    //             Transform3d cameraToTarget = bestTarget.getBestCameraToTarget();
 
-                // Translation and rotation of the object relative to the camera frame.
-                Translation3d translation = cameraToTarget.getTranslation();
-                Rotation2d rotation = cameraToTarget.getRotation().toRotation2d(); // 0, depending on shape.
-                Pose2d objectPoseInCamera = new Pose2d(translation.getX(), translation.getY(), rotation);
+    //             // Translation and rotation of the object relative to the camera frame.
+    //             Translation3d translation = cameraToTarget.getTranslation();
+    //             Rotation2d rotation = cameraToTarget.getRotation().toRotation2d(); // 0, depending on shape.
+    //             Pose2d objectPoseInCamera = new Pose2d(translation.getX(), translation.getY(), rotation);
 
-                // Convert the object pose from camera frame to robot frame.
-                Pose2d objectPoseInRobot = objectPoseInCamera.transformBy(robotToCameraOffset.inverse());
+    //             // Convert the object pose from camera frame to robot frame.
+    //             Pose2d objectPoseInRobot = objectPoseInCamera.transformBy(robotToCameraOffset.inverse());
 
-                // Transform from robot frame to global field coordinates.
-                Transform2d objectTransformFromRobot = new Transform2d(objectPoseInRobot.getTranslation(), objectPoseInRobot.getRotation());
+    //             // Transform from robot frame to global field coordinates.
+    //             Transform2d objectTransformFromRobot = new Transform2d(objectPoseInRobot.getTranslation(), objectPoseInRobot.getRotation());
 
-                // Return the object pose in global coordinates wrapped in an Optional.
-                return Optional.of(robotPose.transformBy(objectTransformFromRobot));
-            }
-        }
+    //             // Return the object pose in global coordinates wrapped in an Optional.
+    //             return Optional.of(robotPose.transformBy(objectTransformFromRobot));
+    //         }
+    //     }
         
-        // No object is detected or confidence is low, return an empty Optional.
-        return Optional.empty();
-    }
+    //     // No object is detected or confidence is low, return an empty Optional.
+    //     return Optional.empty();
+    // }
 
     /**
      * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.
@@ -299,20 +299,20 @@ public class VisionUtils {
     /** Camera Enum to select each camera. */
     enum Cameras {
         /** AprilTag Camera. */
-        APRIL_TAG("OV9281",
+        APRIL_TAG("Arducam_OV9281",
                 new Rotation3d(0, Units.degreesToRadians(0), 0),
-                new Translation3d(Units.inchesToMeters(12.0),
+                new Translation3d(Units.inchesToMeters(16.0),
                                   Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(16.129)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+                                  Units.inchesToMeters(12.5)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Object Detection Camera. */
-        OBJECT_DETECTION("PS4",
-                new Rotation3d(0, Units.degreesToRadians(30), Units.degreesToRadians(180)),
-                new Translation3d(Units.inchesToMeters(-12.0),
-                                  Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(16.129)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+        // OBJECT_DETECTION("PS4",
+        //         new Rotation3d(0, Units.degreesToRadians(30), Units.degreesToRadians(180)),
+        //         new Translation3d(Units.inchesToMeters(-12.0),
+        //                           Units.inchesToMeters(0.0),
+        //                           Units.inchesToMeters(16.129)),
+        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Latency alert to use when high latency is detected. */
         public final Alert latencyAlert;
