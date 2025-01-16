@@ -13,9 +13,11 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 // import frc.robot.commands.ExampleCommand;
 import frc.robot.commands.auton.ExampleAuton;
@@ -106,14 +108,14 @@ public class RobotContainer {
         );
 
         // Dashboard input for driving to branch pose based on alliance side.
-        // new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
-        //     .onTrue(Commands.runOnce(() -> {
-        //         drivebase.driveToPose(drivebase.findBranchPose(
-        //                 0.5,
-        //                 drivebase.targetReefBranch,
-        //                 drivebase.isRedAlliance()
-        //             )).schedule();    
-        //     }));
+        new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
+            .onTrue(Commands.runOnce(() -> {
+                drivebase.driveToPose(drivebase.findBranchPose(
+                        0.5,
+                        drivebase.targetReefBranch,
+                        drivebase.isRedAlliance()
+                    )).schedule();    
+            }));
 
         // Schedule `ExampleCommand` when `exampleCondition` changes to `true`.
         // new Trigger(exampleSubsystem::exampleCondition)
