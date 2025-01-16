@@ -17,6 +17,7 @@ import java.util.function.DoubleSupplier;
 import swervelib.SwerveController;
 import swervelib.math.SwerveMath;
 
+/** A more advanced Swerve Control System that has 4 buttons for which direction to face. */
 public class FieldCentricDrive extends Command {
     private final SwerveSubsystem swerve;
     private final DoubleSupplier  vX, vY;
