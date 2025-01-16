@@ -22,6 +22,7 @@ import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Robot;
 import java.awt.Desktop;
 import java.net.URI;
@@ -45,7 +46,7 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 /** Utility class for handling vision-related functions like Object Detection and AprilTag localization. */
 public class VisionUtils {
     /** AprilTag Field Layout of the year. */
-    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2024Crescendo);
+    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
 
     /** Ambiguity defined as a value between (0,1). Used in {@link VisionUtils#filterPose}. */
     private final double maximumAmbiguity = 0.25;
@@ -153,9 +154,12 @@ public class VisionUtils {
             Optional<EstimatedRobotPose> poseEst = getEstimatedGlobalPose(camera);
             if (poseEst.isPresent()) {
                 var pose = poseEst.get();
+                SmartDashboard.putString("TestBetter", pose.estimatedPose.toString());
                 swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
                                                  pose.timestampSeconds,
                                                  camera.curStdDevs);
+                // swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(), pose.timestampSeconds);
+                
             }
         }
     }
