@@ -53,8 +53,8 @@ public class RobotContainer {
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                  () -> -driverController.getLeftY(),
-                                                                  () -> -driverController.getLeftX())
+                                                                  () -> driverController.getLeftY(),
+                                                                  () -> driverController.getLeftX())
                                                                 .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
                                                                 .scaleTranslation(1.0)
@@ -114,7 +114,7 @@ public class RobotContainer {
         new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
             .onTrue(Commands.runOnce(() -> {
                 drivebase.driveToPose(drivebase.findBranchPose(
-                        0.5,
+                        1.25,
                         drivebase.targetReefBranch,
                         drivebase.isRedAlliance()
                     )).schedule();    

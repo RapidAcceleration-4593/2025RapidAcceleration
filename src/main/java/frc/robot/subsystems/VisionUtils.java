@@ -267,7 +267,7 @@ public class VisionUtils {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
                 Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
-                Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
+                // Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -303,7 +303,7 @@ public class VisionUtils {
                 new Rotation3d(0, Units.degreesToRadians(0), 0),
                 new Translation3d(Units.inchesToMeters(16.0),
                                   Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(12.5)),
+                                  Units.inchesToMeters(10.0)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Object Detection Camera. */
