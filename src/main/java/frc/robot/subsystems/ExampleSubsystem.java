@@ -31,9 +31,4 @@ public class ExampleSubsystem extends SubsystemBase {
         // Query some boolean state.
         return false;
     }
-
-    @Override
-    public void periodic() {
-        // This method will be called once per scheduler run.
-    }
 }

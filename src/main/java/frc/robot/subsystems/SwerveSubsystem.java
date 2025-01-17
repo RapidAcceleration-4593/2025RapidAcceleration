@@ -133,8 +133,14 @@ public class SwerveSubsystem extends SubsystemBase {
             swerveDrive.updateOdometry();
             vision.updatePoseEstimation(swerveDrive);
         }
+
         // SmartDashboard.putNumber("MatchTime", DriverStation.getMatchTime());
-        targetReefBranch = (int) SmartDashboard.getNumber("TargetReefBranch", 0);
+        
+        // Potentially minimizes unnecessary operations.
+        int newTargetReefBranch = (int) SmartDashboard.getNumber("TargetReefBranch", 0);
+        if (newTargetReefBranch != targetReefBranch) {
+            targetReefBranch = newTargetReefBranch;
+        }
     }
 
     @Override
