@@ -72,7 +72,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public int targetReefBranch;
 
     /** Match Time reflected by FMS. */
-    private double lastMatchTime = -1;
+    // private double lastMatchTime = -1;
 
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
@@ -102,7 +102,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                           0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false,
                                                     1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
-        // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
+        swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
         
         if (visionDriveTest) {
             setupPhotonVision();
@@ -138,11 +138,11 @@ public class SwerveSubsystem extends SubsystemBase {
             vision.updatePoseEstimation(swerveDrive);
         }
 
-        double currentMatchTime = DriverStation.getMatchTime();
-        if (currentMatchTime != lastMatchTime) {
-            SmartDashboard.putNumber("MatchTime", currentMatchTime);
-            lastMatchTime = currentMatchTime;
-        }
+        // double currentMatchTime = DriverStation.getMatchTime();
+        // if (currentMatchTime != lastMatchTime) {
+        //     SmartDashboard.putNumber("MatchTime", currentMatchTime);
+        //     lastMatchTime = currentMatchTime;
+        // }
 
         // Potentially minimizes unnecessary operations.
         int newTargetReefBranch = (int) SmartDashboard.getNumber("TargetReefBranch", 0);

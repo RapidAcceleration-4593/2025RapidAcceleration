@@ -302,7 +302,7 @@ public class VisionUtils {
         /** AprilTag Camera. */
         APRIL_TAG("Arducam_OV9281",
                 new Rotation3d(0, Units.degreesToRadians(0), 0),
-                new Translation3d(Units.inchesToMeters(16.0),
+                new Translation3d(Units.inchesToMeters(15.5),
                                   Units.inchesToMeters(0.0),
                                   Units.inchesToMeters(10.0)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));

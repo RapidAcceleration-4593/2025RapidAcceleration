@@ -47,12 +47,12 @@ public class RobotContainer {
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                  driverController::getRightY,
-                                                                  driverController::getRightX)
+                                                                  () -> -driverController.getLeftY(),
+                                                                  () -> -driverController.getLeftX())
                                                                 .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
                                                                 .scaleTranslation(1.0)
-                                                                .allianceRelativeControl(true);
+                                                                .allianceRelativeControl(false);
 
 
     /** Clones the angular velocity input stream and converts it to a fieldRelative input stream. */
@@ -98,7 +98,7 @@ public class RobotContainer {
                                     driveFieldOrientedAngularVelocity :
                                     driveFieldOrientedAngularVelocityKeyboard);
 
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+        driverController.a().onTrue(Commands.runOnce(drivebase::zeroGyro));
         driverController.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
 
         // Dashboard input for driving to branch pose based on alliance side.
@@ -108,7 +108,7 @@ public class RobotContainer {
                         0.5,
                         drivebase.targetReefBranch,
                         drivebase.isRedAlliance()
-                    )).schedule();    
+                    )).schedule();
             }));
     }
 
