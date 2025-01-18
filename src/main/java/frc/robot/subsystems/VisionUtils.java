@@ -75,8 +75,8 @@ public class VisionUtils {
             visionSim = new VisionSystemSim("Vision");
             visionSim.addAprilTags(fieldLayout);
 
-            for (Cameras c : Cameras.values()) {
-                c.addToVisionSim(visionSim);
+            for (Cameras camera : Cameras.values()) {
+                camera.addToVisionSim(visionSim);
             }
 
             openSimCameraViews();
@@ -277,11 +277,11 @@ public class VisionUtils {
     /** Update the {@link Field2d} to include tracked targets. */
     public void updateVisionField() {
         List<PhotonTrackedTarget> targets = new ArrayList<PhotonTrackedTarget>();
-        for (Cameras c : Cameras.values()) {
-            if (!c.resultsList.isEmpty()) {
-                PhotonPipelineResult latest = c.resultsList.get(0);
+        for (Cameras camera : Cameras.values()) {
+            if (!camera.resultsList.isEmpty()) {
+                PhotonPipelineResult latest = camera.resultsList.get(0);
                 if (latest.hasTargets()) {
-                targets.addAll(latest.targets);
+                    targets.addAll(latest.targets);
                 }
             }
         }
@@ -293,6 +293,7 @@ public class VisionUtils {
                 poses.add(targetPose);
             }
         }
+
         field2d.getObject("tracked targets").setPoses(poses);
     }
 
@@ -442,8 +443,8 @@ public class VisionUtils {
         /** Update the latest results, cached with a maximum refresh rate of 1req/15ms. Sorts the list by timestamp. */
         private void updateUnreadResults() {
             double mostRecentTimestamp = resultsList.isEmpty() ? 0.0 : resultsList.get(0).getTimestampSeconds();
-            double currentTimestamp    = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
-            double debounceTime        = Milliseconds.of(15).in(Seconds);
+            double currentTimestamp = Microseconds.of(NetworkTablesJNI.now()).in(Seconds);
+            double debounceTime = Milliseconds.of(15).in(Seconds);
             for (PhotonPipelineResult result : resultsList) {
                 mostRecentTimestamp = Math.max(mostRecentTimestamp, result.getTimestampSeconds());
             }

@@ -15,6 +15,7 @@ import com.pathplanner.lib.path.PathConstraints;
 import com.pathplanner.lib.util.DriveFeedforwards;
 import com.pathplanner.lib.util.swerve.SwerveSetpoint;
 import com.pathplanner.lib.util.swerve.SwerveSetpointGenerator;
+
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -70,6 +71,9 @@ public class SwerveSubsystem extends SubsystemBase {
     /** TargetReefBranch to be updated periodically through SmartDashboard. */
     public int targetReefBranch;
 
+    /** Match Time reflected by FMS. */
+    private double lastMatchTime = -1;
+
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
      * @param directory Directory of swerve drive config files.
@@ -98,7 +102,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                           0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setModuleEncoderAutoSynchronize(false,
                                                     1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
-        swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
+        // swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
         
         if (visionDriveTest) {
             setupPhotonVision();
@@ -134,17 +138,18 @@ public class SwerveSubsystem extends SubsystemBase {
             vision.updatePoseEstimation(swerveDrive);
         }
 
-        // SmartDashboard.putNumber("MatchTime", DriverStation.getMatchTime());
-        
+        double currentMatchTime = DriverStation.getMatchTime();
+        if (currentMatchTime != lastMatchTime) {
+            SmartDashboard.putNumber("MatchTime", currentMatchTime);
+            lastMatchTime = currentMatchTime;
+        }
+
         // Potentially minimizes unnecessary operations.
         int newTargetReefBranch = (int) SmartDashboard.getNumber("TargetReefBranch", 0);
         if (newTargetReefBranch != targetReefBranch) {
             targetReefBranch = newTargetReefBranch;
         }
     }
-
-    @Override
-    public void simulationPeriodic() {}
 
     /** Setup AutoBuilder for PathPlanner. */
     public void setupPathPlanner() {
@@ -419,8 +424,8 @@ public class SwerveSubsystem extends SubsystemBase {
                                                                                 swerveDrive.getMaximumChassisAngularVelocity());
         AtomicReference<SwerveSetpoint> prevSetpoint =
             new AtomicReference<>(new SwerveSetpoint(swerveDrive.getRobotVelocity(),
-                                                    swerveDrive.getStates(),
-                                                    DriveFeedforwards.zeros(swerveDrive.getModules().length)));
+                                                     swerveDrive.getStates(),
+                                                     DriveFeedforwards.zeros(swerveDrive.getModules().length)));
         AtomicReference<Double> previousTime = new AtomicReference<>();
 
         return startRun(() -> previousTime.set(Timer.getFPGATimestamp()),
@@ -517,13 +522,13 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveCommand(DoubleSupplier translationX, DoubleSupplier translationY, DoubleSupplier angularRotationX) {
         return run(() -> {
-        // Make the robot move
-        swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
-                                translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
-                                translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
-                            Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
-                            true,
-                            false);
+            // Make the robot move
+            swerveDrive.drive(SwerveMath.scaleTranslation(new Translation2d(
+                                    translationX.getAsDouble() * swerveDrive.getMaximumChassisVelocity(),
+                                    translationY.getAsDouble() * swerveDrive.getMaximumChassisVelocity()), 0.8),
+                                Math.pow(angularRotationX.getAsDouble(), 3) * swerveDrive.getMaximumChassisAngularVelocity(),
+                                true,
+                                false);
         });
     }
 
