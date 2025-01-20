@@ -75,12 +75,9 @@ public class Robot extends TimedRobot {
         if (disabledTimer.hasElapsed(Constants.DrivebaseConstants.WHEEL_LOCK_TIME)) {
             m_robotContainer.setMotorBrake(false);
             disabledTimer.stop();
+            disabledTimer.reset();
         }
     }
-
-    /** Called once when the robot exits Disabled mode. */
-    @Override
-    public void disabledExit() {}
 
     /** Runs the autonomous command selected in {@link RobotContainer} class. */
     @Override
@@ -93,15 +90,6 @@ public class Robot extends TimedRobot {
         }
     }
 
-    /** Called periodically during Autonomous mode. */
-    @Override
-    public void autonomousPeriodic() {}
-
-    /** Called once when the robot exits Autonomous mode. */
-    @Override
-    public void autonomousExit() {}
-
-    /** Called once when the robot enters Teleop mode. */
     @Override
     public void teleopInit() {
         // This makes sure that the autonomous stops running when teleop starts running.
@@ -114,33 +102,9 @@ public class Robot extends TimedRobot {
         }
     }
 
-    /** Called periodically during Teleop mode. */
-    @Override
-    public void teleopPeriodic() {}
-
-    /** Called once when the robot exits Teleop mode. */
-    @Override
-    public void teleopExit() {}
-
     /** Called once when the robot enters Test mode. */
     @Override
     public void testInit() {
         CommandScheduler.getInstance().cancelAll();
     }
-
-    /** Called periodically during Test mode. */
-    @Override
-    public void testPeriodic() {}
-
-    /** Called once when the robot exits Test mode. */
-    @Override
-    public void testExit() {}
-
-    /** Called once whent he robot is first started up. */
-    @Override
-    public void simulationInit() {}
-
-    /** Called periodically while in simulation */
-    @Override
-    public void simulationPeriodic() {}
 }

@@ -38,7 +38,6 @@ public class ExampleAuton extends AutonCommand {
                 AutoBuilder.followPath(paths.get(2)),
                 AutoBuilder.followPath(paths.get(3)),
                 AutoBuilder.followPath(paths.get(4))
-                // RobotContainer.drivebase.driveToBranchPose(8, RobotContainer.drivebase.isRedAlliance())
             )
         );
     }
