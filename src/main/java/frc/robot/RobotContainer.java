@@ -106,7 +106,7 @@ public class RobotContainer {
             .onTrue(Commands.runOnce(() -> {
                 drivebase.driveToPose(drivebase.findBranchPose(
                         0.5,
-                        drivebase.targetReefBranch,
+                        Robot.targetReefBranch,
                         drivebase.isRedAlliance()
                     )).schedule();
             }));

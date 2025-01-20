@@ -25,8 +25,8 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -65,32 +65,28 @@ public class SwerveSubsystem extends SubsystemBase {
     /** Enable vision odometry updates while driving. */
     private final boolean visionDriveTest = true;
 
+    private Notifier visionNotifier;
+
     /** PhotonVision class to keep an accurate odometry. */
     private VisionUtils vision;
-
-    /** TargetReefBranch to be updated periodically through SmartDashboard. */
-    public int targetReefBranch;
-
-    /** Match Time reflected by FMS. */
-    // private double lastMatchTime = -1;
 
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
      * @param directory Directory of swerve drive config files.
      */
     public SwerveSubsystem(File directory) {
-        // double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(18.75);
-        // double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 5.36);
+        double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(18.75);
+        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 5.36);
 
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
         try {
-            // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
-            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
-                                                                        new Pose2d(new Translation2d(Meter.of(1),
-                                                                                                     Meter.of(4)),
-                                                                                   Rotation2d.fromDegrees(0)));
+            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
+            // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
+            //                                                             new Pose2d(new Translation2d(Meter.of(1),
+            //                                                                                          Meter.of(4)),
+            //                                                                        Rotation2d.fromDegrees(0)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -103,11 +99,10 @@ public class SwerveSubsystem extends SubsystemBase {
         swerveDrive.setModuleEncoderAutoSynchronize(false,
                                                     1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
-        
+
         if (visionDriveTest) {
             setupPhotonVision();
-            // Stop the odometry thread if we are using vision that way we can synchronize updates better.
-            swerveDrive.stopOdometryThread();
+            swerveDrive.stopOdometryThread(); // Stop the odometry thread if we are using vision that way we can synchronize updates better.
         }
         setupPathPlanner();
     }
@@ -128,27 +123,12 @@ public class SwerveSubsystem extends SubsystemBase {
     /** Setup the photon vision class. */
     public void setupPhotonVision() {
         vision = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
-    }
 
-    @Override
-    public void periodic() {
-        // When vision is enabled we must manually update odometry in SwerveDrive
-        if (visionDriveTest) {
+        visionNotifier = new Notifier(() -> {
             swerveDrive.updateOdometry();
             vision.updatePoseEstimation(swerveDrive);
-        }
-
-        // double currentMatchTime = DriverStation.getMatchTime();
-        // if (currentMatchTime != lastMatchTime) {
-        //     SmartDashboard.putNumber("MatchTime", currentMatchTime);
-        //     lastMatchTime = currentMatchTime;
-        // }
-
-        // Potentially minimizes unnecessary operations.
-        int newTargetReefBranch = (int) SmartDashboard.getNumber("TargetReefBranch", 0);
-        if (newTargetReefBranch != targetReefBranch) {
-            targetReefBranch = newTargetReefBranch;
-        }
+        });
+        visionNotifier.startPeriodic(0.02); // 20ms Interval.
     }
 
     /** Setup AutoBuilder for PathPlanner. */
