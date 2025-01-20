@@ -68,11 +68,12 @@ public class Robot extends TimedRobot {
                 SmartDashboard.putNumber("MatchTime", currentMatchTime);
                 lastMatchTime = currentMatchTime;
             }
-            
+
+            // Flushes all updated values. 
             NetworkTableInstance.getDefault().flush();
         });
 
-        // Start the Notifier to run every 0.1 seconds (200ms).
+        // Start the Notifier to run every 0.2 seconds (200ms).
         dashboardNotifier.startPeriodic(0.2);
     }
 
