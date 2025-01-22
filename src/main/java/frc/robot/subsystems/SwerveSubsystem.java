@@ -32,14 +32,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.VisionUtils.Cameras;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.DoubleSupplier;
@@ -59,12 +56,13 @@ import swervelib.telemetry.SwerveDriveTelemetry.TelemetryVerbosity;
 
 public class SwerveSubsystem extends SubsystemBase {
 
-    /** Swerve drive object. */
+    /** Swerve Drive Object. */
     private final SwerveDrive swerveDrive;
     
-    /** Enable vision odometry updates while driving. */
+    /** Enable Vision Odometry updates while driving. */
     private final boolean visionDriveTest = true;
 
+    /** Vision Notifier for updating odometry. */
     private Notifier visionNotifier;
 
     /** PhotonVision class to keep an accurate odometry. */
@@ -75,18 +73,18 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param directory Directory of swerve drive config files.
      */
     public SwerveSubsystem(File directory) {
-        double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(18.75);
-        double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 5.36);
+        // double angleConversionFactor = SwerveMath.calculateDegreesPerSteeringRotation(18.75);
+        // double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 5.36);
 
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
         SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
         try {
-            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
-            // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
-            //                                                             new Pose2d(new Translation2d(Meter.of(1),
-            //                                                                                          Meter.of(4)),
-            //                                                                        Rotation2d.fromDegrees(0)));
+            // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
+            swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
+                                                                        new Pose2d(new Translation2d(Meter.of(1),
+                                                                                                     Meter.of(4)),
+                                                                                   Rotation2d.fromDegrees(0)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -123,7 +121,7 @@ public class SwerveSubsystem extends SubsystemBase {
     /** Setup the photon vision class. */
     public void setupPhotonVision() {
         vision = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
-
+    
         visionNotifier = new Notifier(() -> {
             swerveDrive.updateOdometry();
             vision.updatePoseEstimation(swerveDrive);
@@ -206,171 +204,6 @@ public class SwerveSubsystem extends SubsystemBase {
                 }
             }
         });
-    }
-
-    /**
-     * Calculates the robot pose offsets of each branch around the reef.
-     * <p>
-     * The method generates 12 poses around the reef: 2 poses per side. Each pose is offset
-     * from the branches that extend from the reef. The robot's heading is calculated to face
-     * the center of the reef for each pose.
-     * @param distanceToReef The distance of {@link Pose2d} objects representing the robot's
-     *                       center to the reef, in meters. This is the adjustable offset for
-     *                       the robot's position. 
-     * @return               A list of {@link Pose2d} objects representing the robot's position
-     *                       and orientation offsets around the hexagonal reef.
-     * @throws IllegalArgumentException If the distance is not between 0.4 and 1.5 (inclusive).
-     */
-    public static List<Pose2d> getReefBranchOffsets(double distanceToReef) {
-        // Validate distance is within the valid range, in meters.
-        if (distanceToReef < 0.4 || distanceToReef > 1.5) {
-            throw new IllegalArgumentException("Distance must be between 1.2 and 3.0. Provided: " + distanceToReef);
-        }
-
-        List<Pose2d> poses = new ArrayList<>();
-
-        // Hexagon parameters.
-        int numSides = 6;
-        double radius = 0.83185; // Meters.
-        double branchOffset = 0.1651; // Meters.
-        double angleIncrement = Math.toRadians(360.0 / numSides);
-
-        // Loop through each side of the hexagon.
-        for (int i = 0; i < numSides; i++) {
-            // Midpoint angle for each side.
-            double sideAngle = i * angleIncrement;
-
-            // Midpoint of the current hexagon side.
-            double midX = radius * Math.cos(sideAngle);
-            double midY = radius * Math.sin(sideAngle);
-
-            // Heading angle to face the cneter of the hexagon.
-            double headingAngle = Math.atan2(-midY, -midX);
-
-            // Vector components along the side direction.
-            double sideDirX = -Math.sin(sideAngle); // Perpendicular to the normal side.
-            double sideDirY = Math.cos(sideAngle);
-
-            // Calculate branch positions.
-            double branch1X = midX + branchOffset * sideDirX;
-            double branch1Y = midY + branchOffset * sideDirY;
-
-            double branch2X = midX - branchOffset * sideDirX;
-            double branch2Y = midY - branchOffset * sideDirY;
-
-            // Offset outward from each branch to determine robot's poses.
-            double pose1X = branch1X + distanceToReef * Math.cos(sideAngle);
-            double pose1Y = branch1Y + distanceToReef * Math.sin(sideAngle);
-
-            double pose2X = branch2X + distanceToReef * Math.cos(sideAngle);
-            double pose2Y = branch2Y + distanceToReef * Math.sin(sideAngle);
-
-            poses.add(new Pose2d(new Translation2d(pose2X, pose2Y), new Rotation2d(headingAngle)));
-            poses.add(new Pose2d(new Translation2d(pose1X, pose1Y), new Rotation2d(headingAngle)));
-        }
-
-        return poses;
-    }
-
-    /**
-     * Finds the pose of a specific branch with a specified offset distance and alliance side.
-     * @param distanceToReef The distance from the reef side to the intended center robot pose.
-     * @param targetBranch   The specified branch of the reef to target.
-     * @param isRedAlliance  Conditional of if the robot is on the red alliance or not.
-     * @return The target robot pose for scoring on a specified branch at the alliance's reef.
-     */
-    public Pose2d findBranchPose(double distanceToReef, int targetBranch, boolean isRedAlliance) {
-        if (targetBranch < 1 || targetBranch > 12) {
-            throw new IllegalArgumentException("TargetBranch must be between 1 and 12.");
-        }
-
-        // Convert targetBranch to zero-based index.
-        int branchIndex = targetBranch - 1;
-
-        // Get the base reef position for the specified alliance.
-        double[] basePose = isRedAlliance
-            ? FieldConstants.RED_REEF_POSE
-            : FieldConstants.BLUE_REEF_POSE;
-
-        // Get the offsets for all reef branches.
-        List<Pose2d> reefBranchOffsets = getReefBranchOffsets(distanceToReef);
-
-        // Get the target branch offset.
-        Pose2d offsetPose = reefBranchOffsets.get(branchIndex);
-
-        // Transform the offset pose to the global field position.
-        double transformedX = basePose[0] + offsetPose.getX();
-        double transformedY = basePose[1] + offsetPose.getY();
-        Rotation2d transformedHeading = offsetPose.getRotation();
-
-        // Transformed pose from calculations above.
-        return new Pose2d(new Translation2d(transformedX, transformedY), transformedHeading);
-    }
-
-    /**
-     * Calculate the robot's Pose2d based on the alliance color, a specified side, and
-     * a given distance from the center of the reef.
-     * @param robotPose                 The current global pose of the robot.
-     * @param isRedAlliance             Indicates if the robot is on the red alliance.
-     * @param distanceOffset            Distance between the center of the reef and desired
-     *                                  robot pose, between 1.2 and 3.0, in meters.
-     * @return                          A {@link Pose2d} object representing the calculated
-     *                                  closest position and orientation of a reef.
-     * @throws IllegalArgumentException If the provided side is not between 1 and 6, or
-     *                                  if the distance is not between 1.2 and 3.0 (inclusive).
-     */
-    public Pose2d findClosestReefSidePose(Pose2d robotPose, boolean isRedAlliance, double distanceOffset) {
-        // Validate distance is within the valid range, in meters.
-        if (distanceOffset < 1.2 || distanceOffset > 3.0) {
-            throw new IllegalArgumentException("Distance must be between 1.2 and 3.0. Provided: " + distanceOffset);
-        }
-
-        double minDistance = Double.MAX_VALUE; // Initial, large number.
-        Pose2d closestPose = null;
-
-        // Iterate through all sides (1 through 6) of the reef.
-        for (int side = 1; side <= 6; side++) {
-            double rotationDegrees = 60 * (side - 1); // Calculate rotation in degrees based on the side selected.
-            double rotationRadians = Math.toRadians(rotationDegrees + 180); // Convert rotation, plus 180, to radians for calculations.
-
-            // Calculate horizontal and vertical offsets using trigonometry.
-            double horizontalOffset = distanceOffset * Math.cos(rotationRadians);
-            double verticalOffset = distanceOffset * Math.sin(rotationRadians);
-
-            // Select the appropriate reef position based on alliance color.
-            double[] allianceReef = isRedAlliance ? FieldConstants.RED_REEF_POSE : FieldConstants.BLUE_REEF_POSE;
-
-            // Calculate the final position with offsets.
-            double xPosition = allianceReef[0] + horizontalOffset;
-            double yPosition = allianceReef[1] + verticalOffset;
-
-            // Calculate pose for the current side.
-            Pose2d sidePose = new Pose2d(xPosition, yPosition, Rotation2d.fromDegrees(rotationDegrees));
-
-            // Calculate distance from the robot's pose to the side's pose.
-            double distance = calculatePoseDistance(robotPose, sidePose);
-
-            // Check if current pose is closer than previous closest.
-            if (distance < minDistance) {
-                minDistance = distance;
-                closestPose = sidePose;
-            }
-        }
-
-        return closestPose;
-    }
-
-    /**
-     * Calculates the Euclidean distance between two poses.
-     * @param pose1 The first pose.
-     * @param pose2 The second pose.
-     * @return      The distance between the two poses.
-     */
-    private double calculatePoseDistance(Pose2d pose1, Pose2d pose2) {
-        double dx = pose1.getX() - pose2.getX();
-        double dy = pose1.getY() - pose2.getY();
-
-        return Math.hypot(dx, dy);
     }
 
     /**

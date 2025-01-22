@@ -19,6 +19,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.ExampleAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.PoseNavigator;
 import swervelib.SwerveInputStream;
 
 /**
@@ -28,6 +29,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public final static SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public final PoseNavigator poseNavigator = new PoseNavigator();
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(0);
@@ -104,11 +106,8 @@ public class RobotContainer {
         // Dashboard input for driving to branch pose based on alliance side.
         new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
             .onTrue(Commands.runOnce(() -> {
-                drivebase.driveToPose(drivebase.findBranchPose(
-                        0.5,
-                        Robot.targetReefBranch,
-                        drivebase.isRedAlliance()
-                    )).schedule();
+                drivebase.driveToPose(poseNavigator.foo()
+                ).schedule();
             }));
     }
 

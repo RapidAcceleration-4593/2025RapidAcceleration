@@ -4,12 +4,9 @@
 
 package frc.robot;
 
-import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -24,14 +21,6 @@ public class Robot extends TimedRobot {
     private RobotContainer m_robotContainer;
 
     private Timer disabledTimer;
-
-    private Notifier dashboardNotifier;
-
-    /** TargetReefBranch to be updated periodically through SmartDashboard. */
-    public static int targetReefBranch;
-
-    /** Match Time reflected by FMS. */
-    private int lastMatchTime = -1;
 
     public Robot() {
         instance = this;
@@ -54,27 +43,6 @@ public class Robot extends TimedRobot {
         if (isSimulation()) {
             DriverStation.silenceJoystickConnectionWarning(true);
         }
-
-        // Create a Dashboard Notifier.
-        dashboardNotifier = new Notifier(() -> {
-            // Update SmartDashboard periodically, separate from Command Scheduler.
-            int newTargetReefBranch = (int) SmartDashboard.getNumber("TargetReefBranch", 0);
-            if (newTargetReefBranch != targetReefBranch) {
-                targetReefBranch = newTargetReefBranch;
-            }
-
-            int currentMatchTime = (int) DriverStation.getMatchTime();
-            if (currentMatchTime != lastMatchTime) {
-                SmartDashboard.putNumber("MatchTime", currentMatchTime);
-                lastMatchTime = currentMatchTime;
-            }
-
-            // Flushes all updated values. 
-            NetworkTableInstance.getDefault().flush();
-        });
-
-        // Start the Notifier to run every 0.2 seconds (200ms).
-        dashboardNotifier.startPeriodic(0.2);
     }
 
     /**
@@ -99,8 +67,6 @@ public class Robot extends TimedRobot {
         m_robotContainer.setMotorBrake(true);
         disabledTimer.reset();
         disabledTimer.start();
-
-        dashboardNotifier.stop();
     }
 
     /** Called periodically during Disabled mode. */

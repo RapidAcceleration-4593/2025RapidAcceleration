@@ -62,7 +62,7 @@ public class AutonUtils {
      * @param position The position to flip.
      * @return The flipped position.
      */
-    private static Translation2d flipFieldPosition(Translation2d position) {
+    public static Translation2d flipFieldPosition(Translation2d position) {
         return new Translation2d(FieldConstants.FIELD_LENGTH - position.getX(), position.getY());
     }
 
@@ -80,7 +80,7 @@ public class AutonUtils {
      * @param pose The pose to flip.
      * @return The flipped pose.
      */
-    private static Pose2d flipFieldPose(Pose2d pose) {
+    public static Pose2d flipFieldPose(Pose2d pose) {
         return new Pose2d(flipFieldPosition(pose.getTranslation()), flipFieldRotation(pose.getRotation()));
     }
 
