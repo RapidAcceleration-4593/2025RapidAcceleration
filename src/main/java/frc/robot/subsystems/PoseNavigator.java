@@ -50,7 +50,7 @@ public class PoseNavigator extends SubsystemBase {
         dashboardNotifier.startPeriodic(0.2);
     }
 
-    public Pose2d foo() {
+    public Pose2d executeDashboardCommand() {
         return selectTargetDashboardPose(targetDashboardPose, isRedAlliance());
     }
 
@@ -143,7 +143,7 @@ public class PoseNavigator extends SubsystemBase {
                 default -> throw new IllegalArgumentException("Invalid chute: " + targetID);
             };
         }
-        return findReefBranchPose(0.5, targetID, isRedAlliance);
+        return findReefBranchPose(0.75, targetID, isRedAlliance);
     }
 
     private Pose2d findReefBranchPose(double distanceToReef, int targetID, boolean isRedAlliance) {
@@ -182,7 +182,7 @@ public class PoseNavigator extends SubsystemBase {
      * @throws IllegalArgumentException If the provided side is not between 1 and 6, or
      *                                  if the distance is not between 1.2 and 3.0 (inclusive).
      */
-    public Pose2d findClosestReefSidePose(Pose2d robotPose, boolean isRedAlliance, double distanceOffset) {
+    public Pose2d calculateNearestReefSidePose(Pose2d robotPose, boolean isRedAlliance, double distanceOffset) {
         // Validate distance is within the valid range, in meters.
         if (distanceOffset < 1.2 || distanceOffset > 3.0) {
             throw new IllegalArgumentException("Distance must be between 1.2 and 3.0. Provided: " + distanceOffset);
@@ -240,7 +240,7 @@ public class PoseNavigator extends SubsystemBase {
      * Checks if the alliance is red, defaults to false if alliance isn't available.
      * @return true if the red alliance, false if blue. Defaults to false if none is available.
      */
-    public boolean isRedAlliance() {
+    private boolean isRedAlliance() {
         var alliance = DriverStation.getAlliance();
         return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
     }

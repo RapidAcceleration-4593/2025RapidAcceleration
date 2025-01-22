@@ -106,7 +106,8 @@ public class RobotContainer {
         // Dashboard input for driving to branch pose based on alliance side.
         new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
             .onTrue(Commands.runOnce(() -> {
-                drivebase.driveToPose(poseNavigator.foo()
+                drivebase.driveToPose(
+                    poseNavigator.executeDashboardCommand()
                 ).schedule();
             }));
     }
