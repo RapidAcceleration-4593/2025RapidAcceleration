@@ -13,12 +13,8 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FieldConstants;
-import frc.robot.RobotContainer;
 
 public class PoseNavigator extends SubsystemBase {
-
-    /** SwerveSubsystem Object. */
-    private static final SwerveSubsystem drivebase = RobotContainer.drivebase;
 
     /** Notifier for Custom Dashboard. */
     private Notifier dashboardNotifier;
@@ -61,8 +57,8 @@ public class PoseNavigator extends SubsystemBase {
      * Selects the target pose from the dashboard based on the target pose ID.
      * @return The selected target pose.
      */
-    public Pose2d selectTargetPose() {
-        return getPoseFromDashboardState(targetDashboardPose, drivebase.isRedAlliance());
+    public Pose2d selectTargetPose(double distanceToReef, boolean isRedAlliance) {
+        return getPoseFromDashboardState(targetDashboardPose, distanceToReef, isRedAlliance);
     }
 
     /**
@@ -123,11 +119,11 @@ public class PoseNavigator extends SubsystemBase {
      * @param isRedAlliance Whether the robot is on the red alliance.
      * @return The target pose corresponding to the target ID.
      */
-    public Pose2d getPoseFromDashboardState(int targetID, boolean isRedAlliance) {
+    public Pose2d getPoseFromDashboardState(int targetID, double distanceToReef, boolean isRedAlliance) {
         if (targetID >= 13 && targetID <= 36) {
             return selectChutePose(targetID);
         }
-        return calculateReefPose(0.5, targetID, isRedAlliance);
+        return calculateReefPose(distanceToReef, targetID, isRedAlliance);
     }
 
     /**

@@ -337,7 +337,7 @@ public class VisionUtils {
         public Matrix<N3, N1> curStdDevs;
 
         /** Estimated robot pose. */
-        public Optional<EstimatedRobotPose> estimatedRobotPose;
+        public Optional<EstimatedRobotPose> estimatedRobotPose = Optional.empty();
 
         /** Simulated camera instance which only exists during simulations. */
         public PhotonCameraSim cameraSim;

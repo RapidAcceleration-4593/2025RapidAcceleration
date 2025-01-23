@@ -53,7 +53,8 @@ public class RobotContainer {
                                                                   () -> -driverController.getLeftX())
                                                                 .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
-                                                                .scaleTranslation(1.0)
+                                                                .scaleTranslation(0.8)
+                                                                .headingOffset(false)
                                                                 .allianceRelativeControl(false);
 
 
@@ -105,8 +106,11 @@ public class RobotContainer {
 
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
-                drivebase.driveToPose(poseNavigator.selectTargetPose()).schedule();
+                drivebase.driveToPose(poseNavigator.selectTargetPose(0.7, drivebase.isRedAlliance())).schedule();
             }));
+
+        driverController.leftTrigger()
+            .whileFalse(Commands.none());
     }
 
     /**
