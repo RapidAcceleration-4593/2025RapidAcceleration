@@ -30,37 +30,29 @@ public class PoseNavigator extends SubsystemBase {
      * Initializes the notifier that updates the SmartDashboard periodically.
      */
     public PoseNavigator() {
-        dashboardNotifier = new Notifier(this::updateDashboard);
-        dashboardNotifier.startPeriodic(0.2); // Run every 200ms.
+        dashboardNotifier = new Notifier(() -> {
+            // Update SmartDashboard periodically, separate from Command Scheduler.
+            int newTargetReefBranch = (int) SmartDashboard.getNumber("TargetDashboardPose", 0);
+            if (newTargetReefBranch != targetDashboardPose) {
+             targetDashboardPose = newTargetReefBranch;
+            }
+ 
+            int currentMatchTime = (int) DriverStation.getMatchTime();
+            if (currentMatchTime != lastMatchTime) {
+                SmartDashboard.putNumber("MatchTime", currentMatchTime);
+                lastMatchTime = currentMatchTime;
+            }
+ 
+            // Flushes all updated values. 
+            NetworkTableInstance.getDefault().flush();
+        });
+ 
+        // Start the Notifier to run every 0.2 seconds (200ms).
+        dashboardNotifier.startPeriodic(0.2);
     }
 
-    /**
-     * Periodically updates the target pose and match time on the SmartDashboard.
-     * This method is called by the Notifier.
-     */
-    private void updateDashboard() {
-        int newTargetPose = (int) SmartDashboard.getNumber("TargetDashboardPose", 0);
-        if (newTargetPose != targetDashboardPose) {
-            targetDashboardPose = newTargetPose;
-        }
-
-        int currentMatchTime = (int) DriverStation.getMatchTime();
-        if (currentMatchTime != lastMatchTime) {
-            SmartDashboard.putNumber("MatchTime", currentMatchTime);
-            lastMatchTime = currentMatchTime;
-        }
-
-        NetworkTableInstance.getDefault().flush(); // Push updates to NetworkTable.
-    }
-
-    /**
-     * Selects the target pose based on the current dashboard state and alliance side.
-     * @param distanceToReef The distance from the robot's center to the reef, in meters.
-     * @param isRedAlliance Whether the robot is on the red alliance.
-     * @return The selected target {@link Pose2d} based on the current target dashboard pose.
-     */
-    public Pose2d selectTargetPose(double distanceToReef, boolean isRedAlliance) {
-        return getPoseFromDashboardState(targetDashboardPose, distanceToReef, isRedAlliance);
+    public Pose2d foo() {
+        return selectTargetDashboardPose(targetDashboardPose, isRedAlliance());
     }
 
     /**
@@ -145,24 +137,19 @@ public class PoseNavigator extends SubsystemBase {
             case 17 -> FieldConstants.TOP_RED_CHUTE_MIDDLE;
             case 18 -> FieldConstants.TOP_RED_CHUTE_LEFT;
 
-            case 31 -> FieldConstants.TOP_BLUE_CHUTE_RIGHT;
-            case 32 -> FieldConstants.TOP_BLUE_CHUTE_MIDDLE;
-            case 33 -> FieldConstants.TOP_BLUE_CHUTE_LEFT;
-            case 34 -> FieldConstants.BOTTOM_BLUE_CHUTE_RIGHT;
-            case 35 -> FieldConstants.BOTTOM_BLUE_CHUTE_MIDDLE;
-            case 36 -> FieldConstants.BOTTOM_BLUE_CHUTE_LEFT;
-            default -> throw new IllegalArgumentException("Unable to select valid Coral Station Chute. Invalid Chute: #" + targetID);
-        };
+                case 31 -> FieldConstants.TOP_BLUE_CHUTE_RIGHT;
+                case 32 -> FieldConstants.TOP_BLUE_CHUTE_MIDDLE;
+                case 33 -> FieldConstants.TOP_BLUE_CHUTE_LEFT;
+                case 34 -> FieldConstants.BOTTOM_BLUE_CHUTE_RIGHT;
+                case 35 -> FieldConstants.BOTTOM_BLUE_CHUTE_MIDDLE;
+                case 36 -> FieldConstants.BOTTOM_BLUE_CHUTE_LEFT;
+                default -> throw new IllegalArgumentException("Invalid chute: " + targetID);
+            };
+        }
+        return findReefBranchPose(0.5, targetID, isRedAlliance);
     }
 
-    /**
-     * Calculates the pose of a specific branch at the reef with a given offset.
-     * @param distanceToReef The distance to the reef.
-     * @param targetID The branch ID.
-     * @param isRedAlliance Whether the robot is on the red alliance.
-     * @return The calculated {@link Pose2d} for the target branch.
-     */
-    private Pose2d calculateReefPose(double distanceToReef, int targetID, boolean isRedAlliance) {
+    private Pose2d findReefBranchPose(double distanceToReef, int targetID, boolean isRedAlliance) {
         // Convert targetBranch to zero-based index.
         int branchIndex = targetID - 1;
 
@@ -182,5 +169,80 @@ public class PoseNavigator extends SubsystemBase {
 
         // Transformed pose from calculations above.
         return new Pose2d(new Translation2d(transformedX, transformedY), transformedHeading);
+    }
+
+    /**
+     * Calculate the robot's Pose2d based on the alliance color, a specified side, and
+     * a given distance from the center of the reef.
+     * @param robotPose                 The current global pose of the robot.
+     * @param isRedAlliance             Indicates if the robot is on the red alliance.
+     * @param distanceOffset            Distance between the center of the reef and desired
+     *                                  robot pose, between 1.2 and 3.0, in meters.
+     * @return                          A {@link Pose2d} object representing the calculated
+     *                                  closest position and orientation of a reef.
+     * @throws IllegalArgumentException If the provided side is not between 1 and 6, or
+     *                                  if the distance is not between 1.2 and 3.0 (inclusive).
+     */
+    public Pose2d findClosestReefSidePose(Pose2d robotPose, boolean isRedAlliance, double distanceOffset) {
+        // Validate distance is within the valid range, in meters.
+        if (distanceOffset < 1.2 || distanceOffset > 3.0) {
+            throw new IllegalArgumentException("Distance must be between 1.2 and 3.0. Provided: " + distanceOffset);
+        }
+
+        double minDistance = Double.MAX_VALUE; // Initial, large number.
+        Pose2d closestPose = null;
+
+        // Iterate through all sides (1 through 6) of the reef.
+        for (int side = 1; side <= 6; side++) {
+            double rotationDegrees = 60 * (side - 1); // Calculate rotation in degrees based on the side selected.
+            double rotationRadians = Math.toRadians(rotationDegrees + 180); // Convert rotation, plus 180, to radians for calculations.
+
+            // Calculate horizontal and vertical offsets using trigonometry.
+            double horizontalOffset = distanceOffset * Math.cos(rotationRadians);
+            double verticalOffset = distanceOffset * Math.sin(rotationRadians);
+
+            // Select the appropriate reef position based on alliance color.
+            double[] allianceReef = isRedAlliance ? FieldConstants.RED_REEF_POSE : FieldConstants.BLUE_REEF_POSE;
+
+            // Calculate the final position with offsets.
+            double xPosition = allianceReef[0] + horizontalOffset;
+            double yPosition = allianceReef[1] + verticalOffset;
+
+            // Calculate pose for the current side.
+            Pose2d sidePose = new Pose2d(xPosition, yPosition, Rotation2d.fromDegrees(rotationDegrees));
+
+            // Calculate distance from the robot's pose to the side's pose.
+            double distance = calculatePoseDistance(robotPose, sidePose);
+
+            // Check if current pose is closer than previous closest.
+            if (distance < minDistance) {
+                minDistance = distance;
+                closestPose = sidePose;
+            }
+        }
+
+        return closestPose;
+    }
+
+    /**
+     * Calculates the Euclidean distance between two poses.
+     * @param pose1 The first pose.
+     * @param pose2 The second pose.
+     * @return      The distance between the two poses.
+     */
+    private double calculatePoseDistance(Pose2d pose1, Pose2d pose2) {
+        double dx = pose1.getX() - pose2.getX();
+        double dy = pose1.getY() - pose2.getY();
+
+        return Math.hypot(dx, dy);
+    }
+
+    /**
+     * Checks if the alliance is red, defaults to false if alliance isn't available.
+     * @return true if the red alliance, false if blue. Defaults to false if none is available.
+     */
+    public boolean isRedAlliance() {
+        var alliance = DriverStation.getAlliance();
+        return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
     }
 }

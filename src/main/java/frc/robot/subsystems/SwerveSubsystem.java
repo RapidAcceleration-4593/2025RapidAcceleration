@@ -25,6 +25,7 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -59,7 +60,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
     
     /** Enable Vision Odometry updates while driving. */
-    private final boolean driveWithVision = true;
+    private final boolean visionDriveTest = true;
+
+    /** Vision Notifier for updating odometry. */
+    private Notifier visionNotifier;
 
     /** PhotonVision class to keep an accurate odometry. */
     private VisionUtils visionUtils;
@@ -116,16 +120,13 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Setup the photon vision class. */
     public void setupPhotonVision() {
-        visionUtils = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
-    }
-
-    @Override
-    public void periodic() {
-        // When vision is enabled, we must manually update odometry in SwerveDrive.
-        if (driveWithVision) {
+        vision = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
+    
+        visionNotifier = new Notifier(() -> {
             swerveDrive.updateOdometry();
-            visionUtils.updatePoseEstimation(swerveDrive);
-        }
+            vision.updatePoseEstimation(swerveDrive);
+        });
+        visionNotifier.startPeriodic(0.02); // 20ms Interval.
     }
 
     /** Setup AutoBuilder for PathPlanner. */
