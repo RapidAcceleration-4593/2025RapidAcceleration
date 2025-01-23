@@ -103,11 +103,9 @@ public class RobotContainer {
         driverController.a().onTrue(Commands.runOnce(drivebase::zeroGyro));
         driverController.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
 
-        // Dashboard input for driving to branch pose based on alliance side.
-        new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
-            .onTrue(Commands.runOnce(() -> {
-                drivebase.driveToPose(poseNavigator.foo()
-                ).schedule();
+        driverController.leftTrigger()
+            .whileTrue(Commands.runOnce(() -> {
+                drivebase.driveToPose(poseNavigator.selectTargetPose()).schedule();
             }));
     }
 
