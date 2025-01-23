@@ -25,7 +25,6 @@ import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -60,13 +59,10 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
     
     /** Enable Vision Odometry updates while driving. */
-    private final boolean visionDriveTest = true;
-
-    /** Vision Notifier for updating odometry. */
-    private Notifier visionNotifier;
+    private final boolean driveWithVision = true;
 
     /** PhotonVision class to keep an accurate odometry. */
-    private VisionUtils vision;
+    private VisionUtils visionUtils;
 
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
@@ -98,7 +94,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                                     1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
 
-        if (visionDriveTest) {
+        if (driveWithVision) {
             setupPhotonVision();
             swerveDrive.stopOdometryThread(); // Stop the odometry thread if we are using vision that way we can synchronize updates better.
         }
@@ -120,13 +116,16 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Setup the photon vision class. */
     public void setupPhotonVision() {
-        vision = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
-    
-        visionNotifier = new Notifier(() -> {
+        visionUtils = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
+    }
+
+    @Override
+    public void periodic() {
+        // When vision is enabled, we must manually update odometry in SwerveDrive.
+        if (driveWithVision) {
             swerveDrive.updateOdometry();
-            vision.updatePoseEstimation(swerveDrive);
-        });
-        visionNotifier.startPeriodic(0.02); // 20ms Interval.
+            visionUtils.updatePoseEstimation(swerveDrive);
+        }
     }
 
     /** Setup AutoBuilder for PathPlanner. */

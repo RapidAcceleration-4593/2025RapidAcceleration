@@ -51,7 +51,7 @@ public class VisionUtils {
     private final double maximumAmbiguity = 0.25;
 
     /** PhotonVision Simulation. */
-    public VisionSystemSim visionSim;
+    private VisionSystemSim visionSim;
 
     /** Count of times that the odom thinks we're more than 10meters away from the april tag. */
     private double longDistangePoseEstimationCount = 0;

@@ -8,13 +8,13 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.RobotContainer;
+import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
 
-    /** SwerveSubsystem object. */
+    /** SwerveSubsystem Object. */
     private static final SwerveSubsystem drivebase = RobotContainer.drivebase;
 
     /**
@@ -62,7 +62,7 @@ public class AutonUtils {
      * @param position The position to flip.
      * @return The flipped position.
      */
-    public static Translation2d flipFieldPosition(Translation2d position) {
+    private static Translation2d flipFieldPosition(Translation2d position) {
         return new Translation2d(FieldConstants.FIELD_LENGTH - position.getX(), position.getY());
     }
 

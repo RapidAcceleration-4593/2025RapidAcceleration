@@ -10,11 +10,9 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.RobotBase;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.ExampleAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
@@ -28,7 +26,9 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
     // Subsystem(s)
-    public final static SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public static final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+
+    // Util(s)
     public final PoseNavigator poseNavigator = new PoseNavigator();
 
     // Controller(s)
@@ -103,11 +103,9 @@ public class RobotContainer {
         driverController.a().onTrue(Commands.runOnce(drivebase::zeroGyro));
         driverController.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
 
-        // Dashboard input for driving to branch pose based on alliance side.
-        new Trigger(() -> SmartDashboard.getBoolean("ConfirmedCondition", false))
-            .onTrue(Commands.runOnce(() -> {
-                drivebase.driveToPose(poseNavigator.foo()
-                ).schedule();
+        driverController.leftTrigger()
+            .whileTrue(Commands.runOnce(() -> {
+                drivebase.driveToPose(poseNavigator.selectTargetPose(0.5, drivebase.isRedAlliance())).schedule();
             }));
     }
 
