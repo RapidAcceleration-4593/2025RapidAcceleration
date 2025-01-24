@@ -9,7 +9,6 @@ import java.io.File;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
-import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -34,6 +33,9 @@ public class RobotContainer {
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(0);
 
+    /** DriveToPoseCommand for Custom Dashboard. */
+    private Command driveToPoseCommand = null;
+
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
                                                                 () -> -MathUtil.applyDeadband(driverController.getLeftY(),
@@ -49,37 +51,16 @@ public class RobotContainer {
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                  () -> -driverController.getLeftY(),
-                                                                  () -> -driverController.getLeftX())
+                                                                  () -> driverController.getLeftY() * -1,
+                                                                  () -> driverController.getLeftX() * -1)
                                                                 .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
                                                                 .scaleTranslation(0.8)
-                                                                .headingOffset(false)
-                                                                .allianceRelativeControl(false);
-
-
-    /** Clones the angular velocity input stream and converts it to a fieldRelative input stream. */
-    SwerveInputStream driveDirectAngle = driveAngularVelocity.copy().withControllerHeadingAxis(driverController::getRightX,
-                                                                                               driverController::getRightY)
-                                                                                            .headingWhile(true);
+                                                                .allianceRelativeControl(true);
 
     /** Clones the angular velocity input stream and converts it to a robotRelative input stream. */
     SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                                                       .allianceRelativeControl(false);
-
-    SwerveInputStream driveAngularVelocityKeyboard = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                     () -> -driverController.getLeftY(),
-                                                                     () -> -driverController.getLeftX())
-                                                                    .withControllerRotationAxis(() -> driverController.getRawAxis(2))
-                                                                    .deadband(OperatorConstants.DEADBAND)
-                                                                    .scaleTranslation(0.8)
-                                                                    .allianceRelativeControl(true);
-
-    /** Derive the heading axis with math. */
-    SwerveInputStream driveDirectAngleKeyboard = driveAngularVelocityKeyboard.copy()
-        .withControllerHeadingAxis(() -> Math.sin(driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2),
-                                   () -> Math.cos(driverController.getRawAxis(2) * Math.PI) * (Math.PI * 2))
-        .headingWhile(true);
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -88,29 +69,27 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // Command driveRobotOrientedAngularVelocity         = drivebase.driveFieldOriented(driveRobotOriented);
-        Command driveFieldOrientedAngularVelocity         = drivebase.driveFieldOriented(driveAngularVelocity);
-        Command driveFieldOrientedAngularVelocityKeyboard = drivebase.driveFieldOriented(driveAngularVelocityKeyboard);
-        // Command driveFieldOrientedDirectAngle             = drivebase.driveFieldOriented(driveDirectAngle);
-        // Command driveFieldOrientedDirectAngleKeyboard     = drivebase.driveFieldOriented(driveDirectAngleKeyboard);
-        // Command driveSetpointGen                          = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngle); 
-        // Command driveSetpointGenKeyboard                  = drivebase.driveWithSetpointGeneratorFieldRelative(driveDirectAngleKeyboard);
+        // Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
+        Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
         // (Condition) ? Return-On-True : Return-On-False.
-        drivebase.setDefaultCommand(!RobotBase.isSimulation() ?
-                                    driveFieldOrientedAngularVelocity :
-                                    driveFieldOrientedAngularVelocityKeyboard);
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
         driverController.a().onTrue(Commands.runOnce(drivebase::zeroGyro));
         driverController.x().onTrue(Commands.runOnce(drivebase::addFakeVisionReading));
 
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
-                drivebase.driveToPose(poseNavigator.selectTargetPose(0.7, drivebase.isRedAlliance())).schedule();
+                driveToPoseCommand = drivebase.driveToPose(
+                    poseNavigator.selectTargetPose(0.7, drivebase.isRedAlliance())
+                );
+                driveToPoseCommand.schedule();
+            }))
+            .onFalse(Commands.runOnce(() -> {
+                if (driveToPoseCommand != null) {
+                    driveToPoseCommand.cancel();
+                }
             }));
-
-        driverController.leftTrigger()
-            .whileFalse(Commands.none());
     }
 
     /**
