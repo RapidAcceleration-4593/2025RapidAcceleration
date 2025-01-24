@@ -51,7 +51,7 @@ public class VisionUtils {
     private final double maximumAmbiguity = 0.25;
 
     /** PhotonVision Simulation. */
-    public VisionSystemSim visionSim;
+    private VisionSystemSim visionSim;
 
     /** Count of times that the odom thinks we're more than 10meters away from the april tag. */
     private double longDistangePoseEstimationCount = 0;
@@ -302,9 +302,9 @@ public class VisionUtils {
         /** AprilTag Camera. */
         APRIL_TAG("Arducam_OV9281",
                 new Rotation3d(0, Units.degreesToRadians(0), 0),
-                new Translation3d(Units.inchesToMeters(15.5),
+                new Translation3d(Units.inchesToMeters(14.0),
                                   Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(10.0)),
+                                  Units.inchesToMeters(9.5)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Object Detection Camera. */
@@ -337,7 +337,7 @@ public class VisionUtils {
         public Matrix<N3, N1> curStdDevs;
 
         /** Estimated robot pose. */
-        public Optional<EstimatedRobotPose> estimatedRobotPose;
+        public Optional<EstimatedRobotPose> estimatedRobotPose = Optional.empty();
 
         /** Simulated camera instance which only exists during simulations. */
         public PhotonCameraSim cameraSim;
