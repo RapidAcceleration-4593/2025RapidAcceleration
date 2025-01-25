@@ -42,7 +42,7 @@ public class RobotContainer {
                                                                                                 OperatorConstants.DEADBAND),
                                                                 () -> -MathUtil.applyDeadband(driverController.getLeftX(),
                                                                                                 OperatorConstants.DEADBAND),
-                                                                () -> MathUtil.applyDeadband(driverController.getRightX(),
+                                                                () ->  MathUtil.applyDeadband(driverController.getRightX(),
                                                                                                 OperatorConstants.DEADBAND),
                                                                 driverController.getHID()::getAButtonPressed,
                                                                 driverController.getHID()::getYButtonPressed,
