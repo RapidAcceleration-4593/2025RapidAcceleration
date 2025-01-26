@@ -30,7 +30,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private SparkMaxConfig config = new SparkMaxConfig();
 
     // TODO: Determine setpoint values.
-    private final double[] setpoints = {0, 0, 0, 0, 0};
+    private final double[] setpoints = {0, 0, 0, 0};
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -57,7 +57,6 @@ public class ElevatorSubsystem extends SubsystemBase {
             case PICKUP -> setpoints[1];
             case L3 -> setpoints[2];
             case L4 -> setpoints[3];
-            case TOP -> setpoints[4];
             default -> -1;
         };
     }
