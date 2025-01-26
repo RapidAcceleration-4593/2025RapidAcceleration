@@ -29,6 +29,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private SparkMaxConfig config = new SparkMaxConfig();
 
+    // TODO: Determine setpoint values.
     private final double[] setpoints = {0, 0, 0, 0, 0};
 
     /**
@@ -158,16 +159,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         setMotorSpeeds(pidOutput < ElevatorConstants.PID_THRESHOLD ? 0 : pidOutput);
     }
 
-    /** Resets the height encoder. */
-    private void resetHeightEncoder() {
-        heightEncoder.reset();
-    }
-
     /**
      * Sets the motor speed for both motors; {@link ElevatorSubsystem#leftElevatorMotor} is mirrored.
      * @param speed The speed value for the elevator motors.
      */
     private void setMotorSpeeds(double speed) {
+        // TODO: Determine which motor to invert.
         leftElevatorMotor.set(speed);
         rightElevatorMotor.set(-speed);
     }
@@ -178,6 +175,11 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private double getElevatorSetpoint() {
         return elevatorPID.getSetpoint();
+    }
+
+    /** Resets the height encoder. */
+    private void resetHeightEncoder() {
+        heightEncoder.reset();
     }
 
 
