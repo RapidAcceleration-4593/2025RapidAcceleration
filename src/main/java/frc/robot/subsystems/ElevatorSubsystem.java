@@ -82,7 +82,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /**
      * Checks if the top limit switch is pressed.
-     * @return The boolean value of {@link ElevatorSubsystem#topLimitSwitch}.
+     * @return Whether {@link ElevatorSubsystem#topLimitSwitch} is pressed.
      */
     private boolean isTopLimitSwitchPressed() {
         return !topLimitSwitch.get();
@@ -90,7 +90,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /**
      * Checks if the bottom limit switch is pressed.
-     * @return The boolean value of {@link ElevatorSubsystem#bottomLimitSwitch}.
+     * @return Whether {@link ElevatorSubsystem#bottomLimitSwitch} is pressed.
      */
     private boolean isBottomLimitSwitchPressed() {
         return !bottomLimitSwitch.get();
@@ -99,7 +99,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     /**
      * Controls the state of the elevator system based on the limit switch inputs and encoder feedback.
      * <ul>
-     *  <li>Stops the motor if both the top and bottom limit switches are pressed (i.e. elevator at the bottom).</li>
+     *  <li>Stops the motor if both the top and bottom limit switches are pressed (i.e. system malfunction).</li>
      *  <li>Handles specific behavior when either the top or bottom limit switch is pressed.</li>
      *  <li>Uses PID control to adjust the motor output when no limit switches are triggered.</li>
      * </ul>
@@ -123,9 +123,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     /**
      * Handles the behavior when the top limit switch is pressed.
      * <ul>
-     *  <li>Ensures the elevator's PID setpoint doesn't exceed the current encoder position.</li>
-     *  <li>Calculates the PID output and stops the motor if output is below the PID threshold,
-     *      otherwise adjusts the motor speed based on the PID output.</li>
+     *  <li>Ensures the elevator's PID setpoint doesn't go above the current encoder position.</li>
+     *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
+     *      limit switch, otherwise sets the motor speed to the PID output.</li>
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
@@ -137,13 +137,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         double pidOutput = elevatorPID.calculate(currentPosition);
         setMotorSpeeds(pidOutput > ElevatorConstants.PID_THRESHOLD ? 0 : pidOutput);
     }
-
     /**
      * Handles the behavior when the bottom limit switch is pressed.
      * <ul>
-     *  <li>Resets the encoder and ensures the PID setpoint doesn't fall below the current encoder position.</li>
-     *  <li>Calculates the PID output and stops the motor if the output is below the PID threshold,
-     *       otherwise adjusts the motor speed based on the PID output.</li>
+     *  <li>Resets the encoder.</li>
+     *  <li>Ensures the elevator's PID setpoint doesn't go below the current encoder position.</li>
+     *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
+     *      limit switch, otherwise sets the motor speed to the PID output.</li>
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
