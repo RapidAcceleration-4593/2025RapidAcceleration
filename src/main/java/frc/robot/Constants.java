@@ -28,12 +28,12 @@ public final class Constants {
         public static final double MANUAL_CONTROL_SPEED = 3000;
         public static final double PID_THRESHOLD = 0.005;
 
-        public static final SparkMax leftElevatorMotor = new SparkMax(0, MotorType.kBrushless);
-        public static final SparkMax rightElevatorMotor = new SparkMax(0, MotorType.kBrushless);
+        public static final SparkMax leftElevatorMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
+        public static final SparkMax rightElevatorMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
 
-        public static final Encoder heightEncoder = new Encoder(0, 0);
-        public static final DigitalInput bottomLimitSwitch = new DigitalInput(0);
-        public static final DigitalInput topLimitSwitch = new DigitalInput(0);
+        public static final Encoder heightEncoder = new Encoder(0, 0); // TODO: Assign Encoder Channels.
+        public static final DigitalInput bottomLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+        public static final DigitalInput topLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
 
         public enum ElevatorLevel {
             BOTTOM,

@@ -14,14 +14,14 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 
 public class ElevatorSubsystem extends SubsystemBase {
-    
-    private final Encoder heightEncoder = ElevatorConstants.heightEncoder;
 
     private final SparkMax leftElevatorMotor = ElevatorConstants.leftElevatorMotor;
     private final SparkMax rightElevatorMotor = ElevatorConstants.rightElevatorMotor;
 
     private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ElevatorConstants.bottomLimitSwitch;
+
+    private final Encoder heightEncoder = ElevatorConstants.heightEncoder;
 
     private final PIDController elevatorPID = new PIDController(ElevatorConstants.ELEVATOR_PID.kP,
                                                                 ElevatorConstants.ELEVATOR_PID.kI,

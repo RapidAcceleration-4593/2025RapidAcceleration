@@ -16,6 +16,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorLevel;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.elevator.MaintainElevatorLevel;
 import frc.robot.commands.elevator.RaiseElevatorToLevel;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -74,6 +75,8 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
+
+        elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
     }
 
     private void configureBindings() {
