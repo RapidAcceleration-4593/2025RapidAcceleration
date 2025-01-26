@@ -16,6 +16,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import swervelib.SwerveInputStream;
 
@@ -26,6 +27,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public static final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
     // Util(s)
     public final PoseNavigator poseNavigator = new PoseNavigator();
