@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ElevatorConstants.ElevatorLevel;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.elevator.RaiseElevatorToLevel;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
@@ -92,6 +94,11 @@ public class RobotContainer {
                     driveToPoseCommand.cancel();
                 }
             }));
+
+        driverController.povUp().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L4));
+        driverController.povLeft().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L3));
+        driverController.povRight().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.PICKUP));
+        driverController.povDown().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.BOTTOM));
     }
 
     /**

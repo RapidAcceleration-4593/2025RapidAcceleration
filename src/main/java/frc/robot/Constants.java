@@ -39,8 +39,7 @@ public final class Constants {
             BOTTOM,
             PICKUP,
             L3,
-            L4,
-            TOP
+            L4
         }
     }
 
