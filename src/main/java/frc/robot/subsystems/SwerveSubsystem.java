@@ -85,18 +85,29 @@ public class SwerveSubsystem extends SubsystemBase {
             throw new RuntimeException(e);
         }
 
-        swerveDrive.setHeadingCorrection(true); // Heading correction should only be used while controlling the robot via angle.
-        swerveDrive.setCosineCompensator(true);// !SwerveDriveTelemetry.isSimulation); // Disables cosine compensation for simulations since it causes discrepancies not seen in real life.
+        // Heading correction should only be used while controlling the robot via angle.
+        swerveDrive.setHeadingCorrection(true);
+
+        // Disable cosine compensation for simulations since it causes discrepancies not seen in real life.
+        swerveDrive.setCosineCompensator(!SwerveDriveTelemetry.isSimulation);
+
+        // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
         swerveDrive.setAngularVelocityCompensation(true,
                                                      true,
-                                          0.1); // Correct for skew that gets worse as angular velocity increases. Start with a coefficient of 0.1.
+                                          0.1);
+
+        // Resynchronize your absolute encoders and motor encoders periodically when they are not moving.
         swerveDrive.setModuleEncoderAutoSynchronize(true,
-                                                    1); // Enable if you want to resynchronize your absolute encoders and motor encoders periodically when they are not moving.
-        swerveDrive.pushOffsetsToEncoders(); // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible
+                                                    1);
+
+        // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible.
+        swerveDrive.pushOffsetsToEncoders();
 
         if (driveWithVision) {
             setupPhotonVision();
-            swerveDrive.stopOdometryThread(); // Stop the odometry thread if we are using vision that way we can synchronize updates better.
+            
+            // Stop the odometry thread if we are using vision that way we can synchronize updates better.
+            swerveDrive.stopOdometryThread();
         }
         setupPathPlanner();
     }

@@ -19,7 +19,7 @@ public class PoseNavigator extends SubsystemBase {
     /** Notifier for Custom Dashboard. */
     private Notifier dashboardNotifier;
 
-    /** TargetDashboardPose, updated periodically through SmartDashboard. */
+    /** Target Dashboard Pose, updated periodically through SmartDashboard. */
     private int targetDashboardPose;
 
     /** Match Time reflected by FMS. */
@@ -50,80 +50,95 @@ public class PoseNavigator extends SubsystemBase {
             lastMatchTime = currentMatchTime;
         }
 
-        NetworkTableInstance.getDefault().flush(); // Push updates to NetworkTables
+        // Flushes all updated values.
+        NetworkTableInstance.getDefault().flush();
     }
 
     /**
-     * Selects the target pose from the dashboard based on the target pose ID.
-     * @return The selected target pose.
+     * Selects the target pose based on the current dashboard state and alliance side.
+     * @param distanceFromReef The distance from the robot's center to the reef, in meters.
+     * @param isRedAlliance Whether the robot is on the red alliance.
+     * @return The selected target {@link Pose2d} based on the current target dashboard pose.
      */
-    public Pose2d selectTargetPose(double distanceToReef, boolean isRedAlliance) {
-        return getPoseFromDashboardState(targetDashboardPose, distanceToReef, isRedAlliance);
+    public Pose2d selectTargetPose(double distanceFromReef, boolean isRedAlliance) {
+        return getPoseFromDashboardState(targetDashboardPose, distanceFromReef, isRedAlliance);
     }
 
     /**
-     * Retrieves the robot's pose offsets for branches around the reef.
+     * Calculates the robot pose offsets of each branch around the reef.
      * <p>
      * This method generates a list of 12 poses around the reef (2 per side),
      * calculating the heading to face the center of the reef for each pose.
-     * @param distanceToReef The distance from the robot's center to the reef, in meters.
-     * @return A list of Pose2d objects representing the robot's position and heading.
+     * @param distanceFromReef The distance from the robot's center to the reef, in meters.
+     * @return A list of {@link Pose2d} objects representing the robot's position and heading.
      * @throws IllegalArgumentException If the distance is outside the valid range (0.4 to 1.5 meters).
      */
-    public List<Pose2d> calculateReefBranchOffsets(double distanceToReef) {
-        if (distanceToReef < 0.4 || distanceToReef > 1.5) {
-            throw new IllegalArgumentException("Distance must be between 0.4 and 1.5 meters. Provided: " + distanceToReef);
+    public List<Pose2d> calculateReefBranchOffsets(double distanceFromReef) {
+        // Validate distance is within the valid range, in meters.
+        if (distanceFromReef < 0.4 || distanceFromReef > 1.5) {
+            throw new IllegalArgumentException("Distance must be between 0.4 and 1.5 meters. Provided: " + distanceFromReef);
         }
 
         List<Pose2d> poses = new ArrayList<>();
+
+        // Reef Parameters.
         final double radius = Units.inchesToMeters(32.75);
         final double branchOffset = Units.inchesToMeters(6.5);
         final double angleIncrement = Math.toRadians(60.0);
 
-        // Generate the 12 reef poses
+        // Loop through each side of the Reef.
         for (int i = 0; i < 6; i++) {
+            // Midpoint angle for each side.
             double sideAngle = i * angleIncrement;
+
+            // Midpoint of the current Reef side.
             double midX = radius * Math.cos(sideAngle);
             double midY = radius * Math.sin(sideAngle);
+
+            // Heading angle to face the center of the Reef.
             double headingAngle = Math.atan2(-midY, -midX);
-            double sideDirX = -Math.sin(sideAngle);
+
+            // Vector components along the side direction.
+            double sideDirX = -Math.sin(sideAngle); // Perpendicular.
             double sideDirY = Math.cos(sideAngle);
 
             double[] branch1 = {midX - branchOffset * sideDirX, midY - branchOffset * sideDirY};
             double[] branch2 = {midX + branchOffset * sideDirX, midY + branchOffset * sideDirY};
 
-            poses.add(createPose(branch1, sideAngle, distanceToReef, headingAngle));
-            poses.add(createPose(branch2, sideAngle, distanceToReef, headingAngle));
+            // Offset outward from branches to calculate poses.
+            poses.add(createPose(branch1, sideAngle, distanceFromReef, headingAngle));
+            poses.add(createPose(branch2, sideAngle, distanceFromReef, headingAngle));
         }
 
         return poses;
     }
 
     /**
-     * Creates a Pose2d object given branch position, angle, distance, and heading.
+     * Creates a {@link Pose2d} object given branch position, angle, distance, and heading.
      * @param branch The branch position (x, y).
      * @param sideAngle The angle of the side of the reef.
-     * @param distanceToReef The distance from the robot to the reef.
+     * @param distanceFromReef The distance from the robot to the reef, in meters.
      * @param headingAngle The heading angle to face the reef center.
-     * @return The created Pose2d object.
+     * @return The created {@link Pose2d} object.
      */
-    private Pose2d createPose(double[] branch, double sideAngle, double distanceToReef, double headingAngle) {
-        double transformedX = branch[0] + distanceToReef * Math.cos(sideAngle);
-        double transformedY = branch[1] + distanceToReef * Math.sin(sideAngle);
+    private Pose2d createPose(double[] branch, double sideAngle, double distanceFromReef, double headingAngle) {
+        double transformedX = branch[0] + distanceFromReef * Math.cos(sideAngle);
+        double transformedY = branch[1] + distanceFromReef * Math.sin(sideAngle);
         return new Pose2d(new Translation2d(transformedX, transformedY), new Rotation2d(headingAngle));
     }
 
     /**
      * Selects the target pose based on the target ID and alliance side.
      * @param targetID The ID of the target pose.
+     * @param distanceFromReef The distance from the robot to the reef, in meters.
      * @param isRedAlliance Whether the robot is on the red alliance.
      * @return The target pose corresponding to the target ID.
      */
-    public Pose2d getPoseFromDashboardState(int targetID, double distanceToReef, boolean isRedAlliance) {
+    public Pose2d getPoseFromDashboardState(int targetID, double distanceFromReef, boolean isRedAlliance) {
         if (targetID >= 13 && targetID <= 36) {
             return selectChutePose(targetID);
         }
-        return calculateReefPose(distanceToReef, targetID, isRedAlliance);
+        return calculateReefPose(distanceFromReef, targetID, isRedAlliance);
     }
 
     /**
@@ -151,22 +166,30 @@ public class PoseNavigator extends SubsystemBase {
 
     /**
      * Calculates the pose of a specific branch at the reef with a given offset.
-     * @param distanceToReef The distance to the reef.
+     * @param distanceFromReef The distance to the reef.
      * @param targetID The branch ID.
      * @param isRedAlliance Whether the robot is on the red alliance.
      * @return The calculated Pose2d for the target branch.
      */
-    private Pose2d calculateReefPose(double distanceToReef, int targetID, boolean isRedAlliance) {
+    private Pose2d calculateReefPose(double distanceFromReef, int targetID, boolean isRedAlliance) {
+        // Convert target branch to zero-based index.
         int branchIndex = targetID - 1;
+
+        // Get base reef position for specified alliance.
         double[] basePose = isRedAlliance ? FieldConstants.RED_REEF_POSE : FieldConstants.BLUE_REEF_POSE;
 
-        List<Pose2d> reefBranchOffsets = calculateReefBranchOffsets(distanceToReef);
+        // Offsets for all reef branches.
+        List<Pose2d> reefBranchOffsets = calculateReefBranchOffsets(distanceFromReef);
+
+        // Target branch offset.
         Pose2d offsetPose = reefBranchOffsets.get(branchIndex);
 
+        // Transform the offset pose to the global field position.
         double transformedX = basePose[0] + offsetPose.getX();
         double transformedY = basePose[1] + offsetPose.getY();
         Rotation2d transformedHeading = offsetPose.getRotation();
 
+        // Transformed pose after calculations.
         return new Pose2d(new Translation2d(transformedX, transformedY), transformedHeading);
     }
 }
