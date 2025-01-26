@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
@@ -81,7 +82,7 @@ public class RobotContainer {
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose(1.0, drivebase.isRedAlliance())
+                    poseNavigator.selectTargetPose(AutonConstants.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
                 );
                 driveToPoseCommand.schedule();
             }))
