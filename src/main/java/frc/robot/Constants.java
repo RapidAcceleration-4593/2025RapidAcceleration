@@ -30,8 +30,8 @@ public final class Constants {
 
         public static final double MANUAL_CONTROL_SPEED = 1; // Speed (0 to 1).
 
-        public static final SparkMax armMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
-        public static final Encoder armEncoder = new Encoder(0, 0); // TODO: Assign Encoder Channels.
+        public static final SparkMax swingArmMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
+        public static final Encoder swingArmEncoder = new Encoder(0, 0); // TODO: Assign Encoder Channels.
 
         public static final DigitalInput topLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
@@ -53,8 +53,7 @@ public final class Constants {
             L1,
             L2,
             L3,
-            L4,
-            TOP
+            L4
         }
     }
 
