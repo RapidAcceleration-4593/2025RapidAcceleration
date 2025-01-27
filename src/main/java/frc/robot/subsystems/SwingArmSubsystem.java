@@ -127,74 +127,118 @@ public class SwingArmSubsystem extends SubsystemBase{
     }
 
     /**
-     * Controls the state of the elevator system based on the limit switch inputs and encoder feedback.
+     * Controls the state of the arm based on the limit switch inputs and encoder feedback.
      * <ul>
      *  <li>Stops the motor if both the top and bottom limit switches are pressed (i.e. system malfunction).</li>
      *  <li>Handles specific behavior when either the top or bottom limit switch is pressed.</li>
      *  <li>Uses PID control to adjust the motor output when no limit switches are triggered.</li>
      * </ul>
      */
-    public void controlElevatorState() {
-        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            setMotorSpeeds(0);
-        } else if (isTopLimitSwitchPressed()) {
-            handleTopLimitSwitchPressed();
-        } else if (isBottomLimitSwitchPressed()) {
-            handleBottomLimitSwitchPressed();
-        } else {
-            // Regular PID Control.
-            setMotorSpeeds(getCurrentPID().calculate(readEncoderNormalized()));
-        }
+    public void controlArmState() {
+        
+        // If no limit switches pressed
+        if (!runLimitSwitchSafety(true)) {
+            // Use regular PID Control.
+            armMotor.set(getCurrentPID().calculate(readEncoderNormalized()));
+        }   
     }
 
+    /** Moves the arm up by directly running the motor. */
+    private void moveArmUp() {
+        if (runLimitSwitchSafety(false))
+            return;
+
+        setArmSetpoint(readEncoderNormalized());
+        armMotor.set(SwingArmConstants.ARM_MANUAL_CONTROL_SPEED);
+    }
+
+    /** Moves the arm down by directly running the motor. */
+    private void moveArmDown() {
+        if (runLimitSwitchSafety(false))
+            return;
+
+        setArmSetpoint(readEncoderNormalized());
+        armMotor.set(-SwingArmConstants.ARM_MANUAL_CONTROL_SPEED);
+    }
 
     /** ----- Limit Switch Handling ----- */
 
     /**
+     * Checks if the top or bottom limit switch is triggered, and stops the motor accordingly. It can 
+     * do this in two ways:
+     * <ol>
+     *  <li>Control the PID setpoint and check for bad PID output that would cause the motor to drive into the limit switch.
+     *  <li>Directly read the motor speed and check for a motor speed that would cause the motor to drive into the limit switch.
+     * </ol>
+     * This is controlled by the paramater {@code usePID}. {@code usePID} should be false if the motor speed is being directly
+     * controlled and true if it is being controlled by PID.
+     * @param usePID If true, this method will use method 1. Otherwise, method 2.
+     * @return Whether any limit switch is pressed.
+     */
+    private boolean runLimitSwitchSafety(boolean usePID) {
+        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
+            armMotor.set(0);
+            return true;
+        }
+        else if (isTopLimitSwitchPressed()) {
+            handleTopLimitSwitchPressed(usePID);
+            return true;
+        }
+        else if (isBottomLimitSwitchPressed()) {
+            handleBottomLimitSwitchPressed(usePID);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Handles the behavior when the top limit switch is pressed.
      * <ul>
-     *  <li>Ensures the elevator's PID setpoint doesn't go above the current encoder position.</li>
+     *  <li>Ensures the arm's PID setpoint doesn't go above the current encoder position.</li>
      *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
      *      limit switch, otherwise sets the motor speed to the PID output.</li>
      * </ul>
      */
-    private void handleTopLimitSwitchPressed() {
+    private void handleTopLimitSwitchPressed(boolean usePID) {
         double currentPosition = readEncoderNormalized();
         if (getArmSetpoint() > currentPosition) {
             setArmSetpoint(currentPosition);
         }
 
+        // TODO: Confirm that on the new robot positive motor speed moves the arm upwards
+        if (!usePID && armMotor.get() > SwingArmConstants.LS_PID_THRESHOLD) {
+            armMotor.set(0);
+            return;
+        }
+
         double pidOutput = getCurrentPID().calculate(currentPosition);
-        setMotorSpeeds(pidOutput > SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
+        armMotor.set(pidOutput > SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
     }
     /**
      * Handles the behavior when the bottom limit switch is pressed.
      * <ul>
      *  <li>Resets the encoder.</li>
-     *  <li>Ensures the elevator's PID setpoint doesn't go below the current encoder position.</li>
+     *  <li>Ensures the arm's PID setpoint doesn't go below the current encoder position.</li>
      *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
      *      limit switch, otherwise sets the motor speed to the PID output.</li>
      * </ul>
      */
-    private void handleBottomLimitSwitchPressed() {
-        resetHeightEncoder();
+    private void handleBottomLimitSwitchPressed(boolean usePID) {
+        resetArmEncoder();
 
         double currentPosition = readEncoderNormalized();
         if (getArmSetpoint() < currentPosition) {
             setArmSetpoint(currentPosition);
         }
+        
+        // TODO: Confirm that on the new robot negative motor speed moves the arm downwards
+        if (!usePID && armMotor.get() < -SwingArmConstants.LS_PID_THRESHOLD) {
+            armMotor.set(0);
+            return;
+        }
 
         double pidOutput = currentPID.calculate(currentPosition);
-        setMotorSpeeds(pidOutput < SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
-    }
-
-    /**
-     * Sets the motor speed for both motors; {@link ElevatorSubsystem#leftElevatorMotor} is mirrored.
-     * @param speed The speed value for the elevator motors.
-     */
-    private void setMotorSpeeds(double speed) {
-        // TODO: Determine which motor to invert.
-        armMotor.set(speed);
+        armMotor.set(pidOutput < -SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
     }
 
     /**
@@ -213,11 +257,10 @@ public class SwingArmSubsystem extends SubsystemBase{
         armSetpoint = setpoint;
     }
 
-    /** Resets the height encoder. */
-    private void resetHeightEncoder() {
+    /** Resets the arm encoder. */
+    private void resetArmEncoder() {
         armEncoder.reset();
     }
-
 
     /** ----- Command Factory Methods ----- */
 
@@ -226,7 +269,7 @@ public class SwingArmSubsystem extends SubsystemBase{
      * @return The command to move the elevator up.
      */
     public Command moveElevatorUpCommand() {
-        return runOnce(() -> moveElevatorUp());
+        return run(() -> moveArmUp());
     }
 
     /**
@@ -234,16 +277,6 @@ public class SwingArmSubsystem extends SubsystemBase{
      * @return The command to move the elevator down.
      */
     public Command moveElevatorDownCommand() {
-        return runOnce(() -> moveElevatorDown());
-    }
-
-    /** Moves the elevator up by increasing the setpoint. */
-    private void moveElevatorUp() {
-        elevatorPID.setSetpoint(getElevatorSetpoint() + ElevatorConstants.MANUAL_CONTROL_SPEED);
-    }
-
-    /** Moves the elevator down by decreasing the setpoint. */
-    private void moveElevatorDown() {
-        elevatorPID.setSetpoint(getElevatorSetpoint() - ElevatorConstants.MANUAL_CONTROL_SPEED);
+        return run(() -> moveArmDown());
     }
 }

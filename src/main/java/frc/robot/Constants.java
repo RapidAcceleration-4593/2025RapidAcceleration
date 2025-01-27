@@ -64,6 +64,9 @@ public final class Constants {
         public static final DigitalInput topLimitSwitch = null;
         public static final DigitalInput bottomLimitSwitch = null;
 
+        // Range from 0 to 1.
+        public static final double ARM_MANUAL_CONTROL_SPEED = 1;
+
         /**If a limit switch is pressed and the PID function outputs a value greater than this in the direction toward the LS, then PID will be ignored and the motor set to zero. */
         public static final double LS_PID_THRESHOLD = 0.005;
 
