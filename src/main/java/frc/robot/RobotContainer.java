@@ -13,7 +13,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.SwingArmConstants.ArmPosition;
+import frc.robot.Constants.SwingArmConstants.SwingArmState;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -85,10 +85,10 @@ public class RobotContainer {
         driverController.a().whileTrue(arm.moveArmDownCommand());
         driverController.a().onFalse(arm.stopArmCommand());
 
-        driverController.povUp().onTrue(arm.moveToPositionCommand(ArmPosition.BOTTOM));
-        driverController.povRight().onTrue(arm.moveToPositionCommand(ArmPosition.L3));
-        driverController.povDown().onTrue(arm.moveToPositionCommand(ArmPosition.L4));
-        driverController.povLeft().onTrue(arm.moveToPositionCommand(ArmPosition.TOP));
+        driverController.povUp().onTrue(arm.moveToPositionCommand(SwingArmState.BOTTOM));
+        driverController.povRight().onTrue(arm.moveToPositionCommand(SwingArmState.L3));
+        driverController.povDown().onTrue(arm.moveToPositionCommand(SwingArmState.L4));
+        driverController.povLeft().onTrue(arm.moveToPositionCommand(SwingArmState.TOP));
         
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 

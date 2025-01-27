@@ -6,6 +6,7 @@ package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -21,6 +22,41 @@ public final class Constants {
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag
     public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration
+
+    public static final class SwingArmConstants {
+        public static final PIDConstants UPWARD_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
+        public static final PIDConstants DOWNWARD_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
+        public static final PIDConstants HOLD_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
+
+        public static final double MANUAL_CONTROL_SPEED = 1; // Speed (0 to 1).
+
+        public static final SparkMax armMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
+        public static final Encoder armEncoder = new Encoder(0, 0); // TODO: Assign Encoder Channels.
+
+        public static final DigitalInput topLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+        public static final DigitalInput bottomLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+
+        /**If a limit switch is pressed and the PID function outputs a value greater than this in the direction toward the LS, then PID will be ignored and the motor set to zero. */
+        public static final double LS_PID_THRESHOLD = 0.005;
+
+        /** If the arm setpoint is at least this amount beneath the encoder reading, the {@link #DOWNWARD_PID} constants will be used. */
+        public static final double DOWNWARD_PID_THRESHOLD = 3000;
+
+        /** If the arm setpoint is at least this amount above the encoder reading, the {@link #UPWARD_PID} constants will be used. */
+        public static final double UPWARD_PID_THRESHOLD = 3000;
+
+        /** If the arm setpoint is at within this amount of the encoder reading, the {@link #HOLD_PID} constants will be used. */
+        public static final double HOLD_PID_THRESHOLD = 300;
+        
+        public enum SwingArmState {
+            BOTTOM,
+            L1,
+            L2,
+            L3,
+            L4,
+            TOP
+        }
+    }
 
     public static final class AutonConstants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
@@ -54,39 +90,6 @@ public final class Constants {
     public static final class DrivebaseConstants {
         // Hold time on motor brakes when disabled, in seconds
         public static final double WHEEL_LOCK_TIME = 10;
-    }
-
-    public static final class SwingArmConstants {
-        // TODO: Bind objects to physical hardware
-        public static final Encoder armEncoder = null;
-        public static final SparkMax armMotor = null;
-
-        public static final DigitalInput topLimitSwitch = null;
-        public static final DigitalInput bottomLimitSwitch = null;
-
-        // Range from 0 to 1.
-        public static final double ARM_MANUAL_CONTROL_SPEED = 1;
-
-        /**If a limit switch is pressed and the PID function outputs a value greater than this in the direction toward the LS, then PID will be ignored and the motor set to zero. */
-        public static final double LS_PID_THRESHOLD = 0.005;
-
-        public static final PIDConstants UPWARD_PID = new PIDConstants(0, 0, 0);
-        public static final PIDConstants DOWNWARD_PID = new PIDConstants(0, 0, 0);
-        public static final PIDConstants HOLD_PID = new PIDConstants(0, 0, 0);
-
-        /**If the arm setpoint is at least this amount beneath the encoder reading, the {@link #DOWNWARD_PID} constants will be used. */
-        public static final double DOWNWARD_PID_THRESHOLD = 3000;
-        /**If the arm setpoint is at least this amount above the encoder reading, the {@link #UPWARD_PID} constants will be used. */
-        public static final double UPWARD_PID_THRESHOLD = 3000;
-        /**If the arm setpoint is at within this amount of the encoder reading, the {@link #HOLD_PID} constants will be used. */
-        public static final double HOLD_PID_THRESHOLD = 300;
-        
-        public enum ArmPosition {
-            BOTTOM,
-            L3,
-            L4,
-            TOP
-        }
     }
 
     public static class OperatorConstants {

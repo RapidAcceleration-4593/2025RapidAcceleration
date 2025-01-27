@@ -82,7 +82,7 @@ public class SwingArmSubsystem extends SubsystemBase{
      * @param level The desired arm position.
      * @return The {@link ElevatorSubsystem#setpoints} value corresponding to the level.
      */
-    private double getArmStateSetpoint(SwingArmConstants.ArmPosition level) {
+    private double getArmStateSetpoint(SwingArmConstants.SwingArmState level) {
         return switch (level) {
             case BOTTOM -> setpoints[0];
             case L3 -> setpoints[2];
@@ -95,7 +95,7 @@ public class SwingArmSubsystem extends SubsystemBase{
      * Raises the elevator to a specified level.
      * @param level The target elevator state/level.
      */
-    public void goToPosition(SwingArmConstants.ArmPosition level) {
+    public void goToPosition(SwingArmConstants.SwingArmState level) {
         setArmSetpoint(getArmStateSetpoint(level));
     }
 
@@ -149,7 +149,7 @@ public class SwingArmSubsystem extends SubsystemBase{
             return;
 
         setArmSetpoint(readEncoderNormalized());
-        armMotor.set(SwingArmConstants.ARM_MANUAL_CONTROL_SPEED);
+        armMotor.set(SwingArmConstants.MANUAL_CONTROL_SPEED);
     }
 
     /** Moves the arm down by directly running the motor. */
@@ -158,7 +158,7 @@ public class SwingArmSubsystem extends SubsystemBase{
             return;
 
         setArmSetpoint(readEncoderNormalized());
-        armMotor.set(-SwingArmConstants.ARM_MANUAL_CONTROL_SPEED);
+        armMotor.set(-SwingArmConstants.MANUAL_CONTROL_SPEED);
     }
 
     private void stopArm() {
@@ -306,7 +306,7 @@ public class SwingArmSubsystem extends SubsystemBase{
      * @param position The position to go to.
      * @return A command that you should really schedule.
      */
-    public Command moveToPositionCommand(SwingArmConstants.ArmPosition position) {
+    public Command moveToPositionCommand(SwingArmConstants.SwingArmState position) {
         return runOnce(() -> goToPosition(position));
     }
 }
