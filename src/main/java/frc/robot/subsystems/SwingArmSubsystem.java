@@ -161,6 +161,11 @@ public class SwingArmSubsystem extends SubsystemBase{
         armMotor.set(-SwingArmConstants.ARM_MANUAL_CONTROL_SPEED);
     }
 
+    private void stopArm() {
+        setArmSetpoint(readEncoderNormalized());
+        armMotor.set(0);
+    }
+
     /** ----- Limit Switch Handling ----- */
 
     /**
@@ -265,18 +270,43 @@ public class SwingArmSubsystem extends SubsystemBase{
     /** ----- Command Factory Methods ----- */
 
     /**
-     * Returns a command to move the elevator up.
-     * @return The command to move the elevator up.
+     * Returns a command to move the arm up.
+     * @return The command to move the arm up.
      */
-    public Command moveElevatorUpCommand() {
-        return run(() -> moveArmUp());
+    public Command moveArmUpCommand() {
+        return runOnce(() -> moveArmUp());
     }
 
     /**
-     * Returns a command to move the elevator down.
-     * @return The command to move the elevator down.
+     * Returns a command to move the arm down.
+     * @return The command to move the arm down.
      */
-    public Command moveElevatorDownCommand() {
-        return run(() -> moveArmDown());
+    public Command moveArmDownCommand() {
+        return runOnce(() -> moveArmDown());
+    }
+
+    /**
+     * Returns a command to stop the arm.
+     * @return I really don't think there is anything more to explain.
+     */
+    public Command stopArmCommand() {
+        return runOnce(() -> stopArm());
+    }
+
+    /**
+     * Returns a command to move the arm to the setpoint using PID and limit switches.
+     * @return The command to move the arm.
+     */
+    public Command controlArmStatePIDCommand () {
+        return run(() -> controlArmState());
+    }
+
+    /**
+     * Returns a command to set the arm's setpoint to a target position.
+     * @param position The position to go to.
+     * @return A command that you should really schedule.
+     */
+    public Command moveToPositionCommand(SwingArmConstants.ArmPosition position) {
+        return runOnce(() -> goToPosition(position));
     }
 }

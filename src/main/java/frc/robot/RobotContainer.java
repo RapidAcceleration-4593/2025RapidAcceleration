@@ -13,9 +13,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.SwingArmConstants.ArmPosition;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.SwingArmSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import swervelib.SwerveInputStream;
 
@@ -26,6 +28,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public static final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public static final SwingArmSubsystem arm = new SwingArmSubsystem();
 
     // Util(s)
     public final PoseNavigator poseNavigator = new PoseNavigator();
@@ -73,9 +76,20 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // (Condition) ? Return-On-True : Return-On-False.
         drivebase.setDefaultCommand(fieldCentricDrive);
+        arm.setDefaultCommand(arm.controlArmStatePIDCommand());
+        
+        driverController.y().whileTrue(arm.moveArmUpCommand());
+        driverController.y().onFalse(arm.stopArmCommand());
 
+        driverController.a().whileTrue(arm.moveArmDownCommand());
+        driverController.a().onFalse(arm.stopArmCommand());
+
+        driverController.povUp().onTrue(arm.moveToPositionCommand(ArmPosition.BOTTOM));
+        driverController.povRight().onTrue(arm.moveToPositionCommand(ArmPosition.L3));
+        driverController.povDown().onTrue(arm.moveToPositionCommand(ArmPosition.L4));
+        driverController.povLeft().onTrue(arm.moveToPositionCommand(ArmPosition.TOP));
+        
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()
@@ -90,6 +104,8 @@ public class RobotContainer {
                     driveToPoseCommand.cancel();
                 }
             }));
+
+        
     }
 
     /**
