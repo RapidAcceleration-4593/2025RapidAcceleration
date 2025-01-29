@@ -148,18 +148,18 @@ public class PoseNavigator extends SubsystemBase {
      */
     private Pose2d selectChutePose(int targetID) {
         return switch (targetID) {
-            case 13 -> FieldConstants.BOTTOM_RED_CHUTE_RIGHT;
-            case 14 -> FieldConstants.BOTTOM_RED_CHUTE_MIDDLE;
-            case 15 -> FieldConstants.BOTTOM_RED_CHUTE_LEFT;
-            case 16 -> FieldConstants.TOP_RED_CHUTE_RIGHT;
-            case 17 -> FieldConstants.TOP_RED_CHUTE_MIDDLE;
-            case 18 -> FieldConstants.TOP_RED_CHUTE_LEFT;
-            case 31 -> FieldConstants.TOP_BLUE_CHUTE_RIGHT;
-            case 32 -> FieldConstants.TOP_BLUE_CHUTE_MIDDLE;
-            case 33 -> FieldConstants.TOP_BLUE_CHUTE_LEFT;
-            case 34 -> FieldConstants.BOTTOM_BLUE_CHUTE_RIGHT;
-            case 35 -> FieldConstants.BOTTOM_BLUE_CHUTE_MIDDLE;
-            case 36 -> FieldConstants.BOTTOM_BLUE_CHUTE_LEFT;
+            case 13 -> FieldConstants.RED_BOTTOM_CHUTE[2];
+            case 14 -> FieldConstants.RED_BOTTOM_CHUTE[1];
+            case 15 -> FieldConstants.RED_BOTTOM_CHUTE[0];
+            case 16 -> FieldConstants.RED_TOP_CHUTE[2];
+            case 17 -> FieldConstants.RED_TOP_CHUTE[1];
+            case 18 -> FieldConstants.RED_TOP_CHUTE[0];
+            case 31 -> FieldConstants.BLUE_TOP_CHUTE[2];
+            case 32 -> FieldConstants.BLUE_TOP_CHUTE[1];
+            case 33 -> FieldConstants.BLUE_TOP_CHUTE[0];
+            case 34 -> FieldConstants.BLUE_BOTTOM_CHUTE[2];
+            case 35 -> FieldConstants.BLUE_BOTTOM_CHUTE[1];
+            case 36 -> FieldConstants.BLUE_BOTTOM_CHUTE[0];
             default -> throw new IllegalArgumentException("Invalid chute: " + targetID);
         };
     }

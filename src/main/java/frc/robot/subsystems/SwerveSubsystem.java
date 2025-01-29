@@ -483,12 +483,12 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * This will zero (calibrate) the robot to assume the current position is facing forward
-     * <p>If red alliance rotate the robot 180 after the drviebase zero command
+     * <p>If red alliance rotate the robot 180 after the drivebase zero command.
      */
     public void zeroGyroWithAlliance() {
         if (isRedAlliance()) {
             zeroGyro();
-            resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180))); //Set the pose 180 degrees
+            resetOdometry(new Pose2d(getPose().getTranslation(), Rotation2d.fromDegrees(180))); // Set the pose 180 degrees.
         } else {
             zeroGyro();
         }
@@ -585,16 +585,11 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Gets the current pitch angle of the robot, as reported by the imu.
+     * Gets the current pitch angle of the robot, as reported by the IMU.
      * @return The heading as a {@link Rotation2d} angle
      */
     public Rotation2d getPitch() {
         return swerveDrive.getPitch();
-    }
-
-    /** Add a fake vision reading for testing purposes. */
-    public void addFakeVisionReading() {
-        swerveDrive.addVisionMeasurement(new Pose2d(3, 3, Rotation2d.fromDegrees(65)), Timer.getFPGATimestamp());
     }
 
     /**

@@ -34,21 +34,28 @@ public final class Constants {
         public static final double[] RED_REEF_POSE = {13.0588, 4.0259};
 
         // TODO: Move to different class.
-        public static final Pose2d BOTTOM_BLUE_CHUTE_LEFT = new Pose2d(0.5781, 1.3135, Rotation2d.fromDegrees(-126));
-        public static final Pose2d BOTTOM_BLUE_CHUTE_MIDDLE = new Pose2d(1.0714, 0.9553, Rotation2d.fromDegrees(-126));
-        public static final Pose2d BOTTOM_BLUE_CHUTE_RIGHT = new Pose2d(1.5646, 0.5971, Rotation2d.fromDegrees(-126));
+        public static final Pose2d[] BLUE_BOTTOM_CHUTE = {
+            new Pose2d(0.5781, 1.3135, Rotation2d.fromDegrees(-126)),
+            new Pose2d(1.0714, 0.9553, Rotation2d.fromDegrees(-126)),
+            new Pose2d(1.5646, 0.5971, Rotation2d.fromDegrees(-126))
+        };
 
-        public static final Pose2d TOP_BLUE_CHUTE_LEFT = new Pose2d(0.5781, 6.7383, Rotation2d.fromDegrees(126));
-        public static final Pose2d TOP_BLUE_CHUTE_MIDDLE = new Pose2d(1.0714, 7.0965, Rotation2d.fromDegrees(126));
-        public static final Pose2d TOP_BLUE_CHUTE_RIGHT = new Pose2d(1.5646, 7.4547, Rotation2d.fromDegrees(126));
+        public static final Pose2d[] BLUE_TOP_CHUTE = {
+            new Pose2d(0.5781, 6.7383, Rotation2d.fromDegrees(126)),
+            new Pose2d(1.0714, 7.0965, Rotation2d.fromDegrees(126)),
+            new Pose2d(1.5646, 7.4547, Rotation2d.fromDegrees(126))
+        };
 
-        public static final Pose2d BOTTOM_RED_CHUTE_LEFT = AutonUtils.flipFieldPose(BOTTOM_BLUE_CHUTE_LEFT);
-        public static final Pose2d BOTTOM_RED_CHUTE_MIDDLE = AutonUtils.flipFieldPose(BOTTOM_BLUE_CHUTE_MIDDLE);
-        public static final Pose2d BOTTOM_RED_CHUTE_RIGHT = AutonUtils.flipFieldPose(BOTTOM_BLUE_CHUTE_RIGHT);
+        public static final Pose2d[] RED_BOTTOM_CHUTE = flipFieldPoses(BLUE_BOTTOM_CHUTE);
+        public static final Pose2d[] RED_TOP_CHUTE = flipFieldPoses(BLUE_BOTTOM_CHUTE);
 
-        public static final Pose2d TOP_RED_CHUTE_LEFT = AutonUtils.flipFieldPose(TOP_BLUE_CHUTE_LEFT);
-        public static final Pose2d TOP_RED_CHUTE_MIDDLE = AutonUtils.flipFieldPose(TOP_BLUE_CHUTE_MIDDLE);
-        public static final Pose2d TOP_RED_CHUTE_RIGHT = AutonUtils.flipFieldPose(TOP_BLUE_CHUTE_RIGHT);
+        private static Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
+            Pose2d[] redPoses = new Pose2d[bluePoses.length];
+            for (int i = 0; i < bluePoses.length; i++) {
+                redPoses[i] = AutonUtils.flipFieldPose(bluePoses[i]);
+            }
+            return redPoses;
+        }
     }
 
     public static final class DrivebaseConstants {

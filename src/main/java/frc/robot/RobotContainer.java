@@ -71,13 +71,13 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
+
+        drivebase.setDefaultCommand(fieldCentricDrive);
     }
 
     private void configureBindings() {
         // (Condition) ? Return-On-True : Return-On-False.
-        drivebase.setDefaultCommand(fieldCentricDrive);
-
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
 
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
