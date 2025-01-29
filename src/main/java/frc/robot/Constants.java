@@ -47,7 +47,7 @@ public final class Constants {
         };
 
         public static final Pose2d[] RED_BOTTOM_CHUTE = flipFieldPoses(BLUE_BOTTOM_CHUTE);
-        public static final Pose2d[] RED_TOP_CHUTE = flipFieldPoses(BLUE_BOTTOM_CHUTE);
+        public static final Pose2d[] RED_TOP_CHUTE = flipFieldPoses(BLUE_TOP_CHUTE);
 
         private static Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
             Pose2d[] redPoses = new Pose2d[bluePoses.length];

@@ -39,9 +39,9 @@ public class RobotContainer {
 
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
-                                                                () -> MathUtil.applyDeadband(driverController.getLeftY(),
+                                                                () -> -MathUtil.applyDeadband(driverController.getLeftY(),
                                                                                                 OperatorConstants.DEADBAND),
-                                                                () -> MathUtil.applyDeadband(driverController.getLeftX(),
+                                                                () -> -MathUtil.applyDeadband(driverController.getLeftX(),
                                                                                                 OperatorConstants.DEADBAND),
                                                                 () -> MathUtil.applyDeadband(driverController.getRightX(),
                                                                                                 OperatorConstants.DEADBAND),
@@ -52,30 +52,28 @@ public class RobotContainer {
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                  driverController::getLeftY,
-                                                                  driverController::getLeftX)
+                                                                  () -> -driverController.getLeftY(),
+                                                                  () -> -driverController.getLeftX())
                                                                 .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
                                                                 .scaleTranslation(OperatorConstants.SCALE_TRANSLATION)
-                                                                .allianceRelativeControl(false);
+                                                                .allianceRelativeControl(true);
 
     /** Clones the angular velocity input stream and converts it to a robotRelative input stream. */
     SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                                                       .allianceRelativeControl(false);
 
-    Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
-
-    Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
-
-        drivebase.setDefaultCommand(fieldCentricDrive);
     }
 
     private void configureBindings() {
+        // Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
+        Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
+
         // (Condition) ? Return-On-True : Return-On-False.
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
 
