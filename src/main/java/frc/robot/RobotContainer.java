@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.NoneAuton;
+import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.PoseNavigator;
@@ -26,10 +27,11 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
     // Subsystem(s)
-    public static final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
 
     // Util(s)
-    public final PoseNavigator poseNavigator = new PoseNavigator();
+    public final AutonUtils autonUtils = new AutonUtils(drivebase);
+    public final PoseNavigator poseNavigator = new PoseNavigator(autonUtils);
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(0);
@@ -52,12 +54,12 @@ public class RobotContainer {
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                  () -> -driverController.getLeftY(),
-                                                                  () -> -driverController.getLeftX())
+                                                                  () -> driverController.getLeftY(),
+                                                                  () -> driverController.getLeftX())
                                                                 .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
                                                                 .scaleTranslation(OperatorConstants.SCALE_TRANSLATION)
-                                                                .allianceRelativeControl(true);
+                                                                .allianceRelativeControl(false);
 
     /** Clones the angular velocity input stream and converts it to a robotRelative input stream. */
     SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)

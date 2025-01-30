@@ -6,11 +6,8 @@ package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
-import frc.robot.commands.auton.utils.AutonUtils;
 import swervelib.math.Matter;
 
 public final class Constants {
@@ -32,30 +29,6 @@ public final class Constants {
 
         public static final double[] BLUE_REEF_POSE = {4.4895, 4.0259};
         public static final double[] RED_REEF_POSE = {13.0588, 4.0259};
-
-        // TODO: Move to different class.
-        public static final Pose2d[] BLUE_BOTTOM_CHUTE = {
-            new Pose2d(0.5781, 1.3135, Rotation2d.fromDegrees(-126)),
-            new Pose2d(1.0714, 0.9553, Rotation2d.fromDegrees(-126)),
-            new Pose2d(1.5646, 0.5971, Rotation2d.fromDegrees(-126))
-        };
-
-        public static final Pose2d[] BLUE_TOP_CHUTE = {
-            new Pose2d(0.5781, 6.7383, Rotation2d.fromDegrees(126)),
-            new Pose2d(1.0714, 7.0965, Rotation2d.fromDegrees(126)),
-            new Pose2d(1.5646, 7.4547, Rotation2d.fromDegrees(126))
-        };
-
-        public static final Pose2d[] RED_BOTTOM_CHUTE = flipFieldPoses(BLUE_BOTTOM_CHUTE);
-        public static final Pose2d[] RED_TOP_CHUTE = flipFieldPoses(BLUE_TOP_CHUTE);
-
-        private static Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
-            Pose2d[] redPoses = new Pose2d[bluePoses.length];
-            for (int i = 0; i < bluePoses.length; i++) {
-                redPoses[i] = AutonUtils.flipFieldPose(bluePoses[i]);
-            }
-            return redPoses;
-        }
     }
 
     public static final class DrivebaseConstants {

@@ -16,19 +16,23 @@ import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
 public class ExampleAuton extends AutonCommand {
+    private AutonUtils utils;
+
     private final List<PathPlannerPath> paths;
 
-    public ExampleAuton() {
+    public ExampleAuton(AutonUtils utils) {
+        this.utils = utils;
+
         paths = List.of(
-            AutonUtils.loadPath("Path1"),
-            AutonUtils.loadPath("Path2"),
-            AutonUtils.loadPath("Path3"),
-            AutonUtils.loadPath("Path4"),
-            AutonUtils.loadPath("Path5")
+            utils.loadPath("Path1"),
+            utils.loadPath("Path2"),
+            utils.loadPath("Path3"),
+            utils.loadPath("Path4"),
+            utils.loadPath("Path5")
         );
 
         if (Robot.isSimulation()) {
-            addCommands(AutonUtils.resetOdometry(paths.get(0)));
+            addCommands(utils.resetOdometry(paths.get(0)));
         }
 
         addCommands(
@@ -53,7 +57,7 @@ public class ExampleAuton extends AutonCommand {
     @Override
     public Pose2d getStartingPose() {
         return paths.get(0)
-            .generateTrajectory(new ChassisSpeeds(), new Rotation2d(), AutonUtils.getRobotConfig())
+            .generateTrajectory(new ChassisSpeeds(), new Rotation2d(), utils.getRobotConfig())
             .getInitialPose();
     }
 }

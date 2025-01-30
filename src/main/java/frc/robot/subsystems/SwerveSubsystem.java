@@ -68,8 +68,8 @@ public class SwerveSubsystem extends SubsystemBase {
             // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
             swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED,
                                                                         new Pose2d(new Translation2d(Meter.of(2),
-                                                                                                     Meter.of(4)),
-                                                                                   Rotation2d.fromDegrees(0)));
+                                                                                                    Meter.of(4)),
+                                                                                Rotation2d.fromDegrees(0)));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
