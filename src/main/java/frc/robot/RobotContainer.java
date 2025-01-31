@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.NoneAuton;
+import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.serializer.ControlSerializerBelt;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -28,11 +29,12 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
     // Subsystem(s)
-    public static final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
 
     // Util(s)
-    public final PoseNavigator poseNavigator = new PoseNavigator();
+    public final AutonUtils autonUtils = new AutonUtils(drivebase);
+    public final PoseNavigator poseNavigator = new PoseNavigator(autonUtils);
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(0);
@@ -46,17 +48,17 @@ public class RobotContainer {
                                                                                                 OperatorConstants.DEADBAND),
                                                                 () -> -MathUtil.applyDeadband(driverController.getLeftX(),
                                                                                                 OperatorConstants.DEADBAND),
-                                                                () ->  MathUtil.applyDeadband(driverController.getRightX(),
+                                                                () -> MathUtil.applyDeadband(driverController.getRightX(),
                                                                                                 OperatorConstants.DEADBAND),
-                                                                driverController.getHID()::getAButtonPressed,
                                                                 driverController.getHID()::getYButtonPressed,
-                                                                driverController.getHID()::getBButtonPressed,
-                                                                driverController.getHID()::getXButtonPressed);
+                                                                driverController.getHID()::getAButtonPressed,
+                                                                driverController.getHID()::getXButtonPressed,
+                                                                driverController.getHID()::getBButtonPressed);
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
-                                                                  driverController::getLeftY,
-                                                                  driverController::getLeftX)
+                                                                  () -> -driverController.getLeftY(),
+                                                                  () -> -driverController.getLeftX())
                                                                 .withControllerRotationAxis(() -> -driverController.getRightX())
                                                                 .deadband(OperatorConstants.DEADBAND)
                                                                 .scaleTranslation(OperatorConstants.SCALE_TRANSLATION)
@@ -65,10 +67,6 @@ public class RobotContainer {
     /** Clones the angular velocity input stream and converts it to a robotRelative input stream. */
     SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                                                       .allianceRelativeControl(false);
-
-    Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
-
-    Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -79,10 +77,12 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        // (Condition) ? Return-On-True : Return-On-False.
-        drivebase.setDefaultCommand(fieldCentricDrive);
+        // Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
+        Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
 
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+        // (Condition) ? Return-On-True : Return-On-False.
+        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
 
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {

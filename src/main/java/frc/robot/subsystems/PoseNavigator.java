@@ -13,8 +13,11 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.FieldConstants;
+import frc.robot.commands.auton.utils.AutonUtils;
 
 public class PoseNavigator extends SubsystemBase {
+
+    private AutonUtils autonUtils;
 
     /** Notifier for Custom Dashboard. */
     private Notifier dashboardNotifier;
@@ -29,7 +32,9 @@ public class PoseNavigator extends SubsystemBase {
      * Constructor for the PoseNavigator class.
      * Initializes the notifier that updates the SmartDashboard periodically.
      */
-    public PoseNavigator() {
+    public PoseNavigator(AutonUtils autonUtils) {
+        this.autonUtils = autonUtils;
+
         dashboardNotifier = new Notifier(this::updateDashboard);
         dashboardNotifier.startPeriodic(0.2); // Run every 200ms
     }
@@ -148,18 +153,18 @@ public class PoseNavigator extends SubsystemBase {
      */
     private Pose2d selectChutePose(int targetID) {
         return switch (targetID) {
-            case 13 -> FieldConstants.BOTTOM_RED_CHUTE_RIGHT;
-            case 14 -> FieldConstants.BOTTOM_RED_CHUTE_MIDDLE;
-            case 15 -> FieldConstants.BOTTOM_RED_CHUTE_LEFT;
-            case 16 -> FieldConstants.TOP_RED_CHUTE_RIGHT;
-            case 17 -> FieldConstants.TOP_RED_CHUTE_MIDDLE;
-            case 18 -> FieldConstants.TOP_RED_CHUTE_LEFT;
-            case 31 -> FieldConstants.TOP_BLUE_CHUTE_RIGHT;
-            case 32 -> FieldConstants.TOP_BLUE_CHUTE_MIDDLE;
-            case 33 -> FieldConstants.TOP_BLUE_CHUTE_LEFT;
-            case 34 -> FieldConstants.BOTTOM_BLUE_CHUTE_RIGHT;
-            case 35 -> FieldConstants.BOTTOM_BLUE_CHUTE_MIDDLE;
-            case 36 -> FieldConstants.BOTTOM_BLUE_CHUTE_LEFT;
+            case 13 -> autonUtils.RED_BOTTOM_CHUTE[2];
+            case 14 -> autonUtils.RED_BOTTOM_CHUTE[1];
+            case 15 -> autonUtils.RED_BOTTOM_CHUTE[0];
+            case 16 -> autonUtils.RED_TOP_CHUTE[2];
+            case 17 -> autonUtils.RED_TOP_CHUTE[1];
+            case 18 -> autonUtils.RED_TOP_CHUTE[0];
+            case 31 -> autonUtils.BLUE_TOP_CHUTE[2];
+            case 32 -> autonUtils.BLUE_TOP_CHUTE[1];
+            case 33 -> autonUtils.BLUE_TOP_CHUTE[0];
+            case 34 -> autonUtils.BLUE_BOTTOM_CHUTE[2];
+            case 35 -> autonUtils.BLUE_BOTTOM_CHUTE[1];
+            case 36 -> autonUtils.BLUE_BOTTOM_CHUTE[0];
             default -> throw new IllegalArgumentException("Invalid chute: " + targetID);
         };
     }

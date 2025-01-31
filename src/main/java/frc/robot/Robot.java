@@ -15,27 +15,20 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
  * Update Main.java if the class or package name changes.
  */
 public class Robot extends TimedRobot {
-    private static Robot instance;
     private Command m_autonomousCommand;
 
-    private RobotContainer m_robotContainer;
+    private final RobotContainer m_robotContainer;
 
     private Timer disabledTimer;
 
     public Robot() {
-        instance = this;
-    }
-
-    public static Robot getInstance() {
-        return instance;
+        // Instantiate our RobotContainer. This will perform all our button bindings, and put our autonomous chooser on the dashboard.
+        m_robotContainer = new RobotContainer();
     }
 
     /** This function is run when the robot is first started up and should be used for any initialization code. */
     @Override
     public void robotInit() {
-        // Instantiate our RobotContainer. This will perform all our button bindings, and put our autonomous chooser on the dashboard.
-        m_robotContainer = new RobotContainer();
-
         // Create a timer to disable motor brake a few seconds after disable. This will let the robot stop
         // immediately when disabled, but then also let it be pushed more.
         disabledTimer = new Timer();
