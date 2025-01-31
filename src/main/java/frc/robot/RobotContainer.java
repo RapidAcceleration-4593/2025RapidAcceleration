@@ -31,9 +31,8 @@ import swervelib.SwerveInputStream;
  */
 public class RobotContainer {
     // Subsystem(s)
-    public static final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
