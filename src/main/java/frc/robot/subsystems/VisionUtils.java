@@ -20,6 +20,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
@@ -154,7 +155,7 @@ public class VisionUtils {
             if (poseEst.isPresent()) {
                 var pose = poseEst.get();
                 swerveDrive.addVisionMeasurement(pose.estimatedPose.toPose2d(),
-                                                 pose.timestampSeconds,
+                                                Timer.getFPGATimestamp(), // TODO: Changed from pose.timestampSeconds.
                                                  camera.curStdDevs);
             }
         }
