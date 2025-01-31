@@ -8,13 +8,10 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import frc.robot.commands.auton.utils.AutonUtils;
 import swervelib.math.Matter;
 
 public final class Constants {
@@ -46,6 +43,8 @@ public final class Constants {
     public static final class AutonConstants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
+
+        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(16.25 + 25);
     }
 
     public static final class FieldConstants {
@@ -54,22 +53,6 @@ public final class Constants {
 
         public static final double[] BLUE_REEF_POSE = {4.4895, 4.0259};
         public static final double[] RED_REEF_POSE = {13.0588, 4.0259};
-
-        public static final Pose2d BOTTOM_BLUE_CHUTE_LEFT = new Pose2d(0.5781, 1.3135, Rotation2d.fromDegrees(-126));
-        public static final Pose2d BOTTOM_BLUE_CHUTE_MIDDLE = new Pose2d(1.0714, 0.9553, Rotation2d.fromDegrees(-126));
-        public static final Pose2d BOTTOM_BLUE_CHUTE_RIGHT = new Pose2d(1.5646, 0.5971, Rotation2d.fromDegrees(-126));
-
-        public static final Pose2d TOP_BLUE_CHUTE_LEFT = new Pose2d(0.5781, 6.7383, Rotation2d.fromDegrees(126));
-        public static final Pose2d TOP_BLUE_CHUTE_MIDDLE = new Pose2d(1.0714, 7.0965, Rotation2d.fromDegrees(126));
-        public static final Pose2d TOP_BLUE_CHUTE_RIGHT = new Pose2d(1.5646, 7.4547, Rotation2d.fromDegrees(126));
-
-        public static final Pose2d BOTTOM_RED_CHUTE_LEFT = AutonUtils.flipFieldPose(BOTTOM_BLUE_CHUTE_LEFT);
-        public static final Pose2d BOTTOM_RED_CHUTE_MIDDLE = AutonUtils.flipFieldPose(BOTTOM_BLUE_CHUTE_MIDDLE);
-        public static final Pose2d BOTTOM_RED_CHUTE_RIGHT = AutonUtils.flipFieldPose(BOTTOM_BLUE_CHUTE_RIGHT);
-
-        public static final Pose2d TOP_RED_CHUTE_LEFT = AutonUtils.flipFieldPose(TOP_BLUE_CHUTE_LEFT);
-        public static final Pose2d TOP_RED_CHUTE_MIDDLE = AutonUtils.flipFieldPose(TOP_BLUE_CHUTE_MIDDLE);
-        public static final Pose2d TOP_RED_CHUTE_RIGHT = AutonUtils.flipFieldPose(TOP_BLUE_CHUTE_RIGHT);
     }
 
     public static final class DrivebaseConstants {
