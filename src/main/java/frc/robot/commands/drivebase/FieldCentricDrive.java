@@ -8,14 +8,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.subsystems.SwerveSubsystem;
-import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.DoubleSupplier;
 import swervelib.SwerveController;
-import swervelib.math.SwerveMath;
 
 /** A more advanced Swerve Control System that has 4 buttons for which direction to face. */
 public class FieldCentricDrive extends Command {
@@ -101,9 +98,9 @@ public class FieldCentricDrive extends Command {
 
         // Limit velocity to prevent tipping
         Translation2d translation = SwerveController.getTranslation2d(desiredSpeeds);
-        translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
-                                               Constants.LOOP_TIME, Constants.ROBOT_MASS, List.of(Constants.CHASSIS),
-                                               swerve.getSwerveDriveConfiguration());
+        // translation = SwerveMath.limitVelocity(translation, swerve.getFieldVelocity(), swerve.getPose(),
+        //                                        Constants.LOOP_TIME, Constants.ROBOT_MASS, List.of(Constants.CHASSIS),
+        //                                        swerve.getSwerveDriveConfiguration());
 
         // Make the robot move
         if (headingX == 0 && headingY == 0 && Math.abs(headingAdjust.getAsDouble()) > 0) {
