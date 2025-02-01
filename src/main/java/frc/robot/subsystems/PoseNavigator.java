@@ -17,6 +17,7 @@ import frc.robot.commands.auton.utils.AutonUtils;
 
 public class PoseNavigator extends SubsystemBase {
 
+    /** AutonUtils Class Object. */
     private AutonUtils autonUtils;
 
     /** Notifier for Custom Dashboard. */
