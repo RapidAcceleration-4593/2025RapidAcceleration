@@ -103,21 +103,27 @@ public class AutonUtils {
         }
     }
 
+    /** Pose2d for Coral Station on bottom of blue alliance. */
     public final Pose2d[] BLUE_BOTTOM_CHUTE = {
         new Pose2d(0.5781, 1.3135, Rotation2d.fromDegrees(-126)),
         new Pose2d(1.0714, 0.9553, Rotation2d.fromDegrees(-126)),
         new Pose2d(1.5646, 0.5971, Rotation2d.fromDegrees(-126))
     };
 
+    /** Pose2d for Coral Station on top of blue alliance. */
     public final Pose2d[] BLUE_TOP_CHUTE = {
         new Pose2d(0.5781, 6.7383, Rotation2d.fromDegrees(126)),
         new Pose2d(1.0714, 7.0965, Rotation2d.fromDegrees(126)),
         new Pose2d(1.5646, 7.4547, Rotation2d.fromDegrees(126))
     };
 
+    /** Pose2d for Coral Station on bottom of red alliance. */
     public final Pose2d[] RED_BOTTOM_CHUTE = flipFieldPoses(BLUE_BOTTOM_CHUTE);
+
+    /** Pose2d for Coral Station on top of red alliance. */
     public final Pose2d[] RED_TOP_CHUTE = flipFieldPoses(BLUE_TOP_CHUTE);
 
+    /** Flip Pose2d locations on field for Coral Station on red alliance. */
     private Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
         Pose2d[] redPoses = new Pose2d[bluePoses.length];
         for (int i = 0; i < bluePoses.length; i++) {
