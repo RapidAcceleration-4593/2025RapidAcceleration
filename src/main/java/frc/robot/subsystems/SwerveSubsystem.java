@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Config;
 import frc.robot.Constants;
+import frc.robot.Constants.AutonConstants;
 
 import java.io.File;
 import java.util.Arrays;
@@ -46,9 +47,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Swerve Drive Object. */
     private final SwerveDrive swerveDrive;
-    
-    /** Enable Vision Odometry updates while driving. */
-    private final boolean driveWithVision = true;
 
     /** PhotonVision class to keep an accurate odometry. */
     private VisionUtils visionUtils;
@@ -92,7 +90,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible.
         swerveDrive.pushOffsetsToEncoders();
 
-        if (driveWithVision) {
+        if (AutonConstants.DRIVE_WITH_VISION) {
             setupPhotonVision();
             
             // Stop the odometry thread if we are using vision that way we can synchronize updates better.
@@ -121,7 +119,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-        if (driveWithVision) {
+        if (AutonConstants.DRIVE_WITH_VISION) {
             swerveDrive.updateOdometry();
             visionUtils.updatePoseEstimation(swerveDrive);
         }
