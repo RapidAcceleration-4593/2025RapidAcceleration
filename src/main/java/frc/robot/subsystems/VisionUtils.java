@@ -20,7 +20,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
@@ -156,7 +155,7 @@ public class VisionUtils {
                 var pose = poseEst.get();
                 swerveDrive.addVisionMeasurement(
                     pose.estimatedPose.toPose2d(),
-                    Timer.getFPGATimestamp(), // TODO: Temporary; changed from pose.timestampSeconds
+                    pose.timestampSeconds,
                     camera.curStdDevs
                 );
             }
@@ -302,8 +301,15 @@ public class VisionUtils {
 
     /** Camera Enum to select each camera. */
     enum Cameras {
-        /** AprilTag Camera. */
-        APRIL_TAG("Arducam_OV9281",
+        /** AprilTag Cameras. */
+        OV9281_Monochrome("Arducam_OV9281_Monochrome",
+                new Rotation3d(0, Units.degreesToRadians(0), 0),
+                new Translation3d(Units.inchesToMeters(14.0),
+                                  Units.inchesToMeters(0.0),
+                                  Units.inchesToMeters(9.5)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+
+        OV9782_Colored_1("Arducam_OV9782_Colored_#1",
                 new Rotation3d(0, Units.degreesToRadians(0), 0),
                 new Translation3d(Units.inchesToMeters(14.0),
                                   Units.inchesToMeters(0.0),
