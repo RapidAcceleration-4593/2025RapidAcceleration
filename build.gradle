@@ -105,17 +105,19 @@ tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
 
-tasks.register("rebootPhotonVision") {
+tasks.register("restartPhotonVision") {
     group = "FRC"
-    description = "Reboots the PhotonVision Service"
+    description = "Restarts the PhotonVision Service"
     
     doLast {
         exec {
+            // TODO: Attempt to restart the PhotonVision service from Orange Pi directly.
+            // commandLine "ssh", "-o", "StrictHostKeyChecking=no", "-i", "/home/admin/.ssh/id_rsa", "pi@10.45.93.3", "/home/pi/reset.sh"
             commandLine "ssh", "-o", "StrictHostKeyChecking=no", "admin@10.45.93.2", "ssh -i /home/admin/.ssh/id_rsa pi@10.45.93.3", "/home/pi/reset.sh"
         }
     }
 }
 
 tasks.named("deploy").configure {
-    finalizedBy("rebootPhotonVision")
+    finalizedBy("restartPhotonVision")
 }
