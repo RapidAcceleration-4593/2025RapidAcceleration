@@ -67,12 +67,17 @@ public class RobotContainer {
     SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                                                       .allianceRelativeControl(false);
 
+    Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
+
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
 
         swingArmSubsystem.setDefaultCommand(swingArmSubsystem.controlArmStatePIDCommand());
+
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     }
 
     private void configureBindings() {
