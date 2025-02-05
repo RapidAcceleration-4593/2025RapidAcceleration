@@ -188,7 +188,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return The command to move the elevator up.
      */
     public Command moveElevatorUpCommand() {
-        return runOnce(() -> moveElevatorUp());
+        return run(() -> moveElevatorUp());
     }
 
     /**
@@ -196,7 +196,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return The command to move the elevator down.
      */
     public Command moveElevatorDownCommand() {
-        return runOnce(() -> moveElevatorDown());
+        return run(() -> moveElevatorDown());
     }
 
     /** Moves the elevator up by increasing the setpoint. */
