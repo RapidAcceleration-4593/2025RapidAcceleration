@@ -74,6 +74,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** ----- Factory Commands ----- */
 
+    // TODO: Create command to check state of intakes.
+
     /**
      * Runs the left intake motor at the constant intake speed.
      * @return A command to run the left intake motor.
