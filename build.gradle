@@ -104,3 +104,19 @@ wpi.java.configureTestTasks(test)
 tasks.withType(JavaCompile) {
     options.compilerArgs.add '-XDstringConcat=inline'
 }
+
+tasks.register("RestartPhotonVision") {
+    group = "FRC"
+    description = "Restarts the PhotonVision Service"
+    
+    doLast {
+        exec {
+            // Ensure the authorized_keys file contains the public key of the RoboRIO.
+            commandLine "ssh", "-o", "StrictHostKeyChecking=no", "admin@10.45.93.2", "ssh -i /home/admin/.ssh/id_rsa pi@10.45.93.3", "/home/pi/reset.sh"
+        }
+    }
+}
+
+tasks.named("deploy").configure {
+    finalizedBy("RestartPhotonVision")
+}
