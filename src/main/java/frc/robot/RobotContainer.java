@@ -77,7 +77,6 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-
         serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
 
