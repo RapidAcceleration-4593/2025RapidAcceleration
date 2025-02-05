@@ -76,7 +76,6 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         swingArmSubsystem.setDefaultCommand(swingArmSubsystem.controlArmStatePIDCommand());
-
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     }
 
@@ -98,6 +97,12 @@ public class RobotContainer {
                     driveToPoseCommand.cancel();
                 }
             }));
+
+        // Manual Arm Control for Testing Purposes.
+        driverController.y().whileTrue(swingArmSubsystem.moveArmUpCommand());
+        driverController.a().whileTrue(swingArmSubsystem.moveArmDownCommand());
+
+        // TODO: Implement with Elevator Subsystem.
     }
 
     /**

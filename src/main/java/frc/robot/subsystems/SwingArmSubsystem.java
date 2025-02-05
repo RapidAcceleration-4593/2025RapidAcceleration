@@ -299,8 +299,7 @@ public class SwingArmSubsystem extends SubsystemBase {
 
     /** Controls the movement of the arm directly by setting the motor speed. */
     private void controlArmMovement(double speed) {
-        if (handleLimitSwitchSafety(false))
-            return;
+        if (handleLimitSwitchSafety(false)) return;
         
         setArmSetpoint(readEncoderNormalized());
         swingArmMotor.set(speed);
