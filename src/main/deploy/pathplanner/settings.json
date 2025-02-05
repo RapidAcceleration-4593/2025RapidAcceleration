@@ -3,7 +3,10 @@
   "robotLength": 0.864,
   "holonomicMode": true,
   "pathFolders": [
-    "ExampleAuton"
+    "CenterMoveOut",
+    "ExampleAuton",
+    "BottomMoveOut",
+    "TopMoveOut"
   ],
   "autoFolders": [],
   "defaultMaxVel": 3.0,
