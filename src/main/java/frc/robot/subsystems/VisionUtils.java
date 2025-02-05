@@ -20,7 +20,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTablesJNI;
 import edu.wpi.first.wpilibj.Alert;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
@@ -106,7 +105,7 @@ public class VisionUtils {
      * @param robotToCameraOffset The offset {@link Transform2d} of the robot to apply to the pose for the robot to position.
      * @return The target pose of the object detected by the camera.
      */
-    // public static Optional<Pose2d> getObjectPose(Pose2d robotPose, Transform2d robotToCameraOffset) {
+    // public Optional<Pose2d> getObjectPose(Pose2d robotPose, Transform2d robotToCameraOffset) {
     //     Optional<PhotonPipelineResult> latestResultOptional = Cameras.OBJECT_DETECTION.getLatestResult();
         
     //     if (latestResultOptional.isPresent()) {
@@ -156,7 +155,7 @@ public class VisionUtils {
                 var pose = poseEst.get();
                 swerveDrive.addVisionMeasurement(
                     pose.estimatedPose.toPose2d(),
-                    Timer.getFPGATimestamp(), // TODO: Temporary; changed from pose.timestampSeconds
+                    pose.timestampSeconds,
                     camera.curStdDevs
                 );
             }
@@ -270,7 +269,7 @@ public class VisionUtils {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
                 Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
-                // Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
+                Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -302,21 +301,27 @@ public class VisionUtils {
 
     /** Camera Enum to select each camera. */
     enum Cameras {
-        /** AprilTag Camera. */
-        APRIL_TAG("Arducam_OV9281",
+        /** AprilTag Cameras. */
+        OV9782_Colored_1("Arducam_OV9782_Colored_#1",
                 new Rotation3d(0, Units.degreesToRadians(0), 0),
-                new Translation3d(Units.inchesToMeters(14.0),
+                new Translation3d(Units.inchesToMeters(0.0),
                                   Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(9.5)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+                                  Units.inchesToMeters(0.0)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
-        /** Object Detection Camera. */
-        // OBJECT_DETECTION("PS4",
-        //         new Rotation3d(0, Units.degreesToRadians(30), Units.degreesToRadians(180)),
-        //         new Translation3d(Units.inchesToMeters(-12.0),
+        // OV9782_Colored_2("Arducam_OV9782_Colored_#2",
+        //         new Rotation3d(0, Units.degreesToRadians(0), 0),
+        //         new Translation3d(Units.inchesToMeters(0.0),
         //                           Units.inchesToMeters(0.0),
-        //                           Units.inchesToMeters(16.129)),
-        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+        //                           Units.inchesToMeters(0.0)),
+        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+
+        OV9281_Monochrome("Arducam_OV9281_Monochrome",
+                new Rotation3d(0, Units.degreesToRadians(0), 0),
+                new Translation3d(Units.inchesToMeters(0.0),
+                                  Units.inchesToMeters(0.0),
+                                  Units.inchesToMeters(0.0)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Latency alert to use when high latency is detected. */
         public final Alert latencyAlert;
