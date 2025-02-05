@@ -67,17 +67,18 @@ public class RobotContainer {
     SwerveInputStream driveRobotOriented = driveAngularVelocity.copy().robotRelative(true)
                                                                       .allianceRelativeControl(false);
 
+    Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
+    Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
+
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
+
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
     }
 
     private void configureBindings() {
-        // Command driveRobotOrientedAngularVelocity = drivebase.driveFieldOriented(driveRobotOriented);
-        Command driveFieldOrientedAngularVelocity = drivebase.driveFieldOriented(driveAngularVelocity);
-        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-
         // (Condition) ? Return-On-True : Return-On-False.
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
 
