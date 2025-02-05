@@ -79,7 +79,6 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-
         elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
     }
 
@@ -100,6 +99,11 @@ public class RobotContainer {
                 }
             }));
 
+        // Manual Elevator Control for Testing Purposes.
+        driverController.y().whileTrue(elevatorSubsystem.moveElevatorUpCommand());
+        driverController.a().whileTrue(elevatorSubsystem.moveElevatorDownCommand());
+
+        // TODO: Implement Dashboard Functionality.
         driverController.povUp().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L4));
         driverController.povLeft().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L3));
         driverController.povRight().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.PICKUP));
