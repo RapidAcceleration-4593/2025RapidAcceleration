@@ -22,6 +22,7 @@ import frc.robot.commands.elevator.MaintainElevatorLevel;
 import frc.robot.commands.elevator.RaiseElevatorToLevel;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.SwingArmSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import swervelib.SwerveInputStream;
 
@@ -32,7 +33,6 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
@@ -78,13 +78,16 @@ public class RobotContainer {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
 
+        swingArmSubsystem.setDefaultCommand(swingArmSubsystem.controlArmStatePIDCommand());
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
     }
 
     private void configureBindings() {
         // (Condition) ? Return-On-True : Return-On-False.
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
+        drivebase.setDefaultCommand(fieldCentricDrive);
+
+        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
@@ -98,6 +101,12 @@ public class RobotContainer {
                     driveToPoseCommand.cancel();
                 }
             }));
+
+        // Manual Arm Control for Testing Purposes.
+        driverController.y().whileTrue(swingArmSubsystem.moveArmUpCommand());
+        driverController.a().whileTrue(swingArmSubsystem.moveArmDownCommand());
+
+        // TODO: Implement with Elevator Subsystem.
 
         // Manual Elevator Control for Testing Purposes.
         driverController.y().whileTrue(elevatorSubsystem.moveElevatorUpCommand());
