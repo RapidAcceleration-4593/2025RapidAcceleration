@@ -102,6 +102,7 @@ public class RobotContainer {
      * @return The command to run in autonomous.
      */
     public Command getAutonomousCommand() {
+        // TODO: Implement autonomous selection for dashboard.
         return new NoneAuton();
     }
 

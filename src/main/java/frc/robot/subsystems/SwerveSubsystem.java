@@ -88,7 +88,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                                     1);
 
         // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible.
-        swerveDrive.pushOffsetsToEncoders();
+        // swerveDrive.pushOffsetsToEncoders();
 
         if (AutonConstants.DRIVE_WITH_VISION) {
             setupPhotonVision();
