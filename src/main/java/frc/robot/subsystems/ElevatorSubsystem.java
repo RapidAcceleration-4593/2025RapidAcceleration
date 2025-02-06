@@ -50,8 +50,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param level The desired elevator level.
      * @return The {@link ElevatorSubsystem#setpoints} value corresponding to the level.
      */
-    private double getElevatorStateSetpoint(ElevatorConstants.ElevatorLevel level) {
-        return switch (level) {
+    private double getElevatorStates(ElevatorConstants.ElevatorStates state) {
+        return switch (state) {
             case BOTTOM -> setpoints[0];
             case PICKUP -> setpoints[1];
             case L3 -> setpoints[2];
@@ -61,23 +61,95 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Raises the elevator to a specified level.
-     * @param level The target elevator state/level.
+     * Sets the elevator setpoint to the specified level.
+     * @param state The desired elevator level.
      */
-    public void raiseElevatorToLevel(ElevatorConstants.ElevatorLevel level) {
-        elevatorPID.setSetpoint(getElevatorStateSetpoint(level));
+    public void setElevatorSetpoint(ElevatorConstants.ElevatorStates state) {
+        elevatorPID.setSetpoint(getElevatorStates(state));
     }
 
 
-    /** ----- Encoder and Limit Switch Management ----- */
+    /** ----- Elevator State System ----- */
 
     /**
-     * Normalize the encoder reading to a positive value.
-     * @return The positive encoder reading.
+     * Controls the state of the elevator system based on the limit switch inputs and encoder feedback.
+     * <ul>
+     *  <li>Stops the motor if both the top and bottom limit switches are pressed (i.e. system malfunction).</li>
+     *  <li>Handles specific behavior when either the top or bottom limit switch is pressed.</li>
+     *  <li>Uses PID control to adjust the motor output when no limit switches are triggered.</li>
+     * </ul>
      */
-    private double readEncoderNormalized() {
-        return -heightEncoder.get();
+    public void controlElevatorState() {
+        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
+            stopElevatorMotors();
+        } else if (isTopLimitSwitchPressed()) {
+            handleTopLimitSwitchPressed();
+        } else if (isBottomLimitSwitchPressed()) {
+            handleBottomLimitSwitchPressed();
+        } else {
+            controlElevator(getEncoderValue(), getElevatorSetpoint(), ElevatorConstants.PID_THRESHOLD);
+        }
     }
+
+    /**
+     * Controls the elevator system using PID control.
+     * @param encoder The current encoder reading.
+     * @param setpoint The desired setpoint for the elevator.
+     * @param threshold The threshold for the PID control.
+     */
+    private void controlElevator(double encoder, double setpoint, double threshold) {
+        boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
+
+        if (!isWithinThreshold) {
+            // Use PID control to adjust the motor output.
+            setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), setpoint));
+        } else {
+            // Stop the motors and hold the elevator in place.
+            stopElevatorMotors();
+        }
+    }
+
+
+    /** ----- Limit Switch Handling ----- */
+
+    /**
+     * Handles the behavior when the top limit switch is pressed.
+     * <ul>
+     *  <li>Stops the motors and sets the current position as the new setpoint.</li>
+     *  <li>Allows downward movement without interference.</li>
+     * </ul>
+     */
+    private void handleTopLimitSwitchPressed() {
+        // Stop the motors and set current position as the new setpoint.
+        stopElevatorMotors();
+        elevatorPID.setSetpoint(getEncoderValue());
+
+        // Allow downward movement without interference.
+        if (getElevatorSetpoint() < getEncoderValue()) {
+            setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
+        }
+    }
+
+    /**
+     * Handles the behavior when the bottom limit switch is pressed.
+     * <ul>
+     *  <li>Resets the encoder and stops the motors.</li>
+     *  <li>Allows upward movement without interference.</li>
+     * </ul>
+     */
+    private void handleBottomLimitSwitchPressed() {
+        // Reset the encoder and stop the motors.
+        resetHeightEncoder();
+        stopElevatorMotors();
+
+        // Allow upward movement without interference.
+        if (getElevatorSetpoint() > 0) {
+            setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
+        }
+    }
+
+
+    /** ----- Encoder and Limit Switch Abstraction ----- */
 
     /**
      * Checks if the top limit switch is pressed.
@@ -96,68 +168,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Controls the state of the elevator system based on the limit switch inputs and encoder feedback.
-     * <ul>
-     *  <li>Stops the motor if both the top and bottom limit switches are pressed (i.e. system malfunction).</li>
-     *  <li>Handles specific behavior when either the top or bottom limit switch is pressed.</li>
-     *  <li>Uses PID control to adjust the motor output when no limit switches are triggered.</li>
-     * </ul>
-     */
-    public void controlElevatorState() {
-        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            setMotorSpeeds(0);
-        } else if (isTopLimitSwitchPressed()) {
-            handleTopLimitSwitchPressed();
-        } else if (isBottomLimitSwitchPressed()) {
-            handleBottomLimitSwitchPressed();
-        } else {
-            // Regular PID Control.
-            setMotorSpeeds(elevatorPID.calculate(readEncoderNormalized()));
-        }
-    }
-
-
-    /** ----- Limit Switch Handling ----- */
-
-    /**
-     * Handles the behavior when the top limit switch is pressed.
-     * <ul>
-     *  <li>Ensures the elevator's PID setpoint doesn't go above the current encoder position.</li>
-     *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
-     *      limit switch, otherwise sets the motor speed to the PID output.</li>
-     * </ul>
-     */
-    private void handleTopLimitSwitchPressed() {
-        double currentPosition = readEncoderNormalized();
-        if (getElevatorSetpoint() > currentPosition) {
-            elevatorPID.setSetpoint(currentPosition);
-        }
-
-        double pidOutput = elevatorPID.calculate(currentPosition);
-        setMotorSpeeds(pidOutput > ElevatorConstants.PID_THRESHOLD ? 0 : pidOutput);
-    }
-    /**
-     * Handles the behavior when the bottom limit switch is pressed.
-     * <ul>
-     *  <li>Resets the encoder.</li>
-     *  <li>Ensures the elevator's PID setpoint doesn't go below the current encoder position.</li>
-     *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
-     *      limit switch, otherwise sets the motor speed to the PID output.</li>
-     * </ul>
-     */
-    private void handleBottomLimitSwitchPressed() {
-        resetHeightEncoder();
-
-        double currentPosition = readEncoderNormalized();
-        if (getElevatorSetpoint() < currentPosition) {
-            elevatorPID.setSetpoint(currentPosition);
-        }
-
-        double pidOutput = elevatorPID.calculate(currentPosition);
-        setMotorSpeeds(pidOutput < ElevatorConstants.PID_THRESHOLD ? 0 : pidOutput);
-    }
-
-    /**
      * Sets the motor speed for both motors; {@link ElevatorSubsystem#leftElevatorMotor} is mirrored.
      * @param speed The speed value for the elevator motors.
      */
@@ -165,6 +175,23 @@ public class ElevatorSubsystem extends SubsystemBase {
         // TODO: Determine which motor to invert.
         leftElevatorMotor.set(speed);
         rightElevatorMotor.set(-speed);
+    }
+
+    /**
+     * Stops the elevator motors.
+     * <p>Both motors are stopped to prevent any movement.</p>
+     */
+    private void stopElevatorMotors() {
+        leftElevatorMotor.stopMotor();
+        rightElevatorMotor.stopMotor();
+    }
+
+    /**
+     * Normalize the encoder reading to a positive value.
+     * @return The positive encoder reading.
+     */
+    private double getEncoderValue() {
+        return -heightEncoder.get();
     }
 
     /**
@@ -188,7 +215,9 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return The command to move the elevator up.
      */
     public Command moveElevatorUpCommand() {
-        return run(() -> moveElevatorUp());
+        return run(
+            () -> setMotorSpeeds(ElevatorConstants.MANUAL_CONTROL_SPEED)
+        );
     }
 
     /**
@@ -196,16 +225,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return The command to move the elevator down.
      */
     public Command moveElevatorDownCommand() {
-        return run(() -> moveElevatorDown());
-    }
-
-    /** Moves the elevator up by increasing the setpoint. */
-    private void moveElevatorUp() {
-        elevatorPID.setSetpoint(getElevatorSetpoint() + ElevatorConstants.MANUAL_CONTROL_SPEED);
-    }
-
-    /** Moves the elevator down by decreasing the setpoint. */
-    private void moveElevatorDown() {
-        elevatorPID.setSetpoint(getElevatorSetpoint() - ElevatorConstants.MANUAL_CONTROL_SPEED);
+        return run(
+            () -> setMotorSpeeds(-ElevatorConstants.MANUAL_CONTROL_SPEED)
+        );
     }
 }

@@ -20,27 +20,12 @@ public class SwingArmSubsystem extends SubsystemBase {
 
     private final DigitalInput topLimitSwitch = SwingArmConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = SwingArmConstants.bottomLimitSwitch;
-
-    private final PIDController upwardPID = new PIDController(
-        SwingArmConstants.UPWARD_PID.kP,
-        SwingArmConstants.UPWARD_PID.kI,
-        SwingArmConstants.UPWARD_PID.kD
-    );
-
-    private final PIDController downwardPID = new PIDController(
-        SwingArmConstants.DOWNWARD_PID.kP,
-        SwingArmConstants.DOWNWARD_PID.kI,
-        SwingArmConstants.DOWNWARD_PID.kD
-    );
     
-    private final PIDController holdPID = new PIDController(
-        SwingArmConstants.HOLD_PID.kP,
-        SwingArmConstants.HOLD_PID.kI,
-        SwingArmConstants.HOLD_PID.kD
+    private final PIDController armPID = new PIDController(
+        SwingArmConstants.ARM_PID.kP,
+        SwingArmConstants.ARM_PID.kI,
+        SwingArmConstants.ARM_PID.kD
     );
-
-    /** Backing variable for {@link #getCurrentPID()}. It should not be used directly. */
-    private PIDController currentPID = null;
     
     /** Backing variable for {@link #getArmSetpoint()} and {@link #setArmSetpoint()}. It should not be used directly. */
     private double armSetpoint = 0;
@@ -57,30 +42,6 @@ public class SwingArmSubsystem extends SubsystemBase {
         swingArmMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-
-    /** ----- PID Controller Management ----- */
-
-    /**
-     * Returns the PID controller that should be used based on whether the arm is moving up, down, or is holding. <p>
-     * NEVER modifiy the returned controller's characteristics. Instead directly modify {@link #downwardPID}, {@link #upwardPID}, and {@link #holdPID}.
-     * To get and set the returned controller's setpoint, use {@link #getArmSetpoint()} and {@link #setArmSetpoint()}.
-    */
-    private PIDController getCurrentPID() {
-        double currentPosition = readEncoderNormalized();
-
-        if (getArmSetpoint() < currentPosition - SwingArmConstants.DOWNWARD_PID_THRESHOLD) {
-            currentPID = downwardPID;
-        } else if (getArmSetpoint() > currentPosition + SwingArmConstants.UPWARD_PID_THRESHOLD) {
-            currentPID = upwardPID;
-        } else if (Math.abs(getArmSetpoint() - currentPosition) < SwingArmConstants.HOLD_PID_THRESHOLD) {
-            // TODO: Condition may be a bad check. Perhaps it should have to remain a certain amount of time within this threshold for holdPID to kick in.
-            currentPID = holdPID;
-        }
-
-        currentPID.setSetpoint(armSetpoint);
-        return currentPID;
-    }
-    
 
     /** ----- Arm State Management ----- */
 
@@ -114,7 +75,7 @@ public class SwingArmSubsystem extends SubsystemBase {
      */
     public void controlArmState() {
         if (!handleLimitSwitchSafety(true)) {
-            swingArmMotor.set(getCurrentPID().calculate(readEncoderNormalized()));
+            swingArmMotor.set(armPID.calculate(readEncoderNormalized()));
         }   
     }
 
@@ -194,7 +155,7 @@ public class SwingArmSubsystem extends SubsystemBase {
             return;
         }
 
-        double pidOutput = getCurrentPID().calculate(currentPosition);
+        double pidOutput = armPID.calculate(currentPosition);
         swingArmMotor.set(pidOutput > SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
     }
     /**
@@ -220,7 +181,7 @@ public class SwingArmSubsystem extends SubsystemBase {
             return;
         }
 
-        double pidOutput = currentPID.calculate(currentPosition);
+        double pidOutput = armPID.calculate(currentPosition);
         swingArmMotor.set(pidOutput < -SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
     }
 

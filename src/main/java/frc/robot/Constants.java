@@ -22,17 +22,17 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final PIDConstants ELEVATOR_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
-        public static final double MANUAL_CONTROL_SPEED = 3000;
-        public static final double PID_THRESHOLD = 0.005;
+        public static final double MANUAL_CONTROL_SPEED = 0.5;
+        public static final double PID_THRESHOLD = 10.0;
 
-        public static final SparkMax leftElevatorMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
-        public static final SparkMax rightElevatorMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
+        public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
+        public static final SparkMax rightElevatorMotor = new SparkMax(4, MotorType.kBrushless);
 
         public static final Encoder heightEncoder = new Encoder(0, 0); // TODO: Assign Encoder Channels.
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
         public static final DigitalInput topLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
 
-        public enum ElevatorLevel {
+        public enum ElevatorStates {
             BOTTOM,
             PICKUP,
             L3,
@@ -41,19 +41,17 @@ public final class Constants {
     }
 
     public static final class SwingArmConstants {
-        public static final PIDConstants UPWARD_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
-        public static final PIDConstants DOWNWARD_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
-        public static final PIDConstants HOLD_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
+        public static final PIDConstants ARM_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
 
-        public static final double MANUAL_CONTROL_SPEED = 1; // Speed (0 to 1).
+        public static final double MANUAL_CONTROL_SPEED = 0.5; // Speed (0 to 1).
 
-        public static final SparkMax swingArmMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
+        public static final SparkMax swingArmMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder swingArmEncoder = new Encoder(0, 0); // TODO: Assign Encoder Channels.
 
         public static final DigitalInput topLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
 
-        /**If a limit switch is pressed and the PID function outputs a value greater than this in the direction toward the LS, then PID will be ignored and the motor set to zero. */
+        /** If a limit switch is pressed and the PID function outputs a value greater than this in the direction toward the LS, then PID will be ignored and the motor set to zero. */
         public static final double LS_PID_THRESHOLD = 0.005;
 
         /** If the arm setpoint is at least this amount beneath the encoder reading, the {@link #DOWNWARD_PID} constants will be used. */

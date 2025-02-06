@@ -1,23 +1,23 @@
 package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ElevatorConstants.ElevatorLevel;
+import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.subsystems.ElevatorSubsystem;
 
-public class RaiseElevatorToLevel extends Command {
+public class SetElevatorSetpoint extends Command {
     
     private final ElevatorSubsystem elevatorSubsystem;
-    private final ElevatorLevel level;
+    private final ElevatorStates state;
 
-    public RaiseElevatorToLevel(ElevatorSubsystem elevatorSubsystem, ElevatorLevel level) {
+    public SetElevatorSetpoint(ElevatorSubsystem elevatorSubsystem, ElevatorStates state) {
         this.elevatorSubsystem = elevatorSubsystem;
-        this.level = level;
+        this.state = state;
         addRequirements(elevatorSubsystem);
     }
 
     @Override
     public void initialize() {
-        elevatorSubsystem.raiseElevatorToLevel(level);
+        elevatorSubsystem.setElevatorSetpoint(state);
     }
 
     @Override

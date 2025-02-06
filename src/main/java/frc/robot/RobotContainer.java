@@ -14,12 +14,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ElevatorConstants.ElevatorLevel;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.MaintainElevatorLevel;
-import frc.robot.commands.elevator.RaiseElevatorToLevel;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwingArmSubsystem;
@@ -87,8 +85,6 @@ public class RobotContainer {
 
     private void configureBindings() {
         // (Condition) ? Return-On-True : Return-On-False.
-        drivebase.setDefaultCommand(fieldCentricDrive);
-
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()
@@ -104,21 +100,19 @@ public class RobotContainer {
                 }
             }));
 
-        // Manual Arm Control for Testing Purposes.
-        driverController.y().whileTrue(swingArmSubsystem.moveArmUpCommand());
-        driverController.a().whileTrue(swingArmSubsystem.moveArmDownCommand());
-
-        // TODO: Implement with Elevator Subsystem.
-
         // Manual Elevator Control for Testing Purposes.
         driverController.y().whileTrue(elevatorSubsystem.moveElevatorUpCommand());
         driverController.a().whileTrue(elevatorSubsystem.moveElevatorDownCommand());
 
+        // Manual Arm Control for Testing Purposes.
+        // driverController.y().whileTrue(swingArmSubsystem.moveArmUpCommand());
+        // driverController.a().whileTrue(swingArmSubsystem.moveArmDownCommand());
+
         // TODO: Implement Dashboard Functionality.
-        driverController.povUp().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L4));
-        driverController.povLeft().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L3));
-        driverController.povRight().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.PICKUP));
-        driverController.povDown().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.BOTTOM));
+        // driverController.povUp().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L4));
+        // driverController.povLeft().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L3));
+        // driverController.povRight().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.PICKUP));
+        // driverController.povDown().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.BOTTOM));
     }
 
     /**
