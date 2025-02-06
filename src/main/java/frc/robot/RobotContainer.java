@@ -17,7 +17,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
-import frc.robot.commands.elevator.MaintainElevatorLevel;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwingArmSubsystem;
@@ -79,8 +78,8 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
-        swingArmSubsystem.setDefaultCommand(swingArmSubsystem.controlArmStatePIDCommand());
+        // elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
+        // swingArmSubsystem.setDefaultCommand(new MaintainArmAngle(swingArmSubsystem));
     }
 
     private void configureBindings() {

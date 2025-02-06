@@ -27,7 +27,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                 ElevatorConstants.ELEVATOR_PID.kI,
                                                                 ElevatorConstants.ELEVATOR_PID.kD);
 
-    private SparkMaxConfig config = new SparkMaxConfig();
+    private final SparkMaxConfig config = new SparkMaxConfig();
 
     private final double[] setpoints = {0, 0, 0, 0}; // TODO: Determine setpoint values.
 

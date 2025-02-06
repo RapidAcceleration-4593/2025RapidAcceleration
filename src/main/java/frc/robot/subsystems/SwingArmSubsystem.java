@@ -21,17 +21,13 @@ public class SwingArmSubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = SwingArmConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = SwingArmConstants.bottomLimitSwitch;
     
-    private final PIDController armPID = new PIDController(
-        SwingArmConstants.ARM_PID.kP,
-        SwingArmConstants.ARM_PID.kI,
-        SwingArmConstants.ARM_PID.kD
-    );
-    
-    /** Backing variable for {@link #getArmSetpoint()} and {@link #setArmSetpoint()}. It should not be used directly. */
-    private double armSetpoint = 0;
+    private final PIDController armPID = new PIDController(SwingArmConstants.ARM_PID.kP,
+                                                           SwingArmConstants.ARM_PID.kI,
+                                                           SwingArmConstants.ARM_PID.kD);
 
-    private final double[] setpoints = {0, 0, 0, 0}; // TODO: Determine setpoint values.
-    private SparkMaxConfig config = new SparkMaxConfig();
+    private final SparkMaxConfig config = new SparkMaxConfig();
+
+    private final double[] setpoints = {0, 0, 0, 0, 0}; // TODO: Determine setpoint values.
 
     /**
      * Constructor for the SwingArmSubsystem class.
@@ -39,6 +35,7 @@ public class SwingArmSubsystem extends SubsystemBase {
      */
     public SwingArmSubsystem() {
         config.idleMode(IdleMode.kBrake);
+
         swingArmMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
@@ -46,11 +43,11 @@ public class SwingArmSubsystem extends SubsystemBase {
     /** ----- Arm State Management ----- */
 
     /**
-     * Retrieves the setpoint for the specified SwingArmState.
+     * Retrieves the setpoint for the specified SwingArmStates.
      * @param state The desired arm position.
      * @return The {@link SwingArmSubsystem#setpoints} value corresponding to the state.
      */
-    private double getArmStateSetpoint(SwingArmConstants.SwingArmState state) {
+    private double getArmStates(SwingArmConstants.SwingArmStates state) {
         return switch (state) {
             case BOTTOM -> setpoints[0];
             case L1 -> setpoints[1];
@@ -62,12 +59,15 @@ public class SwingArmSubsystem extends SubsystemBase {
     }
 
     /**
-     * Moves the arm to a pre-defined position based on the provided state.
-     * @param state The target SwingArmState.
+     * Sets the setpoint of the arm to the target state.
+     * @param state The desired arm position.
      */
-    public void moveToState(SwingArmConstants.SwingArmState state) {
-        setArmSetpoint(getArmStateSetpoint(state));
+    public void setArmSetpoint(SwingArmConstants.SwingArmStates state) {
+        armPID.setSetpoint(getArmStates(state));
     }
+
+
+    /** ----- Arm State system ----- */
 
     /**
      * Controls the state of the swing arm based on the limit switch inputs and encoder feedback.
@@ -75,35 +75,8 @@ public class SwingArmSubsystem extends SubsystemBase {
      */
     public void controlArmState() {
         if (!handleLimitSwitchSafety(true)) {
-            swingArmMotor.set(armPID.calculate(readEncoderNormalized()));
+            swingArmMotor.set(armPID.calculate(getEncoderValue(), getArmSetpoint()));
         }   
-    }
-
-
-    /** ----- Encoder and Limit Switch Management ----- */
-
-    /**
-     * Normalize the encoder reading to a positive value.
-     * @return The positive encoder reading.
-     */
-    private double readEncoderNormalized() {
-        return -swingArmEncoder.get();
-    }
-
-    /**
-     * Checks if the top limit switch is pressed.
-     * @return Whether {@link SwingArmSubsystem#topLimitSwitch} is pressed.
-     */
-    private boolean isTopLimitSwitchPressed() {
-        return !topLimitSwitch.get();
-    }
-
-    /**
-     * Checks if the bottom limit switch is pressed.
-     * @return Whether {@link SwingArmSubsystem#bottomLimitSwitch} is pressed.
-     */
-    private boolean isBottomLimitSwitchPressed() {
-        return !bottomLimitSwitch.get();
     }
 
 
@@ -122,7 +95,7 @@ public class SwingArmSubsystem extends SubsystemBase {
      */
     private boolean handleLimitSwitchSafety(boolean usePID) {
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            swingArmMotor.stopMotor();
+            stopArmMotor();
             return true;
         } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed(usePID);
@@ -144,9 +117,9 @@ public class SwingArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed(boolean usePID) {
-        double currentPosition = readEncoderNormalized();
+        double currentPosition = getEncoderValue();
         if (getArmSetpoint() > currentPosition) {
-            setArmSetpoint(currentPosition);
+            armPID.setSetpoint(currentPosition);
         }
 
         // TODO: Confirm that on the new robot positive motor speed moves the arm upwards.
@@ -158,6 +131,7 @@ public class SwingArmSubsystem extends SubsystemBase {
         double pidOutput = armPID.calculate(currentPosition);
         swingArmMotor.set(pidOutput > SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
     }
+
     /**
      * Handles the behavior when the bottom limit switch is pressed.
      * <ul>
@@ -170,9 +144,9 @@ public class SwingArmSubsystem extends SubsystemBase {
     private void handleBottomLimitSwitchPressed(boolean usePID) {
         resetArmEncoder();
 
-        double currentPosition = readEncoderNormalized();
+        double currentPosition = getEncoderValue();
         if (getArmSetpoint() < currentPosition) {
-            setArmSetpoint(currentPosition);
+            armPID.setSetpoint(currentPosition);
         }
         
         // TODO: Confirm that on the new robot negative motor speed moves the arm downwards.
@@ -185,20 +159,32 @@ public class SwingArmSubsystem extends SubsystemBase {
         swingArmMotor.set(pidOutput < -SwingArmConstants.LS_PID_THRESHOLD ? 0 : pidOutput);
     }
 
+
+    /** ----- Encoder and Limit Switch Abstraction ----- */
+
     /**
-     * Sets the setpoint of the arm PID controller.
-     * @param The setpoint of the arm PID controller.
+     * Checks if the top limit switch is pressed.
+     * @return Whether {@link SwingArmSubsystem#topLimitSwitch} is pressed.
      */
-    private void setArmSetpoint(double setpoint) {
-        armSetpoint = setpoint;
+    private boolean isTopLimitSwitchPressed() {
+        return !topLimitSwitch.get();
     }
 
     /**
-     * Retrieves the current arm PID setpoint.
-     * @return The current setpoint of the arm PID controller.
+     * Checks if the bottom limit switch is pressed.
+     * @return Whether {@link SwingArmSubsystem#bottomLimitSwitch} is pressed.
      */
-    private double getArmSetpoint() {
-        return armSetpoint;
+    private boolean isBottomLimitSwitchPressed() {
+        return !bottomLimitSwitch.get();
+    }
+
+    /**
+     * Sets the motor speed for the arm motor.
+     * @param speed The desired speed of the motor.
+     */
+    private void setMotorSpeed(double speed) {
+        // TODO: Determine if inverting is necessary.
+        swingArmMotor.set(speed);
     }
 
     /** 
@@ -207,6 +193,30 @@ public class SwingArmSubsystem extends SubsystemBase {
     */
     private double getMotorSpeed() {
         return swingArmMotor.get();
+    }
+
+    /**
+     * Stops the arm motor.
+     * <p>Stops the motor to prevent any movement.</p>
+     */
+    private void stopArmMotor() {
+        swingArmMotor.stopMotor();
+    }
+
+    /**
+     * Normalize the encoder reading to a positive value.
+     * @return The positive encoder reading.
+     */
+    private double getEncoderValue() {
+        return -swingArmEncoder.get();
+    }
+
+    /**
+     * Retrieves the current arm PID setpoint.
+     * @return The current setpoint of the arm PID controller.
+     */
+    private double getArmSetpoint() {
+        return armPID.getSetpoint();
     }
 
     /** Resets the arm encoder. */
@@ -222,7 +232,9 @@ public class SwingArmSubsystem extends SubsystemBase {
      * @return The command to move the arm up.
      */
     public Command moveArmUpCommand() {
-        return runOnce(() -> moveArmUp());
+        return run (
+            () -> setMotorSpeed(SwingArmConstants.MANUAL_CONTROL_SPEED)
+        );
     }
 
     /**
@@ -230,55 +242,8 @@ public class SwingArmSubsystem extends SubsystemBase {
      * @return The command to move the arm down.
      */
     public Command moveArmDownCommand() {
-        return runOnce(() -> moveArmDown());
-    }
-
-    /**
-     * Returns a command to stop the arm.
-     * @return The command to stop the arm.
-     */
-    public Command stopArmCommand() {
-        return runOnce(() -> stopArm());
-    }
-
-    /**
-     * Returns a command to move the arm to the setpoint using PID and limit switches.
-     * @return The command to move the arm.
-     */
-    public Command controlArmStatePIDCommand () {
-        return run(() -> controlArmState());
-    }
-
-    /**
-     * Returns a command to set the arm's setpoint to a target position.
-     * @param state The state to move to.
-     * @return A command that you should really schedule.
-     */
-    public Command moveToPositionCommand(SwingArmConstants.SwingArmState state) {
-        return runOnce(() -> moveToState(state));
-    }
-
-    /** Controls the movement of the arm directly by setting the motor speed. */
-    private void controlArmMovement(double speed) {
-        if (handleLimitSwitchSafety(false)) return;
-        
-        setArmSetpoint(readEncoderNormalized());
-        swingArmMotor.set(speed);
-    }
-
-    /** Moves the swing arm up by directly running the motor. */
-    private void moveArmUp() {
-        controlArmMovement(SwingArmConstants.MANUAL_CONTROL_SPEED);
-    }
-
-    /** Moves the swing arm down by directly running the motor. */
-    private void moveArmDown() {
-        controlArmMovement(-SwingArmConstants.MANUAL_CONTROL_SPEED);
-    }
-
-    /** Stops the movement of the swing arm. */
-    private void stopArm() {
-        setArmSetpoint(readEncoderNormalized());
-        swingArmMotor.stopMotor();
+        return run(
+            () -> setMotorSpeed(-SwingArmConstants.MANUAL_CONTROL_SPEED)
+        );
     }
 }

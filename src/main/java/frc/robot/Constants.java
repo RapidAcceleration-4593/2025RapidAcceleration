@@ -63,7 +63,7 @@ public final class Constants {
         /** If the arm setpoint is at within this amount of the encoder reading, the {@link #HOLD_PID} constants will be used. */
         public static final double HOLD_PID_THRESHOLD = 300;
         
-        public enum SwingArmState {
+        public enum SwingArmStates {
             BOTTOM,
             L1,
             L2,
