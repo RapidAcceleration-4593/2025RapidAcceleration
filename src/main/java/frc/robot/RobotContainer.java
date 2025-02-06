@@ -33,6 +33,8 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
+    public final SwingArmSubsystem swingArmSubsystem = new SwingArmSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
@@ -78,9 +80,9 @@ public class RobotContainer {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
 
-        swingArmSubsystem.setDefaultCommand(swingArmSubsystem.controlArmStatePIDCommand());
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
+        swingArmSubsystem.setDefaultCommand(swingArmSubsystem.controlArmStatePIDCommand());
     }
 
     private void configureBindings() {
