@@ -37,9 +37,9 @@ public class RobotContainer {
     public final PoseNavigator poseNavigator = new PoseNavigator(autonUtils);
 
     // Controller(s)
-    private final CommandXboxController driverController = new CommandXboxController(0);
+    private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
-    /** DriveToPoseCommand for Custom Dashboard. */
+    /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = null;
 
     /** Swerve Drive Command with full field-centric mode and heading correction. */
@@ -82,7 +82,7 @@ public class RobotContainer {
 
     private void configureBindings() {
         // (Condition) ? Return-On-True : Return-On-False.
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
+        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
