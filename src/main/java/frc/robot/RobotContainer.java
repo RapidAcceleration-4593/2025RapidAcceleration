@@ -15,13 +15,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.commands.arm.manual.MoveArmDown;
+import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.MaintainElevatorLevel;
 import frc.robot.commands.elevator.SetElevatorSetpoint;
+import frc.robot.commands.elevator.manual.MoveElevatorDown;
+import frc.robot.commands.elevator.manual.MoveElevatorUp;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.SwingArmSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import swervelib.SwerveInputStream;
@@ -34,7 +38,7 @@ public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    public final SwingArmSubsystem swingArmSubsystem = new SwingArmSubsystem();
+    public final ArmSubsystem swingArmSubsystem = new ArmSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
@@ -103,20 +107,16 @@ public class RobotContainer {
             }));
 
         // Manual Elevator Control for Testing Purposes.
-        driverController.y().whileTrue(elevatorSubsystem.moveElevatorUpCommand())
-                            .onFalse(elevatorSubsystem.stopElevatorMotorsCommand());
-        driverController.a().whileTrue(elevatorSubsystem.moveElevatorDownCommand())
-                            .onFalse(elevatorSubsystem.stopElevatorMotorsCommand());
+        driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
+        driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
 
         // Manual Arm Control for Testing Purposes.
-        driverController.x().whileTrue(swingArmSubsystem.moveArmUpCommand())
-                            .onFalse(swingArmSubsystem.stopArmMotorCommand());
-        driverController.b().whileTrue(swingArmSubsystem.moveArmDownCommand())
-                            .onFalse(swingArmSubsystem.stopArmMotorCommand());
+        driverController.x().whileTrue(new MoveArmUp(swingArmSubsystem));
+        driverController.b().whileTrue(new MoveArmDown(swingArmSubsystem));
 
-        // TODO: Implement Dashboard Functionality.
         driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
         driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
+        driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.HANDOFF));
         driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
     }
 

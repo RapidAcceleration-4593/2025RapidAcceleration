@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 
@@ -28,9 +27,9 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                 ElevatorConstants.ELEVATOR_PID.kI,
                                                                 ElevatorConstants.ELEVATOR_PID.kD);
 
-    private final SparkMaxConfig config = new SparkMaxConfig();
+    private final double[] setpoints = {0, 750, 1000, 10000}; // TODO: Determine setpoint values.
 
-    private final double[] setpoints = {0, 750, 10000}; // TODO: Determine setpoint values.
+    private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -43,25 +42,12 @@ public class ElevatorSubsystem extends SubsystemBase {
         rightElevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
-    public void periodic() {
-        SmartDashboard.putNumber("ElevatorEncoder", getEncoderValue());
-        SmartDashboard.putNumber("ElevatorSetpoint", getElevatorSetpoint());
-        SmartDashboard.putNumber("ElevatorPIDOutput", elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
-        SmartDashboard.putBoolean("ElevatorTopLS", isTopLimitSwitchPressed());
-        SmartDashboard.putBoolean("ElevatorBotLS", isBottomLimitSwitchPressed());
-
-        if (isBottomLimitSwitchPressed()) {
-            resetHeightEncoder();
-        }
-    }
-
 
     /** ----- Elevator State Management ----- */
 
     /**
-     * Retrieves the setpoint for the specified elevator level.
-     * @param level The desired elevator level.
-     * @return The {@link ElevatorSubsystem#setpoints} value corresponding to the level.
+     * Sets the elevator state to the specified level.
+     * @param state The desired elevator level.
      */
     private double getElevatorStates(ElevatorConstants.ElevatorStates state) {
         return switch (state) {
@@ -78,6 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public void setElevatorSetpoint(ElevatorConstants.ElevatorStates state) {
         elevatorPID.setSetpoint(getElevatorStates(state));
+        SmartDashboard.putNumber("E-Setpoint", getElevatorSetpoint());
     }
 
 
@@ -111,13 +98,14 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private void controlElevator(double encoder, double setpoint, double threshold) {
         boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
+        SmartDashboard.putBoolean("E-WithinThreshold", isWithinThreshold);
 
-        if (!isWithinThreshold) {
-            // Use PID control to adjust the motor output.
-            setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), setpoint));
-        } else {
+        if (isWithinThreshold) {
             // Stop the motors and hold the elevator in place.
             stopElevatorMotors();
+        } else {
+            // Use PID control to adjust the motor output.
+            setMotorSpeeds(elevatorPID.calculate(encoder, setpoint));
         }
     }
 
@@ -167,23 +155,23 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Checks if the top limit switch is pressed.
      * @return Whether {@link ElevatorSubsystem#topLimitSwitch} is pressed.
      */
-    private boolean isTopLimitSwitchPressed() {
-        return !topLimitSwitch.get();
+    public boolean isTopLimitSwitchPressed() {
+        return logAndReturn("E-TopLimitSwitch", !topLimitSwitch.get());
     }
 
     /**
      * Checks if the bottom limit switch is pressed.
      * @return Whether {@link ElevatorSubsystem#bottomLimitSwitch} is pressed.
      */
-    private boolean isBottomLimitSwitchPressed() {
-        return bottomLimitSwitch.get();
+    public boolean isBottomLimitSwitchPressed() {
+        return logAndReturn("E-BotLimitSwitch", bottomLimitSwitch.get());
     }
 
     /**
      * Sets the motor speed for both motors; {@link ElevatorSubsystem#leftElevatorMotor} is mirrored.
      * @param speed The speed value for the elevator motors.
      */
-    private void setMotorSpeeds(double speed) {
+    public void setMotorSpeeds(double speed) {
         leftElevatorMotor.set(-speed);
         rightElevatorMotor.set(speed);
     }
@@ -192,17 +180,17 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Stops the elevator motors.
      * <p>Both motors are stopped to prevent any movement.</p>
      */
-    private void stopElevatorMotors() {
+    public void stopElevatorMotors() {
         leftElevatorMotor.stopMotor();
         rightElevatorMotor.stopMotor();
     }
 
     /**
-     * Normalize the encoder reading to a positive value.
-     * @return The positive encoder reading.
+     * Retrieves the current encoder value of the elevator.
+     * @return The current encoder value of the elevator.
      */
     private double getEncoderValue() {
-        return -heightEncoder.get();
+        return logAndReturn("E-Encoder", -heightEncoder.get());
     }
 
     /**
@@ -216,42 +204,23 @@ public class ElevatorSubsystem extends SubsystemBase {
     /** Resets the height encoder. */
     private void resetHeightEncoder() {
         heightEncoder.reset();
-    }
-
-
-    /** ----- Command Factory Methods ----- */
-
-    /**
-     * Returns a command to move the elevator up.
-     * @return The command to move the elevator up.
-     */
-    public Command moveElevatorUpCommand() {
-        return run(
-            () -> manageManualLimitSwitches(isTopLimitSwitchPressed(), ElevatorConstants.MANUAL_CONTROL_SPEED)
-        );
+        SmartDashboard.putNumber("E-Encoder", 0);
     }
 
     /**
-     * Returns a command to move the elevator down.
-     * @return The command to move the elevator down.
+     * Logs the value to SmartDashboard and returns it.
+     * @param <X> The type of value to log.
+     * @param key The key to log the value under.
+     * @param value The value to log.
+     * @return The value that was logged.
      */
-    public Command moveElevatorDownCommand() {
-        return run(
-            () -> manageManualLimitSwitches(isBottomLimitSwitchPressed(), -ElevatorConstants.MANUAL_CONTROL_SPEED)
-        );
-    }
-
-    public Command stopElevatorMotorsCommand() {
-        return run (
-            () -> stopElevatorMotors()
-        );
-    }
-
-    private void manageManualLimitSwitches(boolean limitswitchPressed, double speed) {
-        if (!limitswitchPressed) {
-            setMotorSpeeds(speed);
-        } else {
-            stopElevatorMotors();
+    private <X> X logAndReturn(String key, X value) {
+        if (value instanceof Boolean) {
+            SmartDashboard.putBoolean(key, (Boolean) value);
+        } else if (value instanceof Double) {
+            SmartDashboard.putNumber(key, (Double) value);
         }
+
+        return value;
     }
 }

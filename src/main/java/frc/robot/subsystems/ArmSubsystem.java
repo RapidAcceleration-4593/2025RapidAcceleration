@@ -10,44 +10,33 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.SwingArmConstants;
+import frc.robot.Constants.ArmConstants;
 
-public class SwingArmSubsystem extends SubsystemBase {
+public class ArmSubsystem extends SubsystemBase {
 
-    private final SparkMax swingArmMotor = SwingArmConstants.swingArmMotor;
-    private final Encoder swingArmEncoder = SwingArmConstants.swingArmEncoder;
+    private final SparkMax armMotor = ArmConstants.armMotor;
+    private final Encoder armEncoder = ArmConstants.armEncoder;
 
-    private final DigitalInput topLimitSwitch = SwingArmConstants.topLimitSwitch;
-    private final DigitalInput bottomLimitSwitch = SwingArmConstants.bottomLimitSwitch;
+    private final DigitalInput topLimitSwitch = ArmConstants.topLimitSwitch;
+    private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
     
-    private final PIDController armPID = new PIDController(SwingArmConstants.ARM_PID.kP,
-                                                           SwingArmConstants.ARM_PID.kI,
-                                                           SwingArmConstants.ARM_PID.kD);
-
-    private final SparkMaxConfig config = new SparkMaxConfig();
+    private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
+                                                           ArmConstants.ARM_PID.kI,
+                                                           ArmConstants.ARM_PID.kD);
 
     private final double[] setpoints = {0, 0, 0, 0, 0}; // TODO: Determine setpoint values.
+
+    private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
      * Constructor for the SwingArmSubsystem class.
      * Initializes the motor and encoder configuration.
      */
-    public SwingArmSubsystem() {
+    public ArmSubsystem() {
         config.idleMode(IdleMode.kBrake);
 
-        swingArmMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
-
-    public void periodic() {
-        SmartDashboard.putNumber("ArmEncoder", getEncoderValue());
-        SmartDashboard.putBoolean("ArmTopLS", isTopLimitSwitchPressed());
-        SmartDashboard.putBoolean("ArmBottomLS", isBottomLimitSwitchPressed());
-
-        if (isBottomLimitSwitchPressed()) {
-            resetArmEncoder();
-        }
+        armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
 
@@ -56,9 +45,9 @@ public class SwingArmSubsystem extends SubsystemBase {
     /**
      * Retrieves the setpoint for the specified SwingArmStates.
      * @param state The desired arm position.
-     * @return The {@link SwingArmSubsystem#setpoints} value corresponding to the state.
+     * @return The {@link ArmSubsystem#setpoints} value corresponding to the state.
      */
-    private double getArmStates(SwingArmConstants.SwingArmStates state) {
+    private double getArmStates(ArmConstants.ArmStates state) {
         return switch (state) {
             case BOTTOM -> setpoints[0];
             case L1 -> setpoints[1];
@@ -73,8 +62,9 @@ public class SwingArmSubsystem extends SubsystemBase {
      * Sets the setpoint of the arm to the target state.
      * @param state The desired arm position.
      */
-    public void setArmSetpoint(SwingArmConstants.SwingArmStates state) {
+    public void setArmSetpoint(ArmConstants.ArmStates state) {
         armPID.setSetpoint(getArmStates(state));
+        SmartDashboard.putNumber("A-Setpoint", getArmSetpoint());
     }
 
 
@@ -92,17 +82,26 @@ public class SwingArmSubsystem extends SubsystemBase {
         } else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
         } else {
-            controlArm(getEncoderValue(), getArmSetpoint(), SwingArmConstants.PID_THRESHOLD);
+            controlArm(getEncoderValue(), getArmSetpoint(), ArmConstants.PID_THRESHOLD);
         }
     }
 
+    /**
+     * Controls the arm based on the encoder feedback and setpoint.
+     * @param encoder The current encoder reading.
+     * @param setpoint The desired setpoint for the arm.
+     * @param threshold The threshold for the PID controller.
+     */
     private void controlArm(double encoder, double setpoint, double threshold) {
         boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
+        SmartDashboard.putBoolean("A-WithinThreshold", isWithinThreshold);
 
-        if (!isWithinThreshold) {
-            setMotorSpeed(armPID.calculate(encoder, setpoint));
-        } else {
+        if (isWithinThreshold) {
+            // Stop the motors and hold the elevator in place.
             stopArmMotor();
+        } else {
+            // Use PID control to adjust the motor output.
+            setMotorSpeed(armPID.calculate(encoder, setpoint));
         }
     }
 
@@ -118,9 +117,11 @@ public class SwingArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
+        // Reset the encoder and stop the motor.
         stopArmMotor();
         armPID.setSetpoint(getEncoderValue());
 
+        // Ensure the arm doesn't go above the current encoder position.
         if (getArmSetpoint() < getEncoderValue()) {
             setMotorSpeed(armPID.calculate(getEncoderValue(), getArmSetpoint()));
         }
@@ -136,9 +137,11 @@ public class SwingArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
+        // Reset the encoder and stop the motor.
         resetArmEncoder();
         stopArmMotor();
 
+        // Ensure the arm doesn't go below the current encoder position.
         if (getArmSetpoint() > 0) {
             setMotorSpeed(armPID.calculate(getEncoderValue(), getArmSetpoint()));
         }
@@ -149,43 +152,42 @@ public class SwingArmSubsystem extends SubsystemBase {
 
     /**
      * Checks if the top limit switch is pressed.
-     * @return Whether {@link SwingArmSubsystem#topLimitSwitch} is pressed.
+     * @return Whether {@link ArmSubsystem#topLimitSwitch} is pressed.
      */
-    private boolean isTopLimitSwitchPressed() {
-        return !topLimitSwitch.get();
+    public boolean isTopLimitSwitchPressed() {
+        return logAndReturn("A-TopLimitSwitch", !topLimitSwitch.get());
     }
 
     /**
      * Checks if the bottom limit switch is pressed.
-     * @return Whether {@link SwingArmSubsystem#bottomLimitSwitch} is pressed.
+     * @return Whether {@link ArmSubsystem#bottomLimitSwitch} is pressed.
      */
-    private boolean isBottomLimitSwitchPressed() {
-        return !bottomLimitSwitch.get();
+    public boolean isBottomLimitSwitchPressed() {
+        return logAndReturn("A-BotLimitSwitch", !bottomLimitSwitch.get());
     }
 
     /**
      * Sets the motor speed for the arm motor.
      * @param speed The desired speed of the motor.
      */
-    private void setMotorSpeed(double speed) {
-        // TODO: Determine if inverting is necessary.
-        swingArmMotor.set(speed);
+    public void setMotorSpeed(double speed) {
+        armMotor.set(speed);
     }
 
     /**
      * Stops the arm motor.
      * <p>Stops the motor to prevent any movement.</p>
      */
-    private void stopArmMotor() {
-        swingArmMotor.stopMotor();
+    public void stopArmMotor() {
+        armMotor.stopMotor();
     }
 
     /**
-     * Normalize the encoder reading to a positive value.
-     * @return The positive encoder reading.
+     * Retrieves the current encoder value of the arm.
+     * @return The current encoder value of the arm.
      */
     private double getEncoderValue() {
-        return -swingArmEncoder.get();
+        return logAndReturn("A-Encoder", -armEncoder.get());
     }
 
     /**
@@ -198,43 +200,24 @@ public class SwingArmSubsystem extends SubsystemBase {
 
     /** Resets the arm encoder. */
     private void resetArmEncoder() {
-        swingArmEncoder.reset();
-    }
-
-
-    /** ----- Command Factory Methods ----- */
-
-    /**
-     * Returns a command to move the arm up.
-     * @return The command to move the arm up.
-     */
-    public Command moveArmUpCommand() {
-        return run (
-            () -> manageManualLimitSwitches(isTopLimitSwitchPressed(), SwingArmConstants.MANUAL_CONTROL_SPEED)
-        );
+        armEncoder.reset();
+        SmartDashboard.putNumber("A-Encoder", 0);
     }
 
     /**
-     * Returns a command to move the arm down.
-     * @return The command to move the arm down.
+     * Logs the value to SmartDashboard and returns it.
+     * @param <X> The type of value to log.
+     * @param key The key to log the value under.
+     * @param value The value to log.
+     * @return The value that was logged.
      */
-    public Command moveArmDownCommand() {
-        return run(
-            () -> manageManualLimitSwitches(isBottomLimitSwitchPressed(), -SwingArmConstants.MANUAL_CONTROL_SPEED)
-        );
-    }
-
-    public Command stopArmMotorCommand() {
-        return runOnce(
-            () -> stopArmMotor()
-        );
-    }
-
-    private void manageManualLimitSwitches(boolean limitswitchPressed, double speed) {
-        if (!limitswitchPressed) {
-            setMotorSpeed(speed);
-        } else {
-            stopArmMotor();
+    private <X> X logAndReturn(String key, X value) {
+        if (value instanceof Boolean) {
+            SmartDashboard.putBoolean(key, (Boolean) value);
+        } else if (value instanceof Double) {
+            SmartDashboard.putNumber(key, (Double) value);
         }
+
+        return value;
     }
 }

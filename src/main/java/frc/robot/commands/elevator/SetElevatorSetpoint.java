@@ -9,10 +9,10 @@ public class SetElevatorSetpoint extends Command {
     private final ElevatorSubsystem elevatorSubsystem;
     private final ElevatorStates state;
 
-    public SetElevatorSetpoint(ElevatorSubsystem elevatorSubsystem, ElevatorStates state) {
-        this.elevatorSubsystem = elevatorSubsystem;
+    public SetElevatorSetpoint(ElevatorSubsystem subsystem, ElevatorStates state) {
+        this.elevatorSubsystem = subsystem;
         this.state = state;
-        addRequirements(elevatorSubsystem);
+        addRequirements(subsystem);
     }
 
     @Override
