@@ -9,6 +9,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
@@ -29,7 +30,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
-    private final double[] setpoints = {0, 0, 0, 0}; // TODO: Determine setpoint values.
+    private final double[] setpoints = {0, 750, 10000}; // TODO: Determine setpoint values.
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -40,6 +41,18 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         leftElevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         rightElevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+    public void periodic() {
+        SmartDashboard.putNumber("ElevatorEncoder", getEncoderValue());
+        SmartDashboard.putNumber("ElevatorSetpoint", getElevatorSetpoint());
+        SmartDashboard.putNumber("ElevatorPIDOutput", elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
+        SmartDashboard.putBoolean("ElevatorTopLS", isTopLimitSwitchPressed());
+        SmartDashboard.putBoolean("ElevatorBotLS", isBottomLimitSwitchPressed());
+
+        if (isBottomLimitSwitchPressed()) {
+            resetHeightEncoder();
+        }
     }
 
 
@@ -53,9 +66,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double getElevatorStates(ElevatorConstants.ElevatorStates state) {
         return switch (state) {
             case BOTTOM -> setpoints[0];
-            case PICKUP -> setpoints[1];
-            case L3 -> setpoints[2];
-            case L4 -> setpoints[3];
+            case L3 -> setpoints[1];
+            case L4 -> setpoints[2];
             default -> -1;
         };
     }
@@ -164,7 +176,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return Whether {@link ElevatorSubsystem#bottomLimitSwitch} is pressed.
      */
     private boolean isBottomLimitSwitchPressed() {
-        return !bottomLimitSwitch.get();
+        return bottomLimitSwitch.get();
     }
 
     /**
@@ -172,9 +184,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param speed The speed value for the elevator motors.
      */
     private void setMotorSpeeds(double speed) {
-        // TODO: Determine which motor to invert.
-        leftElevatorMotor.set(speed);
-        rightElevatorMotor.set(-speed);
+        leftElevatorMotor.set(-speed);
+        rightElevatorMotor.set(speed);
     }
 
     /**
@@ -216,7 +227,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public Command moveElevatorUpCommand() {
         return run(
-            () -> setMotorSpeeds(ElevatorConstants.MANUAL_CONTROL_SPEED)
+            () -> manageManualLimitSwitches(isTopLimitSwitchPressed(), ElevatorConstants.MANUAL_CONTROL_SPEED)
         );
     }
 
@@ -226,7 +237,21 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public Command moveElevatorDownCommand() {
         return run(
-            () -> setMotorSpeeds(-ElevatorConstants.MANUAL_CONTROL_SPEED)
+            () -> manageManualLimitSwitches(isBottomLimitSwitchPressed(), -ElevatorConstants.MANUAL_CONTROL_SPEED)
         );
+    }
+
+    public Command stopElevatorMotorsCommand() {
+        return run (
+            () -> stopElevatorMotors()
+        );
+    }
+
+    private void manageManualLimitSwitches(boolean limitswitchPressed, double speed) {
+        if (!limitswitchPressed) {
+            setMotorSpeeds(speed);
+        } else {
+            stopElevatorMotors();
+        }
     }
 }

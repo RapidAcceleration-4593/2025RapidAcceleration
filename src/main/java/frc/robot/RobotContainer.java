@@ -14,12 +14,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.elevator.MaintainElevatorLevel;
+import frc.robot.commands.elevator.SetElevatorSetpoint;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwingArmSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import swervelib.SwerveInputStream;
 
@@ -78,7 +81,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        // elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
+        elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
         // swingArmSubsystem.setDefaultCommand(new MaintainArmAngle(swingArmSubsystem));
     }
 
@@ -100,18 +103,21 @@ public class RobotContainer {
             }));
 
         // Manual Elevator Control for Testing Purposes.
-        driverController.y().whileTrue(elevatorSubsystem.moveElevatorUpCommand());
-        driverController.a().whileTrue(elevatorSubsystem.moveElevatorDownCommand());
+        driverController.y().whileTrue(elevatorSubsystem.moveElevatorUpCommand())
+                            .onFalse(elevatorSubsystem.stopElevatorMotorsCommand());
+        driverController.a().whileTrue(elevatorSubsystem.moveElevatorDownCommand())
+                            .onFalse(elevatorSubsystem.stopElevatorMotorsCommand());
 
         // Manual Arm Control for Testing Purposes.
-        // driverController.y().whileTrue(swingArmSubsystem.moveArmUpCommand());
-        // driverController.a().whileTrue(swingArmSubsystem.moveArmDownCommand());
+        driverController.x().whileTrue(swingArmSubsystem.moveArmUpCommand())
+                            .onFalse(swingArmSubsystem.stopArmMotorCommand());
+        driverController.b().whileTrue(swingArmSubsystem.moveArmDownCommand())
+                            .onFalse(swingArmSubsystem.stopArmMotorCommand());
 
         // TODO: Implement Dashboard Functionality.
-        // driverController.povUp().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L4));
-        // driverController.povLeft().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.L3));
-        // driverController.povRight().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.PICKUP));
-        // driverController.povDown().onTrue(new RaiseElevatorToLevel(elevatorSubsystem, ElevatorLevel.BOTTOM));
+        driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
+        driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
+        driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
     }
 
     /**
