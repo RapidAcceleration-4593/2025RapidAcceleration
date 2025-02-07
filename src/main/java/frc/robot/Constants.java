@@ -5,6 +5,8 @@
 package frc.robot;
 
 import com.pathplanner.lib.config.PIDConstants;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
@@ -18,6 +20,11 @@ public final class Constants {
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
     public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration.
+
+    public static final class SerializerConstants {
+        public static final SparkMax beltMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
+        public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+    }
 
     public static final class IntakeConstants {
         public static final double MOTOR_STALL_AMPERAGE = 20; // Amps.

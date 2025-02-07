@@ -17,9 +17,11 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.serializer.ControlSerializerBelt;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.PoseNavigator;
+import frc.robot.subsystems.SerializerSubsystem;
 import swervelib.SwerveInputStream;
 
 /**
@@ -29,6 +31,7 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
+    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     // Util(s)
@@ -76,6 +79,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
+        serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
         // TODO: Default Command for IntakeSubsystem.
     }
 
