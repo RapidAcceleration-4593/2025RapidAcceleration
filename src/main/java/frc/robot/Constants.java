@@ -7,14 +7,11 @@ package frc.robot;
 import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
 
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.DigitalInput;
 import swervelib.math.Matter;
 
 public final class Constants {
@@ -67,9 +64,9 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final double MOTOR_STALL_AMPERAGE = 20; // Amps.
+        public static final double MOTOR_STALL_AMPERAGE = 20; // In Amps.
         
-        public static final double EXTENSION_MOTOR_SPEED = 0.75; // Speed (0 to 1).
+        public static final double EXTENSION_MOTOR_SPEED = 0.5; // Speed (0 to 1).
         public static final double INTAKE_MOTOR_SPEED = 0.5; // Speed (0 to 1).
 
         public static final SparkMax leftExtensionMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
@@ -78,6 +75,7 @@ public final class Constants {
         public static final SparkMax leftIntakeMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
         public static final SparkMax rightIntakeMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
 
+        // TODO: Remove Limit Switches.
         public static final DigitalInput leftLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
         public static final DigitalInput rightLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
     
