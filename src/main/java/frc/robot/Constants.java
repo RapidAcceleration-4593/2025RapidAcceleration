@@ -24,7 +24,7 @@ public final class Constants {
         public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.001, 0.00075, 0); // TODO: Tune PID.
         
         public static final double MANUAL_CONTROL_SPEED = 0.5; // Speed (0 to 1).
-        public static final double PID_THRESHOLD = 10.0;
+        public static final int PID_THRESHOLD = 10;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
         public static final SparkMax rightElevatorMotor = new SparkMax(4, MotorType.kBrushless);
@@ -52,8 +52,7 @@ public final class Constants {
         public static final DigitalInput topLimitSwitch = new DigitalInput(2);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(3);
 
-        /** If a limit switch is pressed and the PID function outputs a value greater than this in the direction toward the LS, then PID will be ignored and the motor set to zero. */
-        public static final double PID_THRESHOLD = 10.0;
+        public static final int PID_THRESHOLD = 10;
         
         public enum ArmStates {
             BOTTOM,

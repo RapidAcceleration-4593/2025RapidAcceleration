@@ -38,7 +38,7 @@ public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    public final ArmSubsystem swingArmSubsystem = new ArmSubsystem();
+    public final ArmSubsystem armSubsystem = new ArmSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
@@ -86,7 +86,7 @@ public class RobotContainer {
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
-        // swingArmSubsystem.setDefaultCommand(new MaintainArmAngle(swingArmSubsystem));
+        // armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
     }
 
     private void configureBindings() {
@@ -111,9 +111,10 @@ public class RobotContainer {
         driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
 
         // Manual Arm Control for Testing Purposes.
-        driverController.x().whileTrue(new MoveArmUp(swingArmSubsystem));
-        driverController.b().whileTrue(new MoveArmDown(swingArmSubsystem));
+        driverController.x().whileTrue(new MoveArmUp(armSubsystem));
+        driverController.b().whileTrue(new MoveArmDown(armSubsystem));
 
+        // Elevator PID Setpoints.
         driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
         driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
         driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.HANDOFF));

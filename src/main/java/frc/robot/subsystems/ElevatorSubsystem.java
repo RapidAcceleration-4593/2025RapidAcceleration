@@ -52,8 +52,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double getElevatorStates(ElevatorConstants.ElevatorStates state) {
         return switch (state) {
             case BOTTOM -> setpoints[0];
-            case L3 -> setpoints[1];
-            case L4 -> setpoints[2];
+            case HANDOFF -> setpoints[1];
+            case L3 -> setpoints[2];
+            case L4 -> setpoints[3];
             default -> -1;
         };
     }
