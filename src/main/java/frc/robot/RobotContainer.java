@@ -31,8 +31,8 @@ import swervelib.SwerveInputStream;
 public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
-    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
@@ -79,8 +79,8 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
         // TODO: Default Command for IntakeSubsystem.
+        serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
 
     private void configureBindings() {
