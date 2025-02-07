@@ -22,6 +22,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private final DigitalInput leftLimitSwitch = IntakeConstants.leftLimitSwitch;
     private final DigitalInput rightLimitSwitch = IntakeConstants.rightLimitSwitch;
 
+    // private IntakeConstants.IntakeStates currentState = IntakeConstants.IntakeStates.RETRACTED;
+
     private SparkMaxConfig config = new SparkMaxConfig();
 
     /**
@@ -33,6 +35,43 @@ public class IntakeSubsystem extends SubsystemBase {
 
         leftIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         rightIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    
+        leftExtensionMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rightExtensionMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+
+    /** ----- Intake State Management ----- */
+
+    
+
+
+    /** ----- Intake State System ----- */
+
+    /** Controls the intake states based on the current setpoints. */
+    public void controlIntakeStates() {
+        
+    }
+
+
+    /** ----- Encoder and Limit Switch Abstraction ----- */
+
+    /**
+     * Checks if a given limit switch is pressed.
+     * @param limitSwitch The limit switch to check.
+     * @return Whether the limit switch is pressed or not.
+     */
+    private boolean isLimitSwitchPressed(DigitalInput limitSwitch) {
+        return !limitSwitch.get();
+    }
+
+    /**
+     * Checks if a motor is stalling based on its current draw.
+     * @param motor The motor to check.
+     * @return True if the motor is stalling, false otherwise.
+     */
+    private boolean isMotorStalling(SparkMax motor) {
+        return motor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_AMPERAGE;
     }
 
     /**
@@ -51,24 +90,6 @@ public class IntakeSubsystem extends SubsystemBase {
      */
     private void runExtensionMotor(SparkMax motor, double speed) {
         motor.set(speed);
-    }
-
-    /**
-     * Checks if a given limit switch is pressed.
-     * @param limitSwitch The limit switch to check.
-     * @return Whether the limit switch is pressed or not.
-     */
-    private boolean isLimitSwitchPressed(DigitalInput limitSwitch) {
-        return !limitSwitch.get();
-    }
-
-    /**
-     * Checks if a motor is stalling based on its current draw.
-     * @param motor The motor to check.
-     * @return True if the motor is stalling, false otherwise.
-     */
-    private boolean isMotorStalling(SparkMax motor) {
-        return motor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_AMPERAGE;
     }
 
 

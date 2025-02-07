@@ -17,6 +17,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.intake.ControlIntake;
 import frc.robot.commands.serializer.ControlSerializerBelt;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -79,7 +80,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        // TODO: Default Command for IntakeSubsystem.
+        intakeSubsystem.setDefaultCommand(new ControlIntake(intakeSubsystem));
         serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
 

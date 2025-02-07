@@ -33,6 +33,11 @@ public final class Constants {
 
         public static final DigitalInput leftLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
         public static final DigitalInput rightLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+    
+        public enum IntakeStates {
+            EXTENDED,
+            RETRACTED
+        }
     }
 
     public static final class SerializerConstants {
