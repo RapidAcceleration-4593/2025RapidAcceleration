@@ -6,10 +6,9 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
+import frc.robot.Constants.IntakeConstants.IntakeStates;
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -19,10 +18,8 @@ public class IntakeSubsystem extends SubsystemBase {
     private final SparkMax leftIntakeMotor = IntakeConstants.leftIntakeMotor;
     private final SparkMax rightIntakeMotor = IntakeConstants.rightIntakeMotor;
 
-    private final DigitalInput leftLimitSwitch = IntakeConstants.leftLimitSwitch;
-    private final DigitalInput rightLimitSwitch = IntakeConstants.rightLimitSwitch;
-
-    // private IntakeConstants.IntakeStates currentState = IntakeConstants.IntakeStates.RETRACTED;
+    private IntakeStates leftState = IntakeStates.RETRACTED_STOPPED;
+    private IntakeStates rightState = IntakeStates.RETRACTED_STOPPED;
 
     private SparkMaxConfig config = new SparkMaxConfig();
 
@@ -31,7 +28,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * Initializes the motor configuration.
      */
     public IntakeSubsystem() {
-        config.idleMode(IdleMode.kBrake);
+        config.idleMode(IdleMode.kBrake).smartCurrentLimit(IntakeConstants.MOTOR_STALL_LIMIT);
 
         leftIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         rightIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -41,137 +38,122 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
 
-    /** ----- Intake State Management ----- */
-
-    
-
-
     /** ----- Intake State System ----- */
 
     /** Controls the intake states based on the current setpoints. */
-    public void controlIntakeStates() {
-        
+    public void manageIntakeStates() {
+        handleState(leftExtensionMotor, leftIntakeMotor, leftState);
+        handleState(rightExtensionMotor, rightIntakeMotor, rightState);
+    }
+
+    /** Sets the state of the left intake. */
+    public void setLeftState(IntakeStates state) {
+        leftState = state;
+    }
+
+    /** Sets the state of the right intake. */
+    public void setRightState(IntakeStates state) {
+        rightState = state;
     }
 
 
-    /** ----- Encoder and Limit Switch Abstraction ----- */
+    /** ----- Intake State Handling ----- */
 
     /**
-     * Checks if a given limit switch is pressed.
-     * @param limitSwitch The limit switch to check.
-     * @return Whether the limit switch is pressed or not.
+     * Handles the possible states of each intake.
+     * @param extensionMotor The motor used for extension.
+     * @param intakeMotor The motor used for intaking.
+     * @param state The left or right state of the intake.
      */
-    private boolean isLimitSwitchPressed(DigitalInput limitSwitch) {
-        return !limitSwitch.get();
+    private void handleState(SparkMax extensionMotor, SparkMax intakeMotor, IntakeStates state) {
+        switch (state) {
+            case EXTENDING:
+                extensionMotor.set(IntakeConstants.EXTENSION_MOTOR_SPEED);
+                if (extensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
+                    extensionMotor.stopMotor();
+                    state = IntakeStates.EXTENDED_STOPPED;
+                }
+                break;
+            case EXTENDED_RUNNING:
+                intakeMotor.set(IntakeConstants.INTAKE_MOTOR_SPEED);
+                break;
+            case EXTENDED_RUNNING_REVERSE:
+                intakeMotor.set(-IntakeConstants.INTAKE_MOTOR_SPEED);
+                break;
+            case EXTENDED_STOPPED:
+                intakeMotor.stopMotor();
+                break;
+            case RETRACTING:
+                extensionMotor.set(-IntakeConstants.EXTENSION_MOTOR_SPEED);
+                if (extensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
+                    extensionMotor.stopMotor();
+                    state = IntakeStates.RETRACTED_STOPPED;
+                }
+                break;
+            case RETRACTED_STOPPED:
+                extensionMotor.stopMotor();
+                intakeMotor.stopMotor();
+                break;
+        }
+    }
+
+
+    /** ----- Intake State Checks ----- */
+
+    /**
+     * Checks if the left intake is extended.
+     * @returns If the left intake is extended.
+     */
+    public boolean isLeftExtended() {
+        return leftState == IntakeStates.EXTENDED_RUNNING ||
+               leftState == IntakeStates.EXTENDED_STOPPED ||
+               leftState == IntakeStates.EXTENDED_RUNNING_REVERSE;
+    }
+
+    /** 
+     * Checks if the right intake is extended.
+     * @returns If the right intake is extended.
+     */
+    public boolean isRightExtended() {
+        return rightState == IntakeStates.EXTENDED_RUNNING ||
+               rightState == IntakeStates.EXTENDED_STOPPED ||
+               rightState == IntakeStates.EXTENDED_RUNNING_REVERSE;
     }
 
     /**
-     * Checks if a motor is stalling based on its current draw.
-     * @param motor The motor to check.
-     * @return True if the motor is stalling, false otherwise.
+     * Checks if the left intake is running.
+     * @return If the left intake is running.
      */
-    private boolean isMotorStalling(SparkMax motor) {
-        return motor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_AMPERAGE;
-    }
-
-    /**
-     * Runs the intake motor at the specified speed.
-     * @param motor The motor to control.
-     * @param speed The speed to set for the motor.
-     */
-    private void runIntakeMotor(SparkMax motor, double speed) {
-        motor.set(speed);
+    public boolean isLeftIntakeRunning() {
+        return leftState == IntakeStates.EXTENDED_RUNNING;
     }
     
     /**
-     * Runs the extension motor at the specified speed.
-     * @param motor The motor to control.
-     * @param speed The speed to set for the motor.
+     * Checks if the right intake is running.
+     * @return If the right intake is running.
      */
-    private void runExtensionMotor(SparkMax motor, double speed) {
-        motor.set(speed);
+    public boolean isRightIntakeRunning() {
+        return rightState == IntakeStates.EXTENDED_RUNNING;
     }
 
 
-    /** ----- Factory Commands ----- */
+    /** ----- Factory Command Methods ----- */
 
-    // TODO: Create command to check state of intakes.
-
-    /**
-     * Runs the left intake motor at the constant intake speed.
-     * @return A command to run the left intake motor.
-     */
-    public Command runLeftIntake() {
-        return run(
-            () -> runIntakeMotor(
-                leftIntakeMotor,
-                IntakeConstants.INTAKE_MOTOR_SPEED
-            )
-        );
+    /** Toggles the left intake between extended/retracted. */
+    public void toggleLeftIntakeCommand() {
+        if (isLeftExtended()) {
+            setLeftState(IntakeStates.RETRACTING);
+        } else {
+            setLeftState(IntakeStates.EXTENDING);
+        }
     }
 
-    /**
-     * Runs the right intake motor at the constant intake speed.
-     * @return A command to run the right intake motor.
-     */
-    public Command runRightIntake() {
-        return run(
-            () -> runIntakeMotor(
-                rightIntakeMotor,
-                IntakeConstants.INTAKE_MOTOR_SPEED
-            )
-        );
-    }
-
-    /**
-     * Runs the left extension motor inward until the limit switch is pressed.
-     * @return A command to run the left extension motor inward.
-     */
-    public Command runLeftExtensionIn() {
-        return run(
-            () -> runExtensionMotor(
-                leftExtensionMotor,
-                -IntakeConstants.EXTENSION_MOTOR_SPEED
-            )
-        ).until(() -> isLimitSwitchPressed(leftLimitSwitch));
-    }
-
-    /**
-     * Runs the left extension motor outward until it starts stalling.
-     * @return A command to run the left extension motor outward.
-     */
-    public Command runLeftExtensionOut() {
-        return run(
-            () -> runExtensionMotor(
-                leftExtensionMotor,
-                IntakeConstants.EXTENSION_MOTOR_SPEED
-            )
-        ).until(() -> isMotorStalling(leftExtensionMotor));
-    }
-
-    /**
-     * Runs the right extension motor inward until the limit switch is pressed.
-     * @return A command to run the right extension motor inward.
-     */
-    public Command runRightExtensionIn() {
-        return run(
-            () -> runExtensionMotor(
-                rightExtensionMotor,
-                -IntakeConstants.EXTENSION_MOTOR_SPEED
-            )
-        ).until(() -> isLimitSwitchPressed(rightLimitSwitch));
-    }
-
-    /**
-     * Runs the right extension motor outward until it starts stalling.
-     * @return A command to run the right extension motor outward.
-     */
-    public Command runRightExtensionOut() {
-        return run(
-            () -> runExtensionMotor(
-                rightExtensionMotor,
-                IntakeConstants.EXTENSION_MOTOR_SPEED
-            )
-        ).until(() -> isMotorStalling(rightExtensionMotor));
+    /** Toggles the right intake between extended/retracted. */
+    public void toggleRightIntakeCommand() {
+        if (isRightExtended()) {
+            setRightState(IntakeStates.RETRACTING);
+        } else {
+            setRightState(IntakeStates.EXTENDING);
+        }
     }
 }

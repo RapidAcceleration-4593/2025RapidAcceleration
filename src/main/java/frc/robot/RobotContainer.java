@@ -24,7 +24,11 @@ import frc.robot.commands.elevator.MaintainElevatorLevel;
 import frc.robot.commands.elevator.SetElevatorSetpoint;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
-import frc.robot.commands.intake.ControlIntake;
+import frc.robot.commands.intake.ManageIntake;
+import frc.robot.commands.intake.left.RunLeftIntake;
+import frc.robot.commands.intake.left.RunLeftIntakeReverse;
+import frc.robot.commands.intake.right.RunRightIntake;
+import frc.robot.commands.intake.right.RunRightIntakeReverse;
 import frc.robot.commands.serializer.ControlSerializerBelt;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -52,6 +56,7 @@ public class RobotContainer {
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
+    private final CommandXboxController auxiliaryControler = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = null;
@@ -93,7 +98,7 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
         // armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
-        intakeSubsystem.setDefaultCommand(new ControlIntake(intakeSubsystem));
+        intakeSubsystem.setDefaultCommand(new ManageIntake(intakeSubsystem));
         serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
 
@@ -114,9 +119,6 @@ public class RobotContainer {
                 }
             }));
 
-        driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
-        driverController.leftBumper().onTrue(Commands.runOnce(armSubsystem::homeArmivatorCommand));
-
         // Manual Elevator Control for Testing Purposes.
         driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
         driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
@@ -125,11 +127,25 @@ public class RobotContainer {
         driverController.x().whileTrue(new MoveArmUp(armSubsystem));
         driverController.b().whileTrue(new MoveArmDown(armSubsystem));
 
+        // Robot Functionality
+        driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+        driverController.leftBumper().onTrue(Commands.runOnce(armSubsystem::homeArmivatorCommand));
+
         // Elevator PID Setpoints.
         driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
         driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
         driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
         driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
+
+        // Intake Commands
+        auxiliaryControler.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
+        auxiliaryControler.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
+
+        auxiliaryControler.x().whileTrue(new RunLeftIntake(intakeSubsystem));
+        auxiliaryControler.a().whileTrue(new RunLeftIntakeReverse(intakeSubsystem));
+
+        auxiliaryControler.b().whileTrue(new RunRightIntake(intakeSubsystem));
+        auxiliaryControler.y().whileTrue(new RunRightIntakeReverse(intakeSubsystem));
     }
 
     /**

@@ -65,7 +65,7 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final double MOTOR_STALL_AMPERAGE = 20; // In Amps.
+        public static final int MOTOR_STALL_LIMIT = 20; // In Amps.
         
         public static final double EXTENSION_MOTOR_SPEED = 0.5; // Speed (0 to 1).
         public static final double INTAKE_MOTOR_SPEED = 0.5; // Speed (0 to 1).
@@ -75,14 +75,14 @@ public final class Constants {
 
         public static final SparkMax leftIntakeMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
         public static final SparkMax rightIntakeMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
-
-        // TODO: Remove Limit Switches.
-        public static final DigitalInput leftLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
-        public static final DigitalInput rightLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
     
         public enum IntakeStates {
-            EXTENDED,
-            RETRACTED
+            EXTENDING,
+            EXTENDED_RUNNING,
+            EXTENDED_RUNNING_REVERSE,
+            EXTENDED_STOPPED,
+            RETRACTING,
+            RETRACTED_STOPPED
         }
     }
 
@@ -114,6 +114,8 @@ public final class Constants {
 
     public static class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
+        public static final int AUXILIARY_CONTROLLER_PORT = 0;
+
         public static final double DEADBAND = 0.1;
         public static final double TURN_CONSTANT = 6;
         public static final double SCALE_TRANSLATION = 0.9;
