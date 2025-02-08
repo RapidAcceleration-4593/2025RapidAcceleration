@@ -12,8 +12,11 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
 
 public class ArmSubsystem extends SubsystemBase {
+
+    private final ElevatorSubsystem elevatorSubsystem;
 
     private final SparkMax armMotor = ArmConstants.armMotor;
     private final Encoder armEncoder = ArmConstants.armEncoder;
@@ -33,7 +36,9 @@ public class ArmSubsystem extends SubsystemBase {
      * Constructor for the SwingArmSubsystem class.
      * Initializes the motor and encoder configuration.
      */
-    public ArmSubsystem() {
+    public ArmSubsystem(ElevatorSubsystem elevatorSubsystem) {
+        this.elevatorSubsystem = elevatorSubsystem;
+
         config.idleMode(IdleMode.kBrake);
 
         armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -155,7 +160,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Whether {@link ArmSubsystem#topLimitSwitch} is pressed.
      */
     public boolean isTopLimitSwitchPressed() {
-        return logAndReturn("A-TopLimitSwitch", !topLimitSwitch.get());
+        return elevatorSubsystem.logAndReturn("A-TopLimitSwitch", !topLimitSwitch.get());
     }
 
     /**
@@ -163,7 +168,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Whether {@link ArmSubsystem#bottomLimitSwitch} is pressed.
      */
     public boolean isBottomLimitSwitchPressed() {
-        return logAndReturn("A-BotLimitSwitch", !bottomLimitSwitch.get());
+        return elevatorSubsystem.logAndReturn("A-BotLimitSwitch", !bottomLimitSwitch.get());
     }
 
     /**
@@ -187,7 +192,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return The current encoder value of the arm.
      */
     private double getEncoderValue() {
-        return logAndReturn("A-Encoder", -armEncoder.get());
+        return elevatorSubsystem.logAndReturn("A-Encoder", -armEncoder.get());
     }
 
     /**
@@ -204,20 +209,25 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("A-Encoder", 0);
     }
 
-    /**
-     * Logs the value to SmartDashboard and returns it.
-     * @param <X> The type of value to log.
-     * @param key The key to log the value under.
-     * @param value The value to log.
-     * @return The value that was logged.
-     */
-    private <X> X logAndReturn(String key, X value) {
-        if (value instanceof Boolean) {
-            SmartDashboard.putBoolean(key, (Boolean) value);
-        } else if (value instanceof Double) {
-            SmartDashboard.putNumber(key, (Double) value);
-        }
 
-        return value;
+    /** ----- Command Factory Methods ----- */
+
+    /**
+     * Places the coral by rotating the arm to the desired position.
+     * <p>Rotates the arm to the place position by subtracting the rotation amount from the setpoint.</p>
+     */
+    public void placeCoralCommand() {
+        if (Math.abs(getArmSetpoint() - getEncoderValue()) < ArmConstants.PID_THRESHOLD) {
+            armPID.setSetpoint(getArmSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
+        }
+    }
+
+    /**
+     * Homes the armivator by setting the arm and elevator to the bottom position.
+     * <p>Sets the arm and elevator setpoints to the bottom position.</p>
+     */
+    public void homeArmivatorCommand() {
+        setArmSetpoint(ArmConstants.ArmStates.BOTTOM);
+        elevatorSubsystem.setElevatorSetpoint(ElevatorConstants.ElevatorStates.BOTTOM);
     }
 }

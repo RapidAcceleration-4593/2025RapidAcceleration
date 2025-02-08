@@ -52,7 +52,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private double getElevatorStates(ElevatorConstants.ElevatorStates state) {
         return switch (state) {
             case BOTTOM -> setpoints[0];
-            case HANDOFF -> setpoints[1];
+            case PICKUP -> setpoints[1];
             case L3 -> setpoints[2];
             case L4 -> setpoints[3];
             default -> -1;
@@ -190,7 +190,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Retrieves the current encoder value of the elevator.
      * @return The current encoder value of the elevator.
      */
-    private double getEncoderValue() {
+    public double getEncoderValue() {
         return logAndReturn("E-Encoder", -heightEncoder.get());
     }
 
@@ -198,7 +198,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Retrieves the current elevator setpoint.
      * @return The current setpoint of the elevator PID controller.
      */
-    private double getElevatorSetpoint() {
+    public double getElevatorSetpoint() {
         return elevatorPID.getSetpoint();
     }
 
@@ -215,7 +215,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param value The value to log.
      * @return The value that was logged.
      */
-    private <X> X logAndReturn(String key, X value) {
+    public <X> X logAndReturn(String key, X value) {
         if (value instanceof Boolean) {
             SmartDashboard.putBoolean(key, (Boolean) value);
         } else if (value instanceof Double) {

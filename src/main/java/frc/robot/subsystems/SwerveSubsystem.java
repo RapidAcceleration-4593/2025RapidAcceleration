@@ -389,7 +389,6 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Resets the gyro angle to zero and resets odometry to the same position, but facing toward 0. */
     public void zeroGyro() {
-        System.out.println("Resetting Gyro Angle!");
         swerveDrive.zeroGyro();
     }
 

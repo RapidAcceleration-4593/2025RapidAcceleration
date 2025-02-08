@@ -7,17 +7,17 @@ import frc.robot.subsystems.ArmSubsystem;
 public class SetArmSetpoint extends Command {
     
     private final ArmSubsystem armSubsystem;
-    private final ArmStates state;
+    private final ArmStates armState;
 
     public SetArmSetpoint(ArmSubsystem subsystem, ArmStates state) {
         this.armSubsystem = subsystem;
-        this.state = state;
+        this.armState = state;
         addRequirements(subsystem);
     }
 
     @Override
     public void initialize() {
-        armSubsystem.setArmSetpoint(state);
+        armSubsystem.setArmSetpoint(armState);
     }
 
     @Override
