@@ -35,7 +35,7 @@ public final class Constants {
 
         public enum ElevatorStates {
             BOTTOM,
-            HANDOFF,
+            PICKUP,
             L3,
             L4
         }
@@ -45,6 +45,7 @@ public final class Constants {
         public static final PIDConstants ARM_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
+        public static final int PLACE_ROTATION_AMOUNT = 100; // Encoder ticks.
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);

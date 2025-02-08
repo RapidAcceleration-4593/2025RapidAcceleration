@@ -7,17 +7,17 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class SetElevatorSetpoint extends Command {
     
     private final ElevatorSubsystem elevatorSubsystem;
-    private final ElevatorStates state;
+    private final ElevatorStates elevatorState;
 
     public SetElevatorSetpoint(ElevatorSubsystem subsystem, ElevatorStates state) {
         this.elevatorSubsystem = subsystem;
-        this.state = state;
+        this.elevatorState = state;
         addRequirements(subsystem);
     }
 
     @Override
     public void initialize() {
-        elevatorSubsystem.setElevatorSetpoint(state);
+        elevatorSubsystem.setElevatorSetpoint(elevatorState);
     }
 
     @Override

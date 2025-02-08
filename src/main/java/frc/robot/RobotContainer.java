@@ -42,9 +42,7 @@ public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    public final ArmSubsystem armSubsystem = new ArmSubsystem();
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
-    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
+    public final ArmSubsystem armSubsystem = new ArmSubsystem(elevatorSubsystem);
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
@@ -114,6 +112,9 @@ public class RobotContainer {
                 }
             }));
 
+        driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+        driverController.leftBumper().onTrue(Commands.runOnce(armSubsystem::homeArmivatorCommand));
+
         // Manual Elevator Control for Testing Purposes.
         driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
         driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
@@ -125,7 +126,7 @@ public class RobotContainer {
         // Elevator PID Setpoints.
         driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
         driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
-        driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.HANDOFF));
+        driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
         driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
     }
 
