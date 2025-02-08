@@ -68,7 +68,7 @@ public final class Constants {
         public static final int MOTOR_STALL_LIMIT = 20; // In Amps.
         
         public static final double EXTENSION_MOTOR_SPEED = 0.5; // Speed (0 to 1).
-        public static final double INTAKE_MOTOR_SPEED = 0.5; // Speed (0 to 1).
+        public static final double INTAKE_MOTOR_SPEED = 0.75; // Speed (0 to 1).
 
         public static final SparkMax leftExtensionMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
         public static final SparkMax rightExtensionMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign Motor ID.
@@ -114,7 +114,7 @@ public final class Constants {
 
     public static class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
-        public static final int AUXILIARY_CONTROLLER_PORT = 0;
+        public static final int AUXILIARY_CONTROLLER_PORT = 1;
 
         public static final double DEADBAND = 0.1;
         public static final double TURN_CONSTANT = 6;
