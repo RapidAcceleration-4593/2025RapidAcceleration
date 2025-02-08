@@ -43,6 +43,8 @@ public class RobotContainer {
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem(elevatorSubsystem);
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
