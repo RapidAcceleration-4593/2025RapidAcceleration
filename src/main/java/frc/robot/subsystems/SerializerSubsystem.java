@@ -14,7 +14,7 @@ public class SerializerSubsystem extends SubsystemBase {
     
     private final SparkMax beltMotor = SerializerConstants.beltMotor;
 
-    private final DigitalInput beltLimitSwitch = SerializerConstants.beltLimitSwitch;
+    // private final DigitalInput beltLimitSwitch = SerializerConstants.beltLimitSwitch;
 
     private SparkMaxConfig config = new SparkMaxConfig();
 
@@ -36,11 +36,11 @@ public class SerializerSubsystem extends SubsystemBase {
      * Stops the motor when a coral is detected; run otherwise.
      */
     public void controlBeltState() {
-        if (isCoralDetected()) {
-            stopBeltMotor();
-        } else {
-            runBeltMotor(0.25); // TODO: Adjust speed if needed.
-        }
+        // if (isCoralDetected()) {
+        //     stopBeltMotor();
+        // } else {
+        //     runBeltMotor(0.25); // TODO: Adjust speed if needed.
+        // }
     }
 
 
@@ -50,20 +50,20 @@ public class SerializerSubsystem extends SubsystemBase {
      * Checks if the coral is detected by the limit switch.
      * @return Whether {@link SerializerSubsystem#beltLimitSwitch} is pressed.
      */
-    private boolean isCoralDetected() {
-        return !beltLimitSwitch.get();
-    }
+    // private boolean isCoralDetected() {
+    //     return !beltLimitSwitch.get();
+    // }
 
 
     /** ----- Motor Control ----- */
 
     /** Runs the belt motor at a defined speed. */
-    private void runBeltMotor(double speed) {
-        beltMotor.set(speed); // TODO: Invert if needed.
+    public void runBeltMotor(double speed) {
+        beltMotor.set(-speed); // TODO: Invert if needed.
     }
 
     /** Stops the belt motor; sets speed to zero. */
-    private void stopBeltMotor() {
+    public void stopBeltMotor() {
         beltMotor.stopMotor();
     }
 }

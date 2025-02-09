@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakeStates;
@@ -28,13 +29,13 @@ public class IntakeSubsystem extends SubsystemBase {
      * Initializes the motor configuration.
      */
     public IntakeSubsystem() {
-        config.idleMode(IdleMode.kBrake).smartCurrentLimit(IntakeConstants.MOTOR_STALL_LIMIT);
+        // config.idleMode(IdleMode.kBrake).smartCurrentLimit(IntakeConstants.MOTOR_STALL_LIMIT);
 
-        leftIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        rightIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // leftIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // rightIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
-        leftExtensionMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        rightExtensionMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // leftExtensionMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // rightExtensionMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
 
@@ -42,8 +43,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Controls the intake states based on the current setpoints. */
     public void manageIntakeStates() {
-        handleState(leftExtensionMotor, leftIntakeMotor, leftState);
-        handleState(rightExtensionMotor, rightIntakeMotor, rightState);
+        // handleState(leftExtensionMotor, leftIntakeMotor, leftState);
+        // handleState(rightExtensionMotor, rightIntakeMotor, rightState);
     }
 
     /** Sets the state of the left intake. */
@@ -155,5 +156,11 @@ public class IntakeSubsystem extends SubsystemBase {
         } else {
             setRightState(IntakeStates.EXTENDING);
         }
+    }
+
+    public Command runLeftIntakeMotor() {
+        return run(() -> {
+            leftIntakeMotor.set(1.0);
+        });
     }
 }

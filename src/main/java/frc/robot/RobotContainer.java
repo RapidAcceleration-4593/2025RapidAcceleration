@@ -17,6 +17,7 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
+import frc.robot.commands.arm.MaintainArmAngle;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
@@ -56,7 +57,7 @@ public class RobotContainer {
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
-    private final CommandXboxController auxiliaryControler = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
+    private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = null;
@@ -97,7 +98,7 @@ public class RobotContainer {
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
-        // armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
+        armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
         intakeSubsystem.setDefaultCommand(new ManageIntake(intakeSubsystem));
         serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
@@ -138,14 +139,18 @@ public class RobotContainer {
         driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
 
         // Intake Commands
-        auxiliaryControler.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
-        auxiliaryControler.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
+        // auxiliaryControler.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
+        // auxiliaryControler.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
-        auxiliaryControler.x().whileTrue(new RunLeftIntake(intakeSubsystem));
-        auxiliaryControler.a().whileTrue(new RunLeftIntakeReverse(intakeSubsystem));
+        // auxiliaryController.x().whileTrue(new RunLeftIntake(intakeSubsystem));
+        auxiliaryController.povUp().whileTrue(intakeSubsystem.runLeftIntakeMotor());
+        // auxiliaryController.a().whileTrue(new RunLeftIntakeReverse(intakeSubsystem));
 
-        auxiliaryControler.b().whileTrue(new RunRightIntake(intakeSubsystem));
-        auxiliaryControler.y().whileTrue(new RunRightIntakeReverse(intakeSubsystem));
+        // auxiliaryController.b().whileTrue(new RunRightIntake(intakeSubsystem));
+        // auxiliaryController.y().whileTrue(new RunRightIntakeReverse(intakeSubsystem));
+
+        auxiliaryController.povDown().whileTrue(Commands.runOnce(() -> serializerSubsystem.runBeltMotor(0.1)))
+                                    .onFalse(Commands.runOnce(() -> serializerSubsystem.stopBeltMotor()));
     }
 
     /**

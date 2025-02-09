@@ -160,7 +160,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Whether {@link ArmSubsystem#topLimitSwitch} is pressed.
      */
     public boolean isTopLimitSwitchPressed() {
-        return elevatorSubsystem.logAndReturn("A-TopLimitSwitch", !topLimitSwitch.get());
+        return logAndReturn("A-TopLimitSwitch", !topLimitSwitch.get());
     }
 
     /**
@@ -168,7 +168,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Whether {@link ArmSubsystem#bottomLimitSwitch} is pressed.
      */
     public boolean isBottomLimitSwitchPressed() {
-        return elevatorSubsystem.logAndReturn("A-BotLimitSwitch", !bottomLimitSwitch.get());
+        return logAndReturn("A-BotLimitSwitch", !bottomLimitSwitch.get());
     }
 
     /**
@@ -192,7 +192,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return The current encoder value of the arm.
      */
     private double getEncoderValue() {
-        return elevatorSubsystem.logAndReturn("A-Encoder", -armEncoder.get());
+        return logAndReturn("A-Encoder", -armEncoder.get());
     }
 
     /**
@@ -229,5 +229,22 @@ public class ArmSubsystem extends SubsystemBase {
     public void homeArmivatorCommand() {
         setArmSetpoint(ArmConstants.ArmStates.BOTTOM);
         elevatorSubsystem.setElevatorSetpoint(ElevatorConstants.ElevatorStates.BOTTOM);
+    }
+
+    /**
+     * Logs the value to SmartDashboard and returns it.
+     * @param <X> The type of value to log.
+     * @param key The key to log the value under.
+     * @param value The value to log.
+     * @return The value that was logged.
+     */
+    public <X> X logAndReturn(String key, X value) {
+        if (value instanceof Boolean) {
+            SmartDashboard.putBoolean(key, (Boolean) value);
+        } else if (value instanceof Double) {
+            SmartDashboard.putNumber(key, (Double) value);
+        }
+
+        return value;
     }
 }
