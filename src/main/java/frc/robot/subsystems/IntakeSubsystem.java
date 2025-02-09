@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakeStates;
@@ -42,8 +43,10 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Controls the intake states based on the current setpoints. */
     public void manageIntakeStates() {
-        handleState(leftExtensionMotor, leftIntakeMotor, leftState);
-        handleState(rightExtensionMotor, rightIntakeMotor, rightState);
+        SmartDashboard.putNumber("LE-Current", leftExtensionMotor.getOutputCurrent());
+        SmartDashboard.putNumber("RE-Current", rightExtensionMotor.getOutputCurrent());
+        // handleState(leftExtensionMotor, leftIntakeMotor, leftState);
+        // handleState(rightExtensionMotor, rightIntakeMotor, rightState);
     }
 
     /** Sets the state of the left intake. */
@@ -65,6 +68,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param intakeMotor The motor used for intaking.
      * @param state The left or right state of the intake.
      */
+    @SuppressWarnings("unused")
     private void handleState(SparkMax extensionMotor, SparkMax intakeMotor, IntakeStates state) {
         switch (state) {
             case EXTENDING:
@@ -155,5 +159,47 @@ public class IntakeSubsystem extends SubsystemBase {
         } else {
             setRightState(IntakeStates.EXTENDING);
         }
+    }
+
+    public void runRightIntake() {
+        rightIntakeMotor.set(-0.75);
+    }
+
+    public void stopRightIntake() {
+        rightIntakeMotor.stopMotor();
+    }
+
+    public void runLeftIntake() {
+        leftIntakeMotor.set(0.75);
+    }
+
+    public void stopLeftIntake() {
+        leftIntakeMotor.stopMotor();
+    }
+
+
+    public void runLeftExtensionForward() {
+        leftExtensionMotor.set(0.75);
+    }
+
+    public void runLeftExtensionBackward() {
+        leftExtensionMotor.set(-0.75);
+    }
+
+    public void stopLeftExtension() {
+        leftExtensionMotor.stopMotor();
+    }
+
+
+    public void runRightExtensionForward() {
+        rightExtensionMotor.set(0.75);
+    }
+
+    public void runRightExtensionBackward() {
+        rightExtensionMotor.set(-0.75);
+    }
+
+    public void stopRightExtension() {
+        rightExtensionMotor.stopMotor();
     }
 }

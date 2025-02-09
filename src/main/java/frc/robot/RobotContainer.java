@@ -18,19 +18,13 @@ import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
-import frc.robot.commands.arm.MaintainArmAngle;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
-import frc.robot.commands.elevator.MaintainElevatorLevel;
 import frc.robot.commands.elevator.SetElevatorSetpoint;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
 import frc.robot.commands.intake.ManageIntake;
-import frc.robot.commands.intake.left.RunLeftIntake;
-import frc.robot.commands.intake.left.RunLeftIntakeReverse;
-import frc.robot.commands.intake.right.RunRightIntake;
-import frc.robot.commands.intake.right.RunRightIntakeReverse;
 import frc.robot.commands.serializer.ControlSerializerBelt;
 import frc.robot.commands.serializer.manual.RunBeltCommand;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -99,8 +93,8 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
-        armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
+        // elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
+        // armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
         intakeSubsystem.setDefaultCommand(new ManageIntake(intakeSubsystem));
         serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
@@ -147,13 +141,20 @@ public class RobotContainer {
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
         // auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
-        auxiliaryController.x().whileTrue(new RunLeftIntake(intakeSubsystem));
-        auxiliaryController.a().whileTrue(new RunLeftIntakeReverse(intakeSubsystem));
+        auxiliaryController.x().whileTrue(Commands.runOnce(intakeSubsystem::runLeftIntake))
+                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftIntake));
 
-        auxiliaryController.b().whileTrue(new RunRightIntake(intakeSubsystem));
-        auxiliaryController.y().whileTrue(new RunRightIntakeReverse(intakeSubsystem));
+        auxiliaryController.b().whileTrue(Commands.runOnce(intakeSubsystem::runRightIntake))
+                               .onFalse(Commands.runOnce(intakeSubsystem::stopRightIntake));
 
         auxiliaryController.povDown().whileTrue(new RunBeltCommand(serializerSubsystem));
+
+
+        auxiliaryController.y().whileTrue(Commands.runOnce(intakeSubsystem::runLeftExtensionForward))
+                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftExtension));
+
+        auxiliaryController.a().whileTrue(Commands.runOnce(intakeSubsystem::runLeftExtensionBackward))
+                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftExtension));
     }
 
     /**

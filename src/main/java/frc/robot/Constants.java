@@ -27,7 +27,7 @@ public final class Constants {
         public static final int PID_THRESHOLD = 10;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
-        public static final SparkMax rightElevatorMotor = new SparkMax(4, MotorType.kBrushless);
+        public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
 
         public static final Encoder heightEncoder = new Encoder(8, 9);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);
@@ -70,7 +70,7 @@ public final class Constants {
         public static final double INTAKE_MOTOR_SPEED = 0.25; // Speed (0 to 1).
 
         public static final SparkMax leftExtensionMotor = new SparkMax(3, MotorType.kBrushless);
-        public static final SparkMax rightExtensionMotor = new SparkMax(6, MotorType.kBrushless);
+        public static final SparkMax rightExtensionMotor = new SparkMax(4, MotorType.kBrushless);
 
         public static final SparkMax leftIntakeMotor = new SparkMax(2, MotorType.kBrushless);
         public static final SparkMax rightIntakeMotor = new SparkMax(5, MotorType.kBrushless);
@@ -87,7 +87,7 @@ public final class Constants {
 
     public static final class SerializerConstants {
         public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless);
-        public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+        // public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
 
         public static final double CONTROL_SPEED = 0.1;
     }

@@ -6,7 +6,6 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SerializerConstants;
 
@@ -14,7 +13,7 @@ public class SerializerSubsystem extends SubsystemBase {
     
     private final SparkMax beltMotor = SerializerConstants.beltMotor;
 
-    private final DigitalInput beltLimitSwitch = SerializerConstants.beltLimitSwitch;
+    // private final DigitalInput beltLimitSwitch = SerializerConstants.beltLimitSwitch;
 
     private SparkMaxConfig config = new SparkMaxConfig();
 
@@ -36,11 +35,11 @@ public class SerializerSubsystem extends SubsystemBase {
      * Stops the motor when a coral is detected; run otherwise.
      */
     public void controlBeltState() {
-        if (isCoralDetected()) {
-            stopBeltMotor();
-        } else {
-            runBeltMotor();
-        }
+        // if (isCoralDetected()) {
+        //     stopBeltMotor();
+        // } else {
+        //     runBeltMotor();
+        // }
     }
 
 
@@ -50,9 +49,9 @@ public class SerializerSubsystem extends SubsystemBase {
      * Checks if the coral is detected by the limit switch.
      * @return Whether {@link SerializerSubsystem#beltLimitSwitch} is pressed.
      */
-    private boolean isCoralDetected() {
-        return !beltLimitSwitch.get();
-    }
+    // private boolean isCoralDetected() {
+    //     return !beltLimitSwitch.get();
+    // }
 
 
     /** ----- Motor Control ----- */
