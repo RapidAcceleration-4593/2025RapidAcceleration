@@ -64,6 +64,35 @@ public final class Constants {
         }
     }
 
+    public static final class IntakeConstants {
+        public static final int MOTOR_STALL_LIMIT = 20; // In Amps.
+        
+        public static final double EXTENSION_MOTOR_SPEED = 0.25; // Speed (0 to 1).
+        public static final double INTAKE_MOTOR_SPEED = 0.25; // Speed (0 to 1).
+
+        public static final SparkMax leftExtensionMotor = new SparkMax(3, MotorType.kBrushless);
+        public static final SparkMax rightExtensionMotor = new SparkMax(6, MotorType.kBrushless);
+
+        public static final SparkMax leftIntakeMotor = new SparkMax(2, MotorType.kBrushless);
+        public static final SparkMax rightIntakeMotor = new SparkMax(5, MotorType.kBrushless);
+    
+        public enum IntakeStates {
+            EXTENDING,
+            EXTENDED_RUNNING,
+            EXTENDED_RUNNING_REVERSE,
+            EXTENDED_STOPPED,
+            RETRACTING,
+            RETRACTED_STOPPED
+        }
+    }
+
+    public static final class SerializerConstants {
+        public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless);
+        public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+
+        public static final double CONTROL_SPEED = 0.1;
+    }
+
     public static final class AutonConstants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
@@ -87,6 +116,8 @@ public final class Constants {
 
     public static class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
+        public static final int AUXILIARY_CONTROLLER_PORT = 1;
+
         public static final double DEADBAND = 0.1;
         public static final double TURN_CONSTANT = 6;
         public static final double SCALE_TRANSLATION = 0.9;
