@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -37,7 +38,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public ElevatorSubsystem() {
         config.idleMode(IdleMode.kBrake);
-
+        
         leftElevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         rightElevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
@@ -49,7 +50,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Sets the elevator state to the specified level.
      * @param state The desired elevator level.
      */
-    private double getElevatorStates(ElevatorConstants.ElevatorStates state) {
+    private double getElevatorStates(ElevatorStates state) {
         return switch (state) {
             case BOTTOM -> setpoints[0];
             case PICKUP -> setpoints[1];
@@ -63,7 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Sets the elevator setpoint to the specified level.
      * @param state The desired elevator level.
      */
-    public void setElevatorSetpoint(ElevatorConstants.ElevatorStates state) {
+    public void setElevatorSetpoint(ElevatorStates state) {
         elevatorPID.setSetpoint(getElevatorStates(state));
         SmartDashboard.putNumber("E-Setpoint", getElevatorSetpoint());
     }
@@ -99,9 +100,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private void controlElevator(double encoder, double setpoint, double threshold) {
         boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
-        SmartDashboard.putBoolean("E-WithinThreshold", isWithinThreshold);
+        boolean isBottomState = setpoint == setpoints[0];
+        // TODO: Top State Conditonal.
 
-        if (isWithinThreshold) {
+        if (isWithinThreshold && !isBottomState) {
             // Stop the motors and hold the elevator in place.
             stopElevatorMotors();
         } else {
@@ -121,13 +123,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        // Stop the motors and set current position as the new setpoint.
-        stopElevatorMotors();
-        elevatorPID.setSetpoint(getEncoderValue());
-
-        // Allow downward movement without interference.
-        if (getElevatorSetpoint() < getEncoderValue()) {
+        if (getElevatorSetpoint() < getEncoderValue() - ElevatorConstants.PID_THRESHOLD) {
+            // Allow downward movement without interference.
             setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
+        } else {
+            // Stop the motors and set current position as the new setpoint.
+            stopElevatorMotors();
+            elevatorPID.setSetpoint(getEncoderValue());
         }
     }
 
@@ -139,13 +141,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        // Reset the encoder and stop the motors.
-        resetHeightEncoder();
-        stopElevatorMotors();
-
-        // Allow upward movement without interference.
-        if (getElevatorSetpoint() > 0) {
+        if (getElevatorSetpoint() > 0 + ElevatorConstants.PID_THRESHOLD) {
+            // Allow upward movement without interference.
             setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
+        } else {
+            // Reset the encoder and stop the motors.
+            resetHeightEncoder();
+            stopElevatorMotors();
         }
     }
 
@@ -157,7 +159,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return Whether {@link ElevatorSubsystem#topLimitSwitch} is pressed.
      */
     public boolean isTopLimitSwitchPressed() {
-        return logAndReturn("E-TopLimitSwitch", !topLimitSwitch.get());
+        SmartDashboard.putBoolean("E-TopLS", !topLimitSwitch.get());
+        return !topLimitSwitch.get();
     }
 
     /**
@@ -165,7 +168,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return Whether {@link ElevatorSubsystem#bottomLimitSwitch} is pressed.
      */
     public boolean isBottomLimitSwitchPressed() {
-        return logAndReturn("E-BotLimitSwitch", bottomLimitSwitch.get());
+        SmartDashboard.putBoolean("E-BotLS", bottomLimitSwitch.get());
+        return bottomLimitSwitch.get();
     }
 
     /**
@@ -191,7 +195,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return The current encoder value of the elevator.
      */
     public double getEncoderValue() {
-        return logAndReturn("E-Encoder", -heightEncoder.get());
+        SmartDashboard.putNumber("E-Encoder", -heightEncoder.get());
+        return -heightEncoder.get();
     }
 
     /**
@@ -204,24 +209,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /** Resets the height encoder. */
     private void resetHeightEncoder() {
-        heightEncoder.reset();
         SmartDashboard.putNumber("E-Encoder", 0);
-    }
-
-    /**
-     * Logs the value to SmartDashboard and returns it.
-     * @param <X> The type of value to log.
-     * @param key The key to log the value under.
-     * @param value The value to log.
-     * @return The value that was logged.
-     */
-    public <X> X logAndReturn(String key, X value) {
-        if (value instanceof Boolean) {
-            SmartDashboard.putBoolean(key, (Boolean) value);
-        } else if (value instanceof Double) {
-            SmartDashboard.putNumber(key, (Double) value);
-        }
-
-        return value;
+        heightEncoder.reset();
     }
 }

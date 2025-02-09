@@ -14,6 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
@@ -31,6 +32,7 @@ import frc.robot.commands.intake.left.RunLeftIntakeReverse;
 import frc.robot.commands.intake.right.RunRightIntake;
 import frc.robot.commands.intake.right.RunRightIntakeReverse;
 import frc.robot.commands.serializer.ControlSerializerBelt;
+import frc.robot.commands.serializer.manual.RunBeltCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -47,7 +49,7 @@ public class RobotContainer {
     // Subsystem(s)
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
-    public final ArmSubsystem armSubsystem = new ArmSubsystem(elevatorSubsystem);
+    public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
 
@@ -130,7 +132,10 @@ public class RobotContainer {
 
         // Robot Functionality
         driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
-        driverController.leftBumper().onTrue(Commands.runOnce(armSubsystem::homeArmivatorCommand));
+        driverController.leftBumper().onTrue(Commands.sequence(
+            Commands.runOnce(() -> elevatorSubsystem.setElevatorSetpoint(ElevatorStates.BOTTOM)),
+            Commands.runOnce(() -> armSubsystem.setArmSetpoint(ArmStates.BOTTOM))
+        ));
 
         // Elevator PID Setpoints.
         driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
@@ -138,9 +143,9 @@ public class RobotContainer {
         driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
         driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
 
-        // Intake Commands
-        auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
-        auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
+        // Intake / Serializer Commands
+        // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
+        // auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
         auxiliaryController.x().whileTrue(new RunLeftIntake(intakeSubsystem));
         auxiliaryController.a().whileTrue(new RunLeftIntakeReverse(intakeSubsystem));
@@ -148,8 +153,7 @@ public class RobotContainer {
         auxiliaryController.b().whileTrue(new RunRightIntake(intakeSubsystem));
         auxiliaryController.y().whileTrue(new RunRightIntakeReverse(intakeSubsystem));
 
-        auxiliaryController.povDown().whileTrue(Commands.runOnce(() -> serializerSubsystem.runBeltMotor()))
-                                    .onFalse(Commands.runOnce(() -> serializerSubsystem.stopBeltMotor()));
+        auxiliaryController.povDown().whileTrue(new RunBeltCommand(serializerSubsystem));
     }
 
     /**
