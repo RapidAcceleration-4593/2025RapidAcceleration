@@ -139,17 +139,16 @@ public class RobotContainer {
         driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
 
         // Intake Commands
-        // auxiliaryControler.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
-        // auxiliaryControler.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
+        auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
+        auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
-        // auxiliaryController.x().whileTrue(new RunLeftIntake(intakeSubsystem));
-        auxiliaryController.povUp().whileTrue(intakeSubsystem.runLeftIntakeMotor());
-        // auxiliaryController.a().whileTrue(new RunLeftIntakeReverse(intakeSubsystem));
+        auxiliaryController.x().whileTrue(new RunLeftIntake(intakeSubsystem));
+        auxiliaryController.a().whileTrue(new RunLeftIntakeReverse(intakeSubsystem));
 
-        // auxiliaryController.b().whileTrue(new RunRightIntake(intakeSubsystem));
-        // auxiliaryController.y().whileTrue(new RunRightIntakeReverse(intakeSubsystem));
+        auxiliaryController.b().whileTrue(new RunRightIntake(intakeSubsystem));
+        auxiliaryController.y().whileTrue(new RunRightIntakeReverse(intakeSubsystem));
 
-        auxiliaryController.povDown().whileTrue(Commands.runOnce(() -> serializerSubsystem.runBeltMotor(0.1)))
+        auxiliaryController.povDown().whileTrue(Commands.runOnce(() -> serializerSubsystem.runBeltMotor()))
                                     .onFalse(Commands.runOnce(() -> serializerSubsystem.stopBeltMotor()));
     }
 

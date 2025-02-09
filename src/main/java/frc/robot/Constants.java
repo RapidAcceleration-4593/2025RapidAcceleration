@@ -87,8 +87,10 @@ public final class Constants {
     }
 
     public static final class SerializerConstants {
-        public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless); // TODO: Assign Motor ID.
-        // public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+        public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless);
+        public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+
+        public static final double CONTROL_SPEED = 0.1;
     }
 
     public static final class AutonConstants {
