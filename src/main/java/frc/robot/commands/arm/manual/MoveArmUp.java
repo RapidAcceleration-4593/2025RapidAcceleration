@@ -6,24 +6,24 @@ import frc.robot.subsystems.ArmSubsystem;
 
 public class MoveArmUp extends Command {
     
-    private final ArmSubsystem swingArmSubsystem;
+    private final ArmSubsystem armSubsystem;
 
     public MoveArmUp(ArmSubsystem subsystem) {
-        this.swingArmSubsystem = subsystem;
+        this.armSubsystem = subsystem;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
-        if (swingArmSubsystem.isTopLimitSwitchPressed()) {
-            swingArmSubsystem.stopArmMotor();
+        if (armSubsystem.isTopLimitSwitchPressed()) {
+            armSubsystem.stopArmMotor();
         } else {
-            swingArmSubsystem.setMotorSpeed(ArmConstants.MANUAL_CONTROL_SPEED);
+            armSubsystem.setMotorSpeed(ArmConstants.MANUAL_CONTROL_SPEED);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        swingArmSubsystem.stopArmMotor();
+        armSubsystem.stopArmMotor();
     }
 }
