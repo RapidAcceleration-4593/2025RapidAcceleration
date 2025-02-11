@@ -100,10 +100,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private void controlElevator(double encoder, double setpoint, double threshold) {
         boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
-        boolean isBottomState = setpoint == setpoints[0];
-        // TODO: Top State Conditonal.
 
-        if (isWithinThreshold && !isBottomState) {
+        if (isWithinThreshold) {
             // Stop the motors and hold the elevator in place.
             stopElevatorMotors();
         } else {
@@ -123,13 +121,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
+        // Stop the motors and set current position as the new setpoint.
+        stopElevatorMotors();
+        elevatorPID.setSetpoint(getEncoderValue());
+
         if (getElevatorSetpoint() < getEncoderValue() - ElevatorConstants.PID_THRESHOLD) {
             // Allow downward movement without interference.
             setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
-        } else {
-            // Stop the motors and set current position as the new setpoint.
-            stopElevatorMotors();
-            elevatorPID.setSetpoint(getEncoderValue());
         }
     }
 
@@ -141,13 +139,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        if (getElevatorSetpoint() > 0 + ElevatorConstants.PID_THRESHOLD) {
+        // Reset the encoder and stop the motors.
+        resetHeightEncoder();
+        stopElevatorMotors();
+
+        if (getElevatorSetpoint() > ElevatorConstants.PID_THRESHOLD) {
             // Allow upward movement without interference.
             setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
-        } else {
-            // Reset the encoder and stop the motors.
-            resetHeightEncoder();
-            stopElevatorMotors();
         }
     }
 

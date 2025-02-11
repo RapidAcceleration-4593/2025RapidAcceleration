@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import swervelib.math.Matter;
 
 public final class Constants {
-    public static final double ROBOT_MASS = (90) * 0.453592; // 90 Pounds to Kilograms.
+    public static final double ROBOT_MASS = (110) * 0.453592; // 90 Pounds to Kilograms.
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
     public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration.
@@ -89,7 +89,7 @@ public final class Constants {
         public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless);
         // public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
 
-        public static final double CONTROL_SPEED = 0.1;
+        public static final double CONTROL_SPEED = 0.75;
     }
 
     public static final class AutonConstants {

@@ -43,10 +43,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Controls the intake states based on the current setpoints. */
     public void manageIntakeStates() {
-        SmartDashboard.putNumber("LE-Current", leftExtensionMotor.getOutputCurrent());
-        SmartDashboard.putNumber("RE-Current", rightExtensionMotor.getOutputCurrent());
-        // handleState(leftExtensionMotor, leftIntakeMotor, leftState);
-        // handleState(rightExtensionMotor, rightIntakeMotor, rightState);
+        handleState(leftExtensionMotor, leftIntakeMotor, leftState);
+        handleState(rightExtensionMotor, rightIntakeMotor, rightState);
     }
 
     /** Sets the state of the left intake. */
@@ -162,7 +160,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void runRightIntake() {
-        rightIntakeMotor.set(-0.75);
+        rightIntakeMotor.set(-1.0);
     }
 
     public void stopRightIntake() {
@@ -170,7 +168,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void runLeftIntake() {
-        leftIntakeMotor.set(0.75);
+        leftIntakeMotor.set(1.0);
+    }
+
+    public void runLeftIntakeReverse() {
+        leftIntakeMotor.set(-1.0);
     }
 
     public void stopLeftIntake() {
@@ -178,12 +180,14 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
 
-    public void runLeftExtensionForward() {
-        leftExtensionMotor.set(0.75);
+    public void retractLeftIntake() {
+        leftExtensionMotor.set(1.0);
+        SmartDashboard.putNumber("ExtendOutput", leftExtensionMotor.getOutputCurrent());
     }
 
-    public void runLeftExtensionBackward() {
-        leftExtensionMotor.set(-0.75);
+    public void extendLeftIntake() {
+        leftExtensionMotor.set(-1.0);
+        SmartDashboard.putNumber("ExtendOutput", leftExtensionMotor.getOutputCurrent());
     }
 
     public void stopLeftExtension() {
@@ -191,11 +195,11 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
 
-    public void runRightExtensionForward() {
+    public void extendRightIntake() {
         rightExtensionMotor.set(0.75);
     }
 
-    public void runRightExtensionBackward() {
+    public void retractRightIntake() {
         rightExtensionMotor.set(-0.75);
     }
 

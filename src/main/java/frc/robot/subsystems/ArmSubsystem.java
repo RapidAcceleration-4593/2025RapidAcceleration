@@ -95,10 +95,8 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void controlArm(double encoder, double setpoint, double threshold) {
         boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
-        boolean isBottomState = setpoint == setpoints[0];
-        // TODO: Top State Conditional.
 
-        if (isWithinThreshold && !isBottomState) {
+        if (isWithinThreshold) {
             // Stop the motors and hold the elevator in place.
             stopArmMotor();
         } else {
@@ -119,13 +117,13 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
+        // Stop the motor and set current position as new setpoint.
+        stopArmMotor();
+        armPID.setSetpoint(getEncoderValue());
+        
         if (getArmSetpoint() < getEncoderValue() - ArmConstants.PID_THRESHOLD) {
             // Ensure the arm doesn't go above the current encoder position.
             setMotorSpeed(armPID.calculate(getEncoderValue(), getArmSetpoint()));
-        } else {
-            // Reset the encoder and stop the motor.
-            stopArmMotor();
-            armPID.setSetpoint(getEncoderValue());
         }
     }
 
@@ -139,13 +137,13 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        if (getArmSetpoint() > 0 + ArmConstants.PID_THRESHOLD) {
+        // Reset the encoder and stop the motor.
+        resetArmEncoder();
+        stopArmMotor();
+        
+        if (getArmSetpoint() > ArmConstants.PID_THRESHOLD) {
             // Ensure the arm doesn't go below the current encoder position.
             setMotorSpeed(armPID.calculate(getEncoderValue(), getArmSetpoint()));
-        } else {
-            // Reset the encoder and stop the motor.
-            resetArmEncoder();
-            stopArmMotor();
         }
     }
 

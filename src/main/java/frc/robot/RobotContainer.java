@@ -12,20 +12,14 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
-import frc.robot.commands.elevator.SetElevatorSetpoint;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
-import frc.robot.commands.intake.ManageIntake;
-import frc.robot.commands.serializer.ControlSerializerBelt;
 import frc.robot.commands.serializer.manual.RunBeltCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -95,26 +89,26 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         // elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
         // armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
-        intakeSubsystem.setDefaultCommand(new ManageIntake(intakeSubsystem));
-        serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
+        // intakeSubsystem.setDefaultCommand(new ManageIntake(intakeSubsystem));
+        // serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
 
     private void configureBindings() {
         // (Condition) ? Return-On-True : Return-On-False.
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
 
-        driverController.leftTrigger()
-            .whileTrue(Commands.runOnce(() -> {
-                driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose(AutonConstants.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
-                );
-                driveToPoseCommand.schedule();
-            }))
-            .onFalse(Commands.runOnce(() -> {
-                if (driveToPoseCommand != null) {
-                    driveToPoseCommand.cancel();
-                }
-            }));
+        // driverController.leftTrigger()
+        //     .whileTrue(Commands.runOnce(() -> {
+        //         driveToPoseCommand = drivebase.driveToPose(
+        //             poseNavigator.selectTargetPose(AutonConstants.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
+        //         );
+        //         driveToPoseCommand.schedule();
+        //     }))
+        //     .onFalse(Commands.runOnce(() -> {
+        //         if (driveToPoseCommand != null) {
+        //             driveToPoseCommand.cancel();
+        //         }
+        //     }));
 
         // Manual Elevator Control for Testing Purposes.
         driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
@@ -125,36 +119,41 @@ public class RobotContainer {
         driverController.b().whileTrue(new MoveArmDown(armSubsystem));
 
         // Robot Functionality
-        driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
-        driverController.leftBumper().onTrue(Commands.sequence(
-            Commands.runOnce(() -> elevatorSubsystem.setElevatorSetpoint(ElevatorStates.BOTTOM)),
-            Commands.runOnce(() -> armSubsystem.setArmSetpoint(ArmStates.BOTTOM))
-        ));
+        // driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+        // driverController.leftBumper().onTrue(Commands.sequence(
+        //     Commands.runOnce(() -> elevatorSubsystem.setElevatorSetpoint(ElevatorStates.BOTTOM)),
+        //     Commands.runOnce(() -> armSubsystem.setArmSetpoint(ArmStates.BOTTOM))
+        // ));
 
         // Elevator PID Setpoints.
-        driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
-        driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
-        driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
-        driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
+        // driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
+        // driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
+        // driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
+        // driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
 
         // Intake / Serializer Commands
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
         // auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
-        auxiliaryController.x().whileTrue(Commands.runOnce(intakeSubsystem::runLeftIntake))
+        auxiliaryController.x().whileTrue(Commands.runOnce(intakeSubsystem::runLeftIntake)) // LEFT INTAKE
                                .onFalse(Commands.runOnce(intakeSubsystem::stopLeftIntake));
 
-        auxiliaryController.b().whileTrue(Commands.runOnce(intakeSubsystem::runRightIntake))
-                               .onFalse(Commands.runOnce(intakeSubsystem::stopRightIntake));
+        auxiliaryController.b().whileTrue(Commands.runOnce(intakeSubsystem::runLeftIntakeReverse)) // LEFT INTAKE REVERSE
+                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftIntake));
 
-        auxiliaryController.povDown().whileTrue(new RunBeltCommand(serializerSubsystem));
-
-
-        auxiliaryController.y().whileTrue(Commands.runOnce(intakeSubsystem::runLeftExtensionForward))
+        auxiliaryController.povLeft().whileTrue(Commands.runOnce(intakeSubsystem::extendLeftIntake)) // LEFT EXTEND
                                .onFalse(Commands.runOnce(intakeSubsystem::stopLeftExtension));
 
-        auxiliaryController.a().whileTrue(Commands.runOnce(intakeSubsystem::runLeftExtensionBackward))
+        auxiliaryController.povUp().whileTrue(Commands.runOnce(intakeSubsystem::retractLeftIntake)) // LEFT RETRACT
                                .onFalse(Commands.runOnce(intakeSubsystem::stopLeftExtension));
+
+        // auxiliaryController.povRight().whileTrue(Commands.runOnce(intakeSubsystem::extendRightIntake)) // RIGHT EXTEND
+        //                        .onFalse(Commands.runOnce(intakeSubsystem::stopRightExtension));
+
+        // auxiliaryController.povDown().whileTrue(Commands.runOnce(intakeSubsystem::retractRightIntake)) // RIGHT RETRACT
+        //                        .onFalse(Commands.runOnce(intakeSubsystem::stopRightExtension));
+
+        auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
     }
 
     /**
