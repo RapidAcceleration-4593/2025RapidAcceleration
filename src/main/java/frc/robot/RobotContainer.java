@@ -20,6 +20,10 @@ import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
+import frc.robot.commands.intake.manual.extension.ExtendLeftIntakeCommand;
+import frc.robot.commands.intake.manual.extension.RetractLeftIntakeCommand;
+import frc.robot.commands.intake.manual.intake.RunLeftIntakeCommand;
+import frc.robot.commands.intake.manual.intake.RunLeftIntakeReverseCommand;
 import frc.robot.commands.serializer.manual.RunBeltCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -50,7 +54,7 @@ public class RobotContainer {
     private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
-    private Command driveToPoseCommand = null;
+    // private Command driveToPoseCommand = null;
 
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
@@ -121,7 +125,7 @@ public class RobotContainer {
         // Robot Functionality
         // driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
         // driverController.leftBumper().onTrue(Commands.sequence(
-        //     Commands.runOnce(() -> elevatorSubsystem.setElevatorSetpoint(ElevatorStates.BOTTOM)),
+        //     Commands.runOnce(() -> elevatorSubsystem.setElevatorSetpoint(ElevatorStates.PICKUP)),
         //     Commands.runOnce(() -> armSubsystem.setArmSetpoint(ArmStates.BOTTOM))
         // ));
 
@@ -135,17 +139,10 @@ public class RobotContainer {
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
         // auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
-        auxiliaryController.x().whileTrue(Commands.runOnce(intakeSubsystem::runLeftIntake)) // LEFT INTAKE
-                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftIntake));
-
-        auxiliaryController.b().whileTrue(Commands.runOnce(intakeSubsystem::runLeftIntakeReverse)) // LEFT INTAKE REVERSE
-                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftIntake));
-
-        auxiliaryController.povLeft().whileTrue(Commands.runOnce(intakeSubsystem::extendLeftIntake)) // LEFT EXTEND
-                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftExtension));
-
-        auxiliaryController.povUp().whileTrue(Commands.runOnce(intakeSubsystem::retractLeftIntake)) // LEFT RETRACT
-                               .onFalse(Commands.runOnce(intakeSubsystem::stopLeftExtension));
+        auxiliaryController.x().whileTrue(new RunLeftIntakeCommand(intakeSubsystem)); // LEFT INTAKE
+        auxiliaryController.b().whileTrue(new RunLeftIntakeReverseCommand(intakeSubsystem)); // LEFT INTAKE REVERSE
+        auxiliaryController.povLeft().whileTrue(new ExtendLeftIntakeCommand(intakeSubsystem)); // LEFT EXTEND
+        auxiliaryController.povUp().whileTrue(new RetractLeftIntakeCommand(intakeSubsystem)); // LEFT RETRACT
 
         // auxiliaryController.povRight().whileTrue(Commands.runOnce(intakeSubsystem::extendRightIntake)) // RIGHT EXTEND
         //                        .onFalse(Commands.runOnce(intakeSubsystem::stopRightExtension));

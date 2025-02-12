@@ -64,7 +64,7 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int MOTOR_STALL_LIMIT = 20; // In Amps.
+        public static final int MOTOR_STALL_LIMIT = 50; // In Amps.
         
         public static final double EXTENSION_MOTOR_SPEED = 0.25; // Speed (0 to 1).
         public static final double INTAKE_MOTOR_SPEED = 0.25; // Speed (0 to 1).
@@ -74,6 +74,8 @@ public final class Constants {
 
         public static final SparkMax leftIntakeMotor = new SparkMax(2, MotorType.kBrushless);
         public static final SparkMax rightIntakeMotor = new SparkMax(5, MotorType.kBrushless);
+
+        public static final int RIGHT_INTAKE_INVERTED = -1;
     
         public enum IntakeStates {
             EXTENDING,

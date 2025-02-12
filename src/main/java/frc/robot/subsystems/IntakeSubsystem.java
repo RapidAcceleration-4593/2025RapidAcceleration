@@ -29,7 +29,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * Initializes the motor configuration.
      */
     public IntakeSubsystem() {
-        config.idleMode(IdleMode.kBrake).smartCurrentLimit(IntakeConstants.MOTOR_STALL_LIMIT);
+        config.idleMode(IdleMode.kBrake);
 
         leftIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         rightIntakeMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -43,8 +43,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Controls the intake states based on the current setpoints. */
     public void manageIntakeStates() {
-        handleState(leftExtensionMotor, leftIntakeMotor, leftState);
-        handleState(rightExtensionMotor, rightIntakeMotor, rightState);
+        leftState = handleState(leftExtensionMotor, leftIntakeMotor, leftState);
+        rightState = handleState(rightExtensionMotor, rightIntakeMotor, rightState);
     }
 
     /** Sets the state of the left intake. */
@@ -66,14 +66,13 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param intakeMotor The motor used for intaking.
      * @param state The left or right state of the intake.
      */
-    @SuppressWarnings("unused")
-    private void handleState(SparkMax extensionMotor, SparkMax intakeMotor, IntakeStates state) {
+    private IntakeStates handleState(SparkMax extensionMotor, SparkMax intakeMotor, IntakeStates state) {
         switch (state) {
             case EXTENDING:
                 extensionMotor.set(IntakeConstants.EXTENSION_MOTOR_SPEED);
                 if (extensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
                     extensionMotor.stopMotor();
-                    state = IntakeStates.EXTENDED_STOPPED;
+                    return IntakeStates.EXTENDED_STOPPED;
                 }
                 break;
             case EXTENDED_RUNNING:
@@ -89,7 +88,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 extensionMotor.set(-IntakeConstants.EXTENSION_MOTOR_SPEED);
                 if (extensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
                     extensionMotor.stopMotor();
-                    state = IntakeStates.RETRACTED_STOPPED;
+                    return IntakeStates.RETRACTED_STOPPED;
                 }
                 break;
             case RETRACTED_STOPPED:
@@ -97,6 +96,7 @@ public class IntakeSubsystem extends SubsystemBase {
                 intakeMotor.stopMotor();
                 break;
         }
+        return state;
     }
 
 
@@ -107,9 +107,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @returns If the left intake is extended.
      */
     public boolean isLeftExtended() {
-        return leftState == IntakeStates.EXTENDED_RUNNING ||
-               leftState == IntakeStates.EXTENDED_RUNNING_REVERSE ||
-               leftState == IntakeStates.EXTENDED_STOPPED;
+        return leftState.toString().contains("EXTENDED");
     }
 
     /** 
@@ -117,9 +115,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @returns If the right intake is extended.
      */
     public boolean isRightExtended() {
-        return rightState == IntakeStates.EXTENDED_RUNNING ||
-               rightState == IntakeStates.EXTENDED_RUNNING_REVERSE ||
-               rightState == IntakeStates.EXTENDED_STOPPED;
+        return rightState.toString().contains("EXTENDED");
     }
 
     /**
@@ -159,51 +155,42 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public void runRightIntake() {
-        rightIntakeMotor.set(-1.0);
+    public void runLeftIntake(boolean reverse) {
+        double speed = reverse ? -1.0 : 1.0;
+        leftIntakeMotor.set(speed);
     }
 
-    public void stopRightIntake() {
-        rightIntakeMotor.stopMotor();
-    }
-
-    public void runLeftIntake() {
-        leftIntakeMotor.set(1.0);
-    }
-
-    public void runLeftIntakeReverse() {
-        leftIntakeMotor.set(-1.0);
+    public void runRightIntake(boolean reverse) {
+        double speed = reverse ? 1.0 : -1.0;
+        rightIntakeMotor.set(speed);
     }
 
     public void stopLeftIntake() {
         leftIntakeMotor.stopMotor();
     }
 
-
-    public void retractLeftIntake() {
-        leftExtensionMotor.set(1.0);
-        SmartDashboard.putNumber("ExtendOutput", leftExtensionMotor.getOutputCurrent());
+    public void stopRightIntake() {
+        rightIntakeMotor.stopMotor();
     }
 
-    public void extendLeftIntake() {
-        leftExtensionMotor.set(-1.0);
-        SmartDashboard.putNumber("ExtendOutput", leftExtensionMotor.getOutputCurrent());
+    public void extendLeftIntake(boolean retract) {
+        SmartDashboard.putNumber("L-EOutput", leftExtensionMotor.getOutputCurrent());
+        double speed = retract ? 1.0 : -1.0;
+        leftExtensionMotor.set(speed);
     }
 
     public void stopLeftExtension() {
         leftExtensionMotor.stopMotor();
     }
 
-
-    public void extendRightIntake() {
-        rightExtensionMotor.set(0.75);
-    }
-
-    public void retractRightIntake() {
-        rightExtensionMotor.set(-0.75);
+    public void extendRightIntake(boolean retract) {
+        SmartDashboard.putNumber("L-EOutput", leftExtensionMotor.getOutputCurrent());
+        double speed = retract ? -1.0 : 1.0;
+        rightExtensionMotor.set(speed);
     }
 
     public void stopRightExtension() {
         rightExtensionMotor.stopMotor();
     }
+
 }
