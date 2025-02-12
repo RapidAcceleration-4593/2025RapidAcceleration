@@ -15,7 +15,7 @@ public class RunLeftIntake extends Command {
 
     @Override
     public void execute() {
-        if (intakeSubsystem.isLeftExtended() && !intakeSubsystem.isLeftIntakeRunning()) {
+        if (intakeSubsystem.isLeftExtended()) {
             intakeSubsystem.setLeftState(IntakeStates.EXTENDED_RUNNING);
         }
     }

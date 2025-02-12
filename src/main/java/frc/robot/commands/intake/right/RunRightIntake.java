@@ -15,7 +15,7 @@ public class RunRightIntake extends Command {
 
     @Override
     public void execute() {
-        if (intakeSubsystem.isRightExtended() && !intakeSubsystem.isRightIntakeRunning()) {
+        if (intakeSubsystem.isRightExtended()) {
             intakeSubsystem.setRightState(IntakeStates.EXTENDED_RUNNING);
         }
     }

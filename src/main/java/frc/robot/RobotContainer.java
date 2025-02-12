@@ -22,8 +22,8 @@ import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
 import frc.robot.commands.intake.manual.extension.ExtendLeftIntakeCommand;
 import frc.robot.commands.intake.manual.extension.RetractLeftIntakeCommand;
-import frc.robot.commands.intake.manual.intake.RunLeftIntakeCommand;
-import frc.robot.commands.intake.manual.intake.RunLeftIntakeReverseCommand;
+import frc.robot.commands.intake.manual.intake.RunRightIntakeCommand;
+import frc.robot.commands.intake.manual.intake.RunRightIntakeReverseCommand;
 import frc.robot.commands.serializer.manual.RunBeltCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -139,16 +139,10 @@ public class RobotContainer {
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
         // auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
-        auxiliaryController.x().whileTrue(new RunLeftIntakeCommand(intakeSubsystem)); // LEFT INTAKE
-        auxiliaryController.b().whileTrue(new RunLeftIntakeReverseCommand(intakeSubsystem)); // LEFT INTAKE REVERSE
+        auxiliaryController.x().whileTrue(new RunRightIntakeCommand(intakeSubsystem)); // RIGHT INTAKE
+        auxiliaryController.b().whileTrue(new RunRightIntakeReverseCommand(intakeSubsystem)); // RIGHT INTAKE REVERSE
         auxiliaryController.povLeft().whileTrue(new ExtendLeftIntakeCommand(intakeSubsystem)); // LEFT EXTEND
         auxiliaryController.povUp().whileTrue(new RetractLeftIntakeCommand(intakeSubsystem)); // LEFT RETRACT
-
-        // auxiliaryController.povRight().whileTrue(Commands.runOnce(intakeSubsystem::extendRightIntake)) // RIGHT EXTEND
-        //                        .onFalse(Commands.runOnce(intakeSubsystem::stopRightExtension));
-
-        // auxiliaryController.povDown().whileTrue(Commands.runOnce(intakeSubsystem::retractRightIntake)) // RIGHT RETRACT
-        //                        .onFalse(Commands.runOnce(intakeSubsystem::stopRightExtension));
 
         auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
     }

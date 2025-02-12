@@ -43,8 +43,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** Controls the intake states based on the current setpoints. */
     public void manageIntakeStates() {
-        leftState = handleState(leftExtensionMotor, leftIntakeMotor, leftState);
-        rightState = handleState(rightExtensionMotor, rightIntakeMotor, rightState);
+        leftState = handleState(leftExtensionMotor, leftIntakeMotor, leftState, 1);
+        rightState = handleState(rightExtensionMotor, rightIntakeMotor, rightState, -1);
     }
 
     /** Sets the state of the left intake. */
@@ -66,7 +66,7 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param intakeMotor The motor used for intaking.
      * @param state The left or right state of the intake.
      */
-    private IntakeStates handleState(SparkMax extensionMotor, SparkMax intakeMotor, IntakeStates state) {
+    private IntakeStates handleState(SparkMax extensionMotor, SparkMax intakeMotor, IntakeStates state, int inversion) {
         switch (state) {
             case EXTENDING:
                 extensionMotor.set(IntakeConstants.EXTENSION_MOTOR_SPEED);
@@ -76,10 +76,14 @@ public class IntakeSubsystem extends SubsystemBase {
                 }
                 break;
             case EXTENDED_RUNNING:
-                intakeMotor.set(IntakeConstants.INTAKE_MOTOR_SPEED);
+                if (intakeMotor.get() != IntakeConstants.INTAKE_MOTOR_SPEED * inversion) {
+                    intakeMotor.set(IntakeConstants.INTAKE_MOTOR_SPEED);
+                }
                 break;
             case EXTENDED_RUNNING_REVERSE:
-                intakeMotor.set(-IntakeConstants.INTAKE_MOTOR_SPEED);
+                if (intakeMotor.get() != -IntakeConstants.INTAKE_MOTOR_SPEED * inversion) {
+                    intakeMotor.set(-IntakeConstants.INTAKE_MOTOR_SPEED);
+                }
                 break;
             case EXTENDED_STOPPED:
                 intakeMotor.stopMotor();
@@ -118,22 +122,6 @@ public class IntakeSubsystem extends SubsystemBase {
         return rightState.toString().contains("EXTENDED");
     }
 
-    /**
-     * Checks if the left intake is running.
-     * @return If the left intake is running.
-     */
-    public boolean isLeftIntakeRunning() {
-        return leftState == IntakeStates.EXTENDED_RUNNING;
-    }
-    
-    /**
-     * Checks if the right intake is running.
-     * @return If the right intake is running.
-     */
-    public boolean isRightIntakeRunning() {
-        return rightState == IntakeStates.EXTENDED_RUNNING;
-    }
-
 
     /** ----- Factory Command Methods ----- */
 
@@ -154,6 +142,9 @@ public class IntakeSubsystem extends SubsystemBase {
             setRightState(IntakeStates.EXTENDING);
         }
     }
+
+
+    /** ----- Temporary Manual Control ----- */
 
     public void runLeftIntake(boolean reverse) {
         double speed = reverse ? -1.0 : 1.0;
@@ -184,7 +175,7 @@ public class IntakeSubsystem extends SubsystemBase {
     }
 
     public void extendRightIntake(boolean retract) {
-        SmartDashboard.putNumber("L-EOutput", leftExtensionMotor.getOutputCurrent());
+        SmartDashboard.putNumber("R-EOutput", leftExtensionMotor.getOutputCurrent());
         double speed = retract ? -1.0 : 1.0;
         rightExtensionMotor.set(speed);
     }

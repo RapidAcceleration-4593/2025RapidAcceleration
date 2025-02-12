@@ -74,8 +74,6 @@ public final class Constants {
 
         public static final SparkMax leftIntakeMotor = new SparkMax(2, MotorType.kBrushless);
         public static final SparkMax rightIntakeMotor = new SparkMax(5, MotorType.kBrushless);
-
-        public static final int RIGHT_INTAKE_INVERTED = -1;
     
         public enum IntakeStates {
             EXTENDING,

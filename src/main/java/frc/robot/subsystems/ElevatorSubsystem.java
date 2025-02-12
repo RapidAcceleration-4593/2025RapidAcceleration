@@ -125,8 +125,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         stopElevatorMotors();
         elevatorPID.setSetpoint(getEncoderValue());
 
+        // Allow downward movement without interference.
         if (getElevatorSetpoint() < getEncoderValue() - ElevatorConstants.PID_THRESHOLD) {
-            // Allow downward movement without interference.
             setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
         }
     }
@@ -143,8 +143,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         resetHeightEncoder();
         stopElevatorMotors();
 
+        // Allow upward movement without interference.
         if (getElevatorSetpoint() > ElevatorConstants.PID_THRESHOLD) {
-            // Allow upward movement without interference.
             setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
         }
     }
