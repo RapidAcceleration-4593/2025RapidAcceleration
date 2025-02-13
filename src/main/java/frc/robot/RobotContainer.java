@@ -12,16 +12,19 @@ import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.elevator.MaintainElevatorLevel;
+import frc.robot.commands.elevator.SetElevatorSetpoint;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
-import frc.robot.commands.intake.manual.extension.ExtendLeftIntakeCommand;
-import frc.robot.commands.intake.manual.extension.RetractLeftIntakeCommand;
+import frc.robot.commands.intake.manual.extension.ExtendRightIntakeCommand;
+import frc.robot.commands.intake.manual.extension.RetractRightIntakeCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeReverseCommand;
 import frc.robot.commands.serializer.manual.RunBeltCommand;
@@ -91,7 +94,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        // elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
+        elevatorSubsystem.setDefaultCommand(new MaintainElevatorLevel(elevatorSubsystem));
         // armSubsystem.setDefaultCommand(new MaintainArmAngle(armSubsystem));
         // intakeSubsystem.setDefaultCommand(new ManageIntake(intakeSubsystem));
         // serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
@@ -130,10 +133,9 @@ public class RobotContainer {
         // ));
 
         // Elevator PID Setpoints.
-        // driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
-        // driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L3));
-        // driverController.povRight().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
-        // driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
+        driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
+        driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
+        driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
 
         // Intake / Serializer Commands
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
@@ -141,8 +143,8 @@ public class RobotContainer {
 
         auxiliaryController.x().whileTrue(new RunRightIntakeCommand(intakeSubsystem)); // RIGHT INTAKE
         auxiliaryController.b().whileTrue(new RunRightIntakeReverseCommand(intakeSubsystem)); // RIGHT INTAKE REVERSE
-        auxiliaryController.povLeft().whileTrue(new ExtendLeftIntakeCommand(intakeSubsystem)); // LEFT EXTEND
-        auxiliaryController.povUp().whileTrue(new RetractLeftIntakeCommand(intakeSubsystem)); // LEFT RETRACT
+        auxiliaryController.povUp().whileTrue(new ExtendRightIntakeCommand(intakeSubsystem)); // LEFT EXTEND
+        auxiliaryController.povDown().whileTrue(new RetractRightIntakeCommand(intakeSubsystem)); // LEFT RETRACT
 
         auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
     }

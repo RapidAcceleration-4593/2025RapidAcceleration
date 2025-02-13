@@ -28,7 +28,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                 ElevatorConstants.ELEVATOR_PID.kI,
                                                                 ElevatorConstants.ELEVATOR_PID.kD);
 
-    private final double[] setpoints = {0, 750, 1000, 10000}; // TODO: Determine setpoint values.
+    private final double[] setpoints = {0, 2000, 6000}; // TODO: Determine setpoint values.
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -54,8 +54,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return switch (state) {
             case BOTTOM -> setpoints[0];
             case PICKUP -> setpoints[1];
-            case L3 -> setpoints[2];
-            case L4 -> setpoints[3];
+            case L4 -> setpoints[2];
             default -> -1;
         };
     }

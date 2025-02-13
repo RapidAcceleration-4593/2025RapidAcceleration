@@ -21,10 +21,10 @@ public final class Constants {
     public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
-        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.001, 0.00075, 0); // TODO: Tune PID.
+        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0018, 0.00005, 0.000022); // TODO: Tune PID.
         
-        public static final double MANUAL_CONTROL_SPEED = 0.5; // Speed (0 to 1).
-        public static final int PID_THRESHOLD = 10;
+        public static final double MANUAL_CONTROL_SPEED = 0.6; // Speed (0 to 1).
+        public static final int PID_THRESHOLD = 5;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
         public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
@@ -36,7 +36,6 @@ public final class Constants {
         public enum ElevatorStates {
             BOTTOM,
             PICKUP,
-            L3,
             L4
         }
     }
