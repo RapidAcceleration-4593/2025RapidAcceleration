@@ -28,6 +28,7 @@ import frc.robot.commands.intake.manual.extension.RetractRightIntakeCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeReverseCommand;
 import frc.robot.commands.serializer.manual.RunBeltCommand;
+import frc.robot.commands.serializer.manual.RunBeltReversedCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -147,6 +148,7 @@ public class RobotContainer {
         auxiliaryController.povDown().whileTrue(new RetractRightIntakeCommand(intakeSubsystem)); // LEFT RETRACT
 
         auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
+        auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
     }
 
     /**

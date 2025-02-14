@@ -57,8 +57,9 @@ public class SerializerSubsystem extends SubsystemBase {
     /** ----- Motor Control ----- */
 
     /** Runs the belt motor at a defined speed. */
-    public void runBeltMotor() {
-        beltMotor.set(-SerializerConstants.CONTROL_SPEED);
+    public void runBeltMotor(boolean reversed) {
+        double speed = reversed ? SerializerConstants.CONTROL_SPEED : -SerializerConstants.CONTROL_SPEED;
+        beltMotor.set(speed);
     }
 
     /** Stops the belt motor; sets speed to zero. */
