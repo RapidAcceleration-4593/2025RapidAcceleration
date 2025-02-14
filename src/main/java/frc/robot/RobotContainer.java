@@ -18,6 +18,8 @@ import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
+import frc.robot.commands.climber.RunClimberCommand;
+import frc.robot.commands.climber.RunClimberReversedCommand;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.MaintainElevatorLevel;
 import frc.robot.commands.elevator.SetElevatorSetpoint;
@@ -32,6 +34,7 @@ import frc.robot.commands.serializer.manual.RunBeltReversedCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import frc.robot.subsystems.SerializerSubsystem;
@@ -48,6 +51,7 @@ public class RobotContainer {
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
+    public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
@@ -149,6 +153,10 @@ public class RobotContainer {
 
         auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
         auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
+
+        // Climber Commands
+        auxiliaryController.povLeft().whileTrue(new RunClimberCommand(climberSubsystem));
+        auxiliaryController.povLeft().whileTrue(new RunClimberReversedCommand(climberSubsystem));
     }
 
     /**

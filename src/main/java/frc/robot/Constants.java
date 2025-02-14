@@ -91,6 +91,11 @@ public final class Constants {
         public static final double CONTROL_SPEED = 0.75;
     }
 
+    public static final class ClimberConstants {
+        public static final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign CAN ID.
+        public static final double CONTROL_SPEED = 1.0;
+    }
+
     public static final class AutonConstants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
