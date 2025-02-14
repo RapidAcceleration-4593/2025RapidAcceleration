@@ -42,7 +42,7 @@ public class IntakeSubsystem extends SubsystemBase {
     /** ----- Intake State System ----- */
 
     /** Controls the intake states based on the current setpoints. */
-    public void manageIntakeStates() {
+    public void controlIntakeStates() {
         leftState = handleState(leftExtensionMotor, leftIntakeMotor, leftState, 1);
         rightState = handleState(rightExtensionMotor, rightIntakeMotor, rightState, -1);
     }
@@ -146,13 +146,13 @@ public class IntakeSubsystem extends SubsystemBase {
 
     /** ----- Temporary Manual Control ----- */
 
-    public void runLeftIntake(boolean reverse) {
-        double speed = reverse ? -1.0 : 1.0;
+    public void runLeftIntake(boolean reversed) {
+        double speed = reversed ? -1.0 : 1.0;
         leftIntakeMotor.set(speed);
     }
 
-    public void runRightIntake(boolean reverse) {
-        double speed = reverse ? 1.0 : -1.0;
+    public void runRightIntake(boolean reversed) {
+        double speed = reversed ? 1.0 : -1.0;
         rightIntakeMotor.set(speed);
     }
 

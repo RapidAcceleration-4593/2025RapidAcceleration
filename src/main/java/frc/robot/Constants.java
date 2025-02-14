@@ -45,7 +45,7 @@ public final class Constants {
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
         public static final int PLACE_ROTATION_AMOUNT = 100; // Encoder ticks.
-        public static final int PID_THRESHOLD = 10;
+        public static final int PID_THRESHOLD = 5;
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
@@ -96,7 +96,7 @@ public final class Constants {
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
 
         public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(16.25 + 25);
-        public static final boolean DRIVE_WITH_VISION = false;
+        public static final boolean DRIVE_WITH_VISION = true;
     }
 
     public static final class FieldConstants {

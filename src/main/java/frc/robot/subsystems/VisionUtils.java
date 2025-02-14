@@ -198,23 +198,23 @@ public class VisionUtils {
     @Deprecated(since = "2024", forRemoval = true)
     private Optional<EstimatedRobotPose> filterPose(Optional<EstimatedRobotPose> pose) {
         if (pose.isPresent()) {
-            double bestTargetAmbiguity = 1; // 1 is max ambiguity
+            double bestTargetAmbiguity = 1; // 1 is maximum ambiguity.
             for (PhotonTrackedTarget target : pose.get().targetsUsed) {
                 double ambiguity = target.getPoseAmbiguity();
                 if (ambiguity != -1 && ambiguity < bestTargetAmbiguity) {
                     bestTargetAmbiguity = ambiguity;
                 }
             }
-            //ambiguity to high dont use estimate
+            // Ambiguity is to high; dont use estimate.
             if (bestTargetAmbiguity > maximumAmbiguity) {
                 return Optional.empty();
             }
 
-            //est pose is very far from recorded robot pose
+            // Estimated pose is very far from recorded robot pose.
             if (PhotonUtils.getDistanceToPose(currentPose.get(), pose.get().estimatedPose.toPose2d()) > 1) {
                 longDistangePoseEstimationCount++;
 
-                //if it calculates that were 10 meter away for more than 10 times in a row its probably right
+                // If it calculates that the robot is 10 meters away, more than 10 times in a row, its probably right.
                 if (longDistangePoseEstimationCount < 10) {
                     return Optional.empty();
                 }
@@ -269,7 +269,7 @@ public class VisionUtils {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
                 Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
-                Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
+                // Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -302,26 +302,26 @@ public class VisionUtils {
     /** Camera Enum to select each camera. */
     enum Cameras {
         /** AprilTag Cameras. */
-        OV9782_Colored_1("Arducam_OV9782_Colored_#1",
-                new Rotation3d(0, Units.degreesToRadians(0), 0),
-                new Translation3d(Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(0.0)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        OV9782_Colored_1("Arducam_OV9782_Colored_2",
+                new Rotation3d(0, Units.degreesToRadians(14.0), 0),
+                new Translation3d(Units.inchesToMeters(10.0),
+                                  Units.inchesToMeters(-9.25),
+                                  Units.inchesToMeters(18.25)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
-        // OV9782_Colored_2("Arducam_OV9782_Colored_#2",
+        // OV9782_Colored_2("Arducam_OV9782_Colored_1",
         //         new Rotation3d(0, Units.degreesToRadians(0), 0),
         //         new Translation3d(Units.inchesToMeters(0.0),
         //                           Units.inchesToMeters(0.0),
         //                           Units.inchesToMeters(0.0)),
         //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
-        OV9281_Monochrome("Arducam_OV9281_Monochrome",
-                new Rotation3d(0, Units.degreesToRadians(0), 0),
-                new Translation3d(Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(0.0),
-                                  Units.inchesToMeters(0.0)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+        // OV9281_Monochrome("Arducam_OV9281_Monochrome",
+        //         new Rotation3d(0, Units.degreesToRadians(0), 0),
+        //         new Translation3d(Units.inchesToMeters(0.0),
+        //                           Units.inchesToMeters(0.0),
+        //                           Units.inchesToMeters(0.0)),
+        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1))
 
         /** Latency alert to use when high latency is detected. */
         public final Alert latencyAlert;
