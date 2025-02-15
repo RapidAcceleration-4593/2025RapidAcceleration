@@ -3,11 +3,11 @@ package frc.robot.commands.intake.manual.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
 
-public class RunRightIntakeReverseCommand extends Command {
+public class RunRightIntakeReversedCommand extends Command {
     
     private final IntakeSubsystem intakeSubsystem;
 
-    public RunRightIntakeReverseCommand(IntakeSubsystem subsystem) {
+    public RunRightIntakeReversedCommand(IntakeSubsystem subsystem) {
         this.intakeSubsystem = subsystem;
         addRequirements(subsystem);
     }
