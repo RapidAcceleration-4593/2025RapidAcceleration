@@ -1,17 +1,13 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.SerializerConstants;
 
 public class SerializerSubsystem extends SubsystemBase {
     
-    private final SparkMax beltMotor = SerializerConstants.beltMotor;
+    // private final SparkMax beltMotor = SerializerConstants.beltMotor;
 
     // private final DigitalInput beltLimitSwitch = SerializerConstants.beltLimitSwitch;
 
@@ -24,7 +20,7 @@ public class SerializerSubsystem extends SubsystemBase {
     public SerializerSubsystem() {
         config.idleMode(IdleMode.kBrake);
 
-        beltMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // beltMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
 
@@ -58,12 +54,12 @@ public class SerializerSubsystem extends SubsystemBase {
 
     /** Runs the belt motor at a defined speed. */
     public void runBeltMotor(boolean reversed) {
-        double speed = reversed ? SerializerConstants.CONTROL_SPEED : -SerializerConstants.CONTROL_SPEED;
-        beltMotor.set(speed);
+        // double speed = reversed ? SerializerConstants.CONTROL_SPEED : -SerializerConstants.CONTROL_SPEED;
+        // beltMotor.set(speed);
     }
 
     /** Stops the belt motor; sets speed to zero. */
     public void stopBeltMotor() {
-        beltMotor.stopMotor();
+        // beltMotor.stopMotor();
     }
 }

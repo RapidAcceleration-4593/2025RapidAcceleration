@@ -30,8 +30,6 @@ import frc.robot.commands.intake.manual.extension.ExtendRightIntakeCommand;
 import frc.robot.commands.intake.manual.extension.RetractRightIntakeCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeReversedCommand;
-import frc.robot.commands.serializer.manual.RunBeltCommand;
-import frc.robot.commands.serializer.manual.RunBeltReversedCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -152,12 +150,9 @@ public class RobotContainer {
         auxiliaryController.povUp().whileTrue(new ExtendRightIntakeCommand(intakeSubsystem));
         auxiliaryController.povDown().whileTrue(new RetractRightIntakeCommand(intakeSubsystem));
 
-        auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
-        auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
-
         // Climber Commands
         auxiliaryController.povLeft().whileTrue(new RunClimberCommand(climberSubsystem));
-        auxiliaryController.povLeft().whileTrue(new RunClimberReversedCommand(climberSubsystem));
+        auxiliaryController.povRight().whileTrue(new RunClimberReversedCommand(climberSubsystem));
     }
 
     /**

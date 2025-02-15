@@ -85,14 +85,14 @@ public final class Constants {
     }
 
     public static final class SerializerConstants {
-        public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless);
+        // public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless);
         // public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
 
         public static final double CONTROL_SPEED = 0.75;
     }
 
     public static final class ClimberConstants {
-        public static final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless); // TODO: Assign CAN ID.
+        public static final SparkMax climberMotor = new SparkMax(8, MotorType.kBrushless); // TODO: Assign CAN ID.
         public static final double CONTROL_SPEED = 1.0;
     }
 
