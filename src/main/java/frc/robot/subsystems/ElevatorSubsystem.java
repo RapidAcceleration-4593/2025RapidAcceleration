@@ -100,12 +100,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void controlElevator(double encoder, double setpoint, double threshold) {
         boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
 
-        if (isWithinThreshold) {
-            // Stop the motors and hold the elevator in place.
-            stopElevatorMotors();
-        } else {
+        if (!isWithinThreshold) {
             // Use PID control to adjust the motor output.
             setMotorSpeeds(elevatorPID.calculate(encoder, setpoint));
+        } else {
+            // Stop the motors and hold the elevator in place.
+            stopElevatorMotors();
         }
     }
 
@@ -191,7 +191,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Retrieves the current encoder value of the elevator.
      * @return The current encoder value of the elevator.
      */
-    public double getEncoderValue() {
+    private double getEncoderValue() {
         SmartDashboard.putNumber("E-Encoder", -heightEncoder.get());
         return -heightEncoder.get();
     }
@@ -200,7 +200,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Retrieves the current elevator setpoint.
      * @return The current setpoint of the elevator PID controller.
      */
-    public double getElevatorSetpoint() {
+    private double getElevatorSetpoint() {
         return elevatorPID.getSetpoint();
     }
 
