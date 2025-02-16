@@ -6,9 +6,11 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
@@ -16,39 +18,48 @@ import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-    private final SparkMax leftElevatorMotor = ElevatorConstants.leftElevatorMotor;
-    private final SparkMax rightElevatorMotor = ElevatorConstants.rightElevatorMotor;
+    private final SparkMax rightElevatorLeader = ElevatorConstants.rightElevatorMotor;
+    private final SparkMax leftElevatorFollower = ElevatorConstants.leftElevatorMotor;
 
     private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ElevatorConstants.bottomLimitSwitch;
 
     private final Encoder heightEncoder = ElevatorConstants.heightEncoder;
 
-    private final PIDController elevatorPID = new PIDController(ElevatorConstants.ELEVATOR_PID.kP,
-                                                                ElevatorConstants.ELEVATOR_PID.kI,
-                                                                ElevatorConstants.ELEVATOR_PID.kD);
+    private final ProfiledPIDController elevatorPID = new ProfiledPIDController(ElevatorConstants.ELEVATOR_PID.kP,
+                                                                                ElevatorConstants.ELEVATOR_PID.kI,
+                                                                                ElevatorConstants.ELEVATOR_PID.kD,
+                                                                                new TrapezoidProfile.Constraints(
+                                                                                    ElevatorConstants.MAX_VELOCITY, 
+                                                                                    ElevatorConstants.MAX_ACCELERATION));
 
-    private final double[] setpoints = {0, 2000, 6000}; // TODO: Determine setpoint values.
+    private final double[] setpoints = {0, 2000, 6000}; // TODO: Determine Setpoint Values.
 
-    private final SparkMaxConfig config = new SparkMaxConfig();
+    private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
+    private final SparkMaxConfig followerConfig = new SparkMaxConfig();
 
     /**
      * Constructor for the ElevatorSubsystem class.
-     * Initializes the motor and encoder configuration.
+     * Configures motor settings, establishing leader-follower configuration.
      */
     public ElevatorSubsystem() {
-        config.idleMode(IdleMode.kBrake);
+        leaderConfig.idleMode(IdleMode.kBrake);
+        followerConfig.idleMode(IdleMode.kBrake).follow(rightElevatorLeader, true);
         
-        leftElevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        rightElevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rightElevatorLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        leftElevatorFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        elevatorPID.setTolerance(ElevatorConstants.PID_TOLERANCE);
+        elevatorPID.reset(0);
     }
 
 
     /** ----- Elevator State Management ----- */
 
     /**
-     * Sets the elevator state to the specified level.
-     * @param state The desired elevator level.
+     * Retrieves the corresponding encoder setpoint for the given elevator state.
+     * @param state Desired elevator state.
+     * @return The target encoder value.
      */
     private double getElevatorStates(ElevatorStates state) {
         return switch (state) {
@@ -60,12 +71,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Sets the elevator setpoint to the specified level.
-     * @param state The desired elevator level.
+     * Updates the elevator's target position.
+     * @param state Desired elevator state.
      */
     public void setElevatorSetpoint(ElevatorStates state) {
-        elevatorPID.setSetpoint(getElevatorStates(state));
-        SmartDashboard.putNumber("E-Setpoint", getElevatorSetpoint());
+        double target = getElevatorStates(state);
+        elevatorPID.setGoal(target);
+        SmartDashboard.putNumber("E-Setpoint", target);
     }
 
 
@@ -87,7 +99,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         } else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
         } else {
-            controlElevator(getEncoderValue(), getElevatorSetpoint(), ElevatorConstants.PID_THRESHOLD);
+            controlElevator();
         }
     }
 
@@ -97,15 +109,14 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param setpoint The desired setpoint for the elevator.
      * @param threshold The threshold for the PID control.
      */
-    private void controlElevator(double encoder, double setpoint, double threshold) {
-        boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
+    private void controlElevator() {
+        double output = elevatorPID.calculate(getEncoderValue());
+        boolean atSetpoint = elevatorPID.atGoal();
 
-        if (!isWithinThreshold) {
-            // Use PID control to adjust the motor output.
-            setMotorSpeeds(elevatorPID.calculate(encoder, setpoint));
-        } else {
-            // Stop the motors and hold the elevator in place.
+        if (atSetpoint) {
             stopElevatorMotors();
+        } else {
+            setMotorSpeeds(output);
         }
     }
 
@@ -120,14 +131,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        // Stop the motors and set current position as the new setpoint.
         stopElevatorMotors();
-        elevatorPID.setSetpoint(getEncoderValue());
-
-        // Allow downward movement without interference.
-        if (getElevatorSetpoint() < getEncoderValue() - ElevatorConstants.PID_THRESHOLD) {
-            setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
-        }
+        elevatorPID.reset(getEncoderValue());
     }
 
     /**
@@ -138,14 +143,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        // Reset the encoder and stop the motors.
-        resetHeightEncoder();
         stopElevatorMotors();
-
-        // Allow upward movement without interference.
-        if (getElevatorSetpoint() > ElevatorConstants.PID_THRESHOLD) {
-            setMotorSpeeds(elevatorPID.calculate(getEncoderValue(), getElevatorSetpoint()));
-        }
+        resetHeightEncoder();
     }
 
 
@@ -174,8 +173,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param speed The speed value for the elevator motors.
      */
     public void setMotorSpeeds(double speed) {
-        leftElevatorMotor.set(-speed);
-        rightElevatorMotor.set(speed);
+        rightElevatorLeader.set(speed);
     }
 
     /**
@@ -183,8 +181,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * <p>Both motors are stopped to prevent any movement.</p>
      */
     public void stopElevatorMotors() {
-        leftElevatorMotor.stopMotor();
-        rightElevatorMotor.stopMotor();
+        rightElevatorLeader.stopMotor();
     }
 
     /**
@@ -196,17 +193,29 @@ public class ElevatorSubsystem extends SubsystemBase {
         return -heightEncoder.get();
     }
 
-    /**
-     * Retrieves the current elevator setpoint.
-     * @return The current setpoint of the elevator PID controller.
-     */
-    private double getElevatorSetpoint() {
-        return elevatorPID.getSetpoint();
-    }
-
     /** Resets the height encoder. */
     private void resetHeightEncoder() {
         SmartDashboard.putNumber("E-Encoder", 0);
         heightEncoder.reset();
+        elevatorPID.reset(0);
+    }
+
+
+    /** ----- Experimental Section ----- */
+    public void testVelocity() {
+        Timer timer = new Timer();
+
+        timer.start();
+        setMotorSpeeds(1.0);
+
+        if (timer.get() >= 1.0) {
+            timer.stop();
+            stopElevatorMotors();
+
+            double elevatorVelocity = heightEncoder.getRate();
+            System.out.println("Elevator Velocity: " + elevatorVelocity);
+
+            timer.reset();
+        }
     }
 }
