@@ -24,8 +24,8 @@ public final class Constants {
         public static final PIDConstants ELEVATOR_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
         public static final int PID_TOLERANCE = 5;
 
-        public static final double MAX_VELOCITY = 1500; // TODO: Adjust Maximum Velocity.
-        public static final double MAX_ACCELERATION = 2000; // TODO: Adjust Maximum Acceleration.
+        public static final double MAX_VELOCITY = 0; // 1500; TODO: Adjust Maximum Velocity.
+        public static final double MAX_ACCELERATION = 0; // 2000; TODO: Adjust Maximum Acceleration.
 
         public static final double MANUAL_CONTROL_SPEED = 0.6; // Speed (0 to 1).
 
@@ -45,10 +45,17 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final PIDConstants ARM_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
+        public static final int PID_TOLERANCE = 5;
+
+        public static final double MAX_VELOCITY = 0; // Unknown; TODO: Adjust Maximum Velocity.
+        public static final double MAX_ACCELERATION = 0; // Unknown; TODO: Adjust Maximum Acceleration.
+
+        public static final double FEEDFORWARD_kS = 0; // 0.1 (Static gain, the voltage to start moving)
+        public static final double FEEDFORWARD_kV = 0; // 0.2 (Velocity gain, the voltage to maintain speed)
+        public static final double FEEDFORWARD_kA = 0; // 0.05 (Acceleration Gain, the voltage to accelerate)
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
         public static final int PLACE_ROTATION_AMOUNT = 100; // Encoder ticks.
-        public static final int PID_THRESHOLD = 5;
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);

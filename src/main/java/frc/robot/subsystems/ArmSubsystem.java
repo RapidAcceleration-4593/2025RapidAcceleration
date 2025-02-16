@@ -6,7 +6,9 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ArmFeedforward;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -22,9 +24,14 @@ public class ArmSubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = ArmConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
     
-    private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
-                                                           ArmConstants.ARM_PID.kI,
-                                                           ArmConstants.ARM_PID.kD);
+    private final ProfiledPIDController armPID = new ProfiledPIDController(ArmConstants.ARM_PID.kP,
+                                                                           ArmConstants.ARM_PID.kI,
+                                                                           ArmConstants.ARM_PID.kD,
+                                                                           new TrapezoidProfile.Constraints(
+                                                                                ArmConstants.MAX_VELOCITY,
+                                                                                ArmConstants.MAX_ACCELERATION));
+
+    private final ArmFeedforward armFeedforward = new ArmFeedforward(ArmConstants.FEEDFORWARD_kS, ArmConstants.FEEDFORWARD_kV, ArmConstants.FEEDFORWARD_kA); // Might need kG after kS.
 
     private final double[] setpoints = {0, 0, 0, 0, 0}; // TODO: Determine setpoint values.
 
@@ -38,6 +45,7 @@ public class ArmSubsystem extends SubsystemBase {
         config.idleMode(IdleMode.kBrake);
 
         armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        armPID.setTolerance(ArmConstants.PID_TOLERANCE);
     }
 
 
@@ -64,8 +72,9 @@ public class ArmSubsystem extends SubsystemBase {
      * @param state The desired arm position.
      */
     public void setArmSetpoint(ArmStates state) {
-        armPID.setSetpoint(getArmStates(state));
-        SmartDashboard.putNumber("A-Setpoint", getArmSetpoint());
+        double target = getArmStates(state);
+        armPID.setGoal(target);
+        SmartDashboard.putNumber("A-Setpoint", target);
     }
 
 
@@ -83,25 +92,22 @@ public class ArmSubsystem extends SubsystemBase {
         } else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
         } else {
-            controlArm(getEncoderValue(), getArmSetpoint(), ArmConstants.PID_THRESHOLD);
+            controlArm();
         }
     }
 
-    /**
-     * Controls the arm based on the encoder feedback and setpoint.
-     * @param encoder The current encoder reading.
-     * @param setpoint The desired setpoint for the arm.
-     * @param threshold The threshold for the PID controller.
-     */
-    private void controlArm(double encoder, double setpoint, double threshold) {
-        boolean isWithinThreshold = Math.abs(setpoint - encoder) < threshold;
+    /** Controls the arm based on the encoder feedback and setpoint. */
+    private void controlArm() {
+        boolean atSetpoint = armPID.atGoal();
 
-        if (isWithinThreshold) {
+        if (atSetpoint) {
             // Stop the motors and hold the elevator in place.
             stopArmMotor();
         } else {
             // Use PID control to adjust the motor output.
-            setMotorSpeed(armPID.calculate(encoder, setpoint));
+            double pidOutput = armPID.calculate(getEncoderValue());
+            double ffOutput = armFeedforward.calculate(Math.toRadians(getEncoderValue()), armPID.getSetpoint().velocity);
+            setMotorSpeed(pidOutput + ffOutput);
         }
     }
 
@@ -117,14 +123,8 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        // Stop the motor and set current position as new setpoint.
         stopArmMotor();
-        armPID.setSetpoint(getEncoderValue());
-        
-        if (getArmSetpoint() < getEncoderValue() - ArmConstants.PID_THRESHOLD) {
-            // Ensure the arm doesn't go above the current encoder position.
-            setMotorSpeed(armPID.calculate(getEncoderValue(), getArmSetpoint()));
-        }
+        armPID.reset(getEncoderValue());
     }
 
     /**
@@ -137,14 +137,9 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        // Reset the encoder and stop the motor.
         resetArmEncoder();
         stopArmMotor();
-        
-        if (getArmSetpoint() > ArmConstants.PID_THRESHOLD) {
-            // Ensure the arm doesn't go below the current encoder position.
-            setMotorSpeed(armPID.calculate(getEncoderValue(), getArmSetpoint()));
-        }
+        armPID.reset(0);
     }
 
 
@@ -193,33 +188,9 @@ public class ArmSubsystem extends SubsystemBase {
         return -armEncoder.get();
     }
 
-    /**
-     * Retrieves the current arm PID setpoint.
-     * @return The current setpoint of the arm PID controller.
-     */
-    private double getArmSetpoint() {
-        return armPID.getSetpoint();
-    }
-
     /** Resets the arm encoder. */
     private void resetArmEncoder() {
         SmartDashboard.putNumber("A-Encoder", 0);
         armEncoder.reset();
-    }
-
-
-    /** ----- Command Factory Methods ----- */
-
-    /**
-     * Places the coral by rotating the arm to the desired position.
-     * <p>Rotates the arm to the place position by subtracting the rotation amount from the setpoint.</p>
-     */
-    public void placeCoralCommand() {
-        boolean atSetpoint = Math.abs(getArmSetpoint() - getEncoderValue()) < ArmConstants.PID_THRESHOLD;
-        boolean isBottomState = getArmSetpoint() == setpoints[0];
-
-        if (atSetpoint && !isBottomState) {
-            armPID.setSetpoint(getArmSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
-        }
     }
 }

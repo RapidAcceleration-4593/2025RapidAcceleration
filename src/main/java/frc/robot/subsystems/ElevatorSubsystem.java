@@ -38,6 +38,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
 
+    private Timer exampleTimer = new Timer();
+
     /**
      * Constructor for the ElevatorSubsystem class.
      * Configures motor settings, establishing leader-follower configuration.
@@ -103,12 +105,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         }
     }
 
-    /**
-     * Controls the elevator system using PID control.
-     * @param encoder The current encoder reading.
-     * @param setpoint The desired setpoint for the elevator.
-     * @param threshold The threshold for the PID control.
-     */
+    /** Controls the elevator system using PID control. */
     private void controlElevator() {
         double output = elevatorPID.calculate(getEncoderValue());
         boolean atSetpoint = elevatorPID.atGoal();
@@ -145,6 +142,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void handleBottomLimitSwitchPressed() {
         stopElevatorMotors();
         resetHeightEncoder();
+        elevatorPID.reset(0);
     }
 
 
@@ -197,25 +195,24 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void resetHeightEncoder() {
         SmartDashboard.putNumber("E-Encoder", 0);
         heightEncoder.reset();
-        elevatorPID.reset(0);
     }
 
 
     /** ----- Experimental Section ----- */
     public void testVelocity() {
-        Timer timer = new Timer();
-
-        timer.start();
+        exampleTimer.start();
         setMotorSpeeds(1.0);
 
-        if (timer.get() >= 1.0) {
-            timer.stop();
+        SmartDashboard.putNumber("VelocityTime", exampleTimer.get());
+        SmartDashboard.putNumber("VelocitySpeed", heightEncoder.getRate());
+
+        // Velocity = Graph's maximum asymptote.
+        // Acceleration = Where the derivative is zero and is a maximum/concave down.
+
+        if (exampleTimer.get() >= 1.0) {
+            exampleTimer.stop();
             stopElevatorMotors();
-
-            double elevatorVelocity = heightEncoder.getRate();
-            System.out.println("Elevator Velocity: " + elevatorVelocity);
-
-            timer.reset();
+            exampleTimer.reset();
         }
     }
 }
