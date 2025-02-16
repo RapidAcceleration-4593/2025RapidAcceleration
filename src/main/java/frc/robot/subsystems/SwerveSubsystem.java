@@ -60,7 +60,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 5.36);
 
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.MACHINE;
 
         try {
             // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
@@ -84,7 +84,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                           0.1);
 
         // Resynchronize your absolute encoders and motor encoders periodically when they are not moving.
-        swerveDrive.setModuleEncoderAutoSynchronize(true,
+        swerveDrive.setModuleEncoderAutoSynchronize(false,
                                                     1);
 
         // Set the absolute encoder to be used over the internal encoder and push the offsets onto it. Throws warning if not possible.

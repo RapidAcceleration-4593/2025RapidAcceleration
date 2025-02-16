@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
@@ -24,7 +23,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ElevatorConstants.bottomLimitSwitch;
 
-    private final Encoder heightEncoder = ElevatorConstants.heightEncoder;
+    public final Encoder heightEncoder = ElevatorConstants.heightEncoder;
 
     private final ProfiledPIDController elevatorPID = new ProfiledPIDController(ElevatorConstants.ELEVATOR_PID.kP,
                                                                                 ElevatorConstants.ELEVATOR_PID.kI,
@@ -33,12 +32,10 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorConstants.MAX_VELOCITY, 
                                                                                     ElevatorConstants.MAX_ACCELERATION));
 
-    private final double[] setpoints = {0, 2000, 6000}; // TODO: Determine Setpoint Values.
+    private final double[] setpoints = {0, 2000, 12800}; // TODO: Determine Setpoint Values.
 
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
-
-    private Timer exampleTimer = new Timer();
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -81,7 +78,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         elevatorPID.setGoal(target);
         SmartDashboard.putNumber("E-Setpoint", target);
     }
-
 
     /** ----- Elevator State System ----- */
 
@@ -128,8 +124,15 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        stopElevatorMotors();
-        elevatorPID.reset(getEncoderValue());
+        double setpoint = elevatorPID.getGoal().position;
+
+        if (setpoint >= getEncoderValue()) {
+            stopElevatorMotors();
+            elevatorPID.setGoal(getEncoderValue());
+            elevatorPID.reset(getEncoderValue());
+        } else {
+            controlElevator();
+        }
     }
 
     /**
@@ -140,9 +143,17 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        stopElevatorMotors();
+        double setpoint = elevatorPID.getGoal().position;
+
         resetHeightEncoder();
-        elevatorPID.reset(0);
+
+        if (setpoint <= setpoints[0]) {
+            stopElevatorMotors();
+            elevatorPID.setGoal(0);
+            elevatorPID.reset(0);
+        } else {
+            controlElevator();
+        }
     }
 
 
@@ -191,28 +202,13 @@ public class ElevatorSubsystem extends SubsystemBase {
         return -heightEncoder.get();
     }
 
+    public void periodic() {
+        SmartDashboard.putNumber("E-Encoder", -heightEncoder.get());
+    }
+
     /** Resets the height encoder. */
     private void resetHeightEncoder() {
         SmartDashboard.putNumber("E-Encoder", 0);
         heightEncoder.reset();
-    }
-
-
-    /** ----- Experimental Section ----- */
-    public void testVelocity() {
-        exampleTimer.start();
-        setMotorSpeeds(1.0);
-
-        SmartDashboard.putNumber("VelocityTime", exampleTimer.get());
-        SmartDashboard.putNumber("VelocitySpeed", heightEncoder.getRate());
-
-        // Velocity = Graph's maximum asymptote.
-        // Acceleration = Where the derivative is zero and is a maximum/concave down.
-
-        if (exampleTimer.get() >= 1.0) {
-            exampleTimer.stop();
-            stopElevatorMotors();
-            exampleTimer.reset();
-        }
     }
 }

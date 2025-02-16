@@ -21,11 +21,11 @@ public final class Constants {
     public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
-        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
+        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.001, 0, 0); // TODO: Tune PID.
         public static final int PID_TOLERANCE = 5;
 
-        public static final double MAX_VELOCITY = 0; // 1500; TODO: Adjust Maximum Velocity.
-        public static final double MAX_ACCELERATION = 0; // 2000; TODO: Adjust Maximum Acceleration.
+        public static final double MAX_VELOCITY = 27500; // TODO: Adjust Maximum Velocity.
+        public static final double MAX_ACCELERATION = 250000; // TODO: Adjust Maximum Acceleration.
 
         public static final double MANUAL_CONTROL_SPEED = 0.6; // Speed (0 to 1).
 

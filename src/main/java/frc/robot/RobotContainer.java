@@ -20,6 +20,7 @@ import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.elevator.SetElevatorSetpoint;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
@@ -95,7 +96,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        // elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
+        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         // armSubsystem.setDefaultCommand(new ControlArmAngle(armSubsystem));
         // intakeSubsystem.setDefaultCommand(new ControlIntake(intakeSubsystem));
         // serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
@@ -149,8 +150,6 @@ public class RobotContainer {
 
         auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
         auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
-
-        auxiliaryController.povLeft().onTrue(Commands.runOnce(elevatorSubsystem::testVelocity));
     }
 
     /**
