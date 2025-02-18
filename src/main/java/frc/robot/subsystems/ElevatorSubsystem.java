@@ -17,7 +17,7 @@ import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-    private final SparkMax rightElevatorLeader = ElevatorConstants.rightElevatorMotor;
+    // private final SparkMax rightElevatorLeader = ElevatorConstants.rightElevatorMotor;
     private final SparkMax leftElevatorFollower = ElevatorConstants.leftElevatorMotor;
 
     private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
@@ -43,9 +43,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public ElevatorSubsystem() {
         leaderConfig.idleMode(IdleMode.kBrake);
-        followerConfig.idleMode(IdleMode.kBrake).follow(rightElevatorLeader, true);
+        followerConfig.idleMode(IdleMode.kBrake);
+        // .follow(rightElevatorLeader, true);
         
-        rightElevatorLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        // rightElevatorLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         leftElevatorFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         elevatorPID.setTolerance(ElevatorConstants.PID_TOLERANCE);
@@ -183,12 +184,14 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param speed The speed value for the elevator motors.
      */
     public void setMotorSpeeds(double speed) {
-        rightElevatorLeader.set(speed);
+        // rightElevatorLeader.set(speed);
+        leftElevatorFollower.set(-speed);
     }
 
     /** Stops movement for the elevator motors. */
     public void stopMotors() {
-        rightElevatorLeader.stopMotor();
+        // rightElevatorLeader.stopMotor();
+        leftElevatorFollower.stopMotor();
     }
 
     /**

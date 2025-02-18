@@ -27,7 +27,7 @@ public final class Constants {
         public static final double MAX_VELOCITY = 27500; // TODO: Adjust Maximum Velocity.
         public static final double MAX_ACCELERATION = 250000; // TODO: Adjust Maximum Acceleration.
 
-        public static final double MANUAL_CONTROL_SPEED = 0.6; // Speed (0 to 1).
+        public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
         public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
@@ -104,7 +104,7 @@ public final class Constants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
 
-        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(16.25 + 25);
+        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5 + 6);
         public static final boolean DRIVE_WITH_VISION = true;
     }
 

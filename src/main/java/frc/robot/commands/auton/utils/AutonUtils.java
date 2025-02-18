@@ -2,13 +2,12 @@ package frc.robot.commands.auton.utils;
 
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
@@ -39,7 +38,7 @@ public class AutonUtils {
                     .getInitialPose();
 
                 if (drivebase.isRedAlliance()) {
-                    pose = flipFieldPose(pose);
+                    pose = FlippingUtil.flipFieldPose(pose);
                 }
     
                 drivebase.resetOdometry(pose);
@@ -55,37 +54,9 @@ public class AutonUtils {
         try {
             return PathPlannerPath.fromPathFile(pathName);
         } catch (Exception e) {
-            // Handle exception, as needed.
             e.printStackTrace();
             throw new RuntimeException("Failed to load path: " + pathName, e);
         }
-    }
-
-    /**
-     * Flip a field position to the other side of the field, maintaining a blue alliance origin.
-     * @param position The position to flip.
-     * @return The flipped position.
-     */
-    private Translation2d flipFieldPosition(Translation2d position) {
-        return new Translation2d(FieldConstants.FIELD_LENGTH - position.getX(), position.getY());
-    }
-
-    /**
-     * Flip a field rotation to the other side of the field, maintaining a blue alliance origin.
-     * @param rotation The rotation to flip.
-     * @return The flipped rotation.
-     */
-    private Rotation2d flipFieldRotation(Rotation2d rotation) {
-        return new Rotation2d(Math.PI).minus(rotation);
-    }
-    
-    /**
-     * Flip a field pose to the other side of the field, maintaining a blue alliance origin.
-     * @param pose The pose to flip.
-     * @return The flipped pose.
-     */
-    public Pose2d flipFieldPose(Pose2d pose) {
-        return new Pose2d(flipFieldPosition(pose.getTranslation()), flipFieldRotation(pose.getRotation()));
     }
 
     /**
@@ -97,9 +68,8 @@ public class AutonUtils {
         try {
             return RobotConfig.fromGUISettings();
         } catch (Exception e) {
-            System.err.println("Failed to retrieve RobotConfig from Deploy Settings.");
             e.printStackTrace();
-            throw new RuntimeException("Error retrieving RobotConfig.", e);
+            throw new RuntimeException("Failed to retrieve RobotConfig from Deploy Settings.", e);
         }
     }
 
@@ -127,7 +97,7 @@ public class AutonUtils {
     private Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
         Pose2d[] redPoses = new Pose2d[bluePoses.length];
         for (int i = 0; i < bluePoses.length; i++) {
-            redPoses[i] = flipFieldPose(bluePoses[i]);
+            redPoses[i] = FlippingUtil.flipFieldPose(bluePoses[i]);
         }
         return redPoses;
     }
