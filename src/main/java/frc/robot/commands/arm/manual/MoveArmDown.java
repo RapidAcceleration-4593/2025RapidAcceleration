@@ -16,7 +16,7 @@ public class MoveArmDown extends Command {
     @Override
     public void execute() {
         if (armSubsystem.isBottomLimitSwitchPressed()) {
-            armSubsystem.stopArmMotor();
+            armSubsystem.stopMotor();
         } else {
             armSubsystem.setMotorSpeed(-ArmConstants.MANUAL_CONTROL_SPEED);
         }
@@ -24,6 +24,6 @@ public class MoveArmDown extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        armSubsystem.stopArmMotor();
+        armSubsystem.stopMotor();
     }
 }

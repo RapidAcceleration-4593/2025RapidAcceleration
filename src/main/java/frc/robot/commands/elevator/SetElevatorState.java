@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.subsystems.ElevatorSubsystem;
 
-public class SetElevatorSetpoint extends Command {
+public class SetElevatorState extends Command {
     
     private final ElevatorSubsystem elevatorSubsystem;
     private final ElevatorStates elevatorState;
 
-    public SetElevatorSetpoint(ElevatorSubsystem subsystem, ElevatorStates state) {
+    public SetElevatorState(ElevatorSubsystem subsystem, ElevatorStates state) {
         this.elevatorSubsystem = subsystem;
         this.elevatorState = state;
         addRequirements(subsystem);
@@ -17,7 +17,7 @@ public class SetElevatorSetpoint extends Command {
 
     @Override
     public void initialize() {
-        elevatorSubsystem.setElevatorSetpoint(elevatorState);
+        elevatorSubsystem.setElevatorState(elevatorState);
     }
 
     @Override

@@ -9,6 +9,7 @@ import java.io.File;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
@@ -18,10 +19,13 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
+import frc.robot.commands.auton.Bottom.BottomMoveOutAuton;
+import frc.robot.commands.auton.Center.CenterMoveOutAuton;
+import frc.robot.commands.auton.Top.TopMoveOutAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
-import frc.robot.commands.elevator.SetElevatorSetpoint;
+import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
 import frc.robot.commands.intake.manual.extension.ExtendRightIntakeCommand;
@@ -127,17 +131,10 @@ public class RobotContainer {
         driverController.x().whileTrue(new MoveArmUp(armSubsystem));
         driverController.b().whileTrue(new MoveArmDown(armSubsystem));
 
-        // Robot Functionality
-        // driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
-        // driverController.leftBumper().onTrue(Commands.sequence(
-        //     Commands.runOnce(() -> elevatorSubsystem.setElevatorSetpoint(ElevatorStates.PICKUP)),
-        //     Commands.runOnce(() -> armSubsystem.setArmSetpoint(ArmStates.BOTTOM))
-        // ));
-
         // Elevator PID Setpoints.
-        driverController.povUp().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.L4));
-        driverController.povLeft().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.PICKUP));
-        driverController.povDown().onTrue(new SetElevatorSetpoint(elevatorSubsystem, ElevatorStates.BOTTOM));
+        driverController.povUp().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.L4));
+        driverController.povLeft().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP));
+        driverController.povDown().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.BOTTOM));
 
         // Intake / Serializer Commands
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
@@ -157,8 +154,15 @@ public class RobotContainer {
      * @return The command to run in autonomous.
      */
     public Command getAutonomousCommand() {
-        // TODO: Implement autonomous selection for dashboard.
-        return new NoneAuton();
+        String selectedAutonomous = SmartDashboard.getString("SelectedAutonomous", "Do Nothing");
+
+        return switch(selectedAutonomous) {
+            case "Do Nothing" -> new NoneAuton();
+            case "Top, Move Out" -> new TopMoveOutAuton(autonUtils);
+            case "Center, Move Out" -> new CenterMoveOutAuton(autonUtils);
+            case "Bottom, Move Out" -> new BottomMoveOutAuton(autonUtils);
+            default -> new NoneAuton();
+        };
     }
 
     public void setMotorBrake(boolean brake) {

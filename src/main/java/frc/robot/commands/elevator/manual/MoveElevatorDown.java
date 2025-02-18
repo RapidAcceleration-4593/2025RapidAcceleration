@@ -16,7 +16,7 @@ public class MoveElevatorDown extends Command {
     @Override
     public void execute() {
         if (elevatorSubsystem.isBottomLimitSwitchPressed()) {
-            elevatorSubsystem.stopElevatorMotors();
+            elevatorSubsystem.stopMotors();
         } else {
             elevatorSubsystem.setMotorSpeeds(-ElevatorConstants.MANUAL_CONTROL_SPEED);
         }
@@ -24,6 +24,6 @@ public class MoveElevatorDown extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        elevatorSubsystem.stopElevatorMotors();
+        elevatorSubsystem.stopMotors();
     }
 }

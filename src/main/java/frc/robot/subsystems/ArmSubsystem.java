@@ -7,8 +7,7 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -24,16 +23,13 @@ public class ArmSubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = ArmConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
     
-    private final ProfiledPIDController armPID = new ProfiledPIDController(ArmConstants.ARM_PID.kP,
-                                                                           ArmConstants.ARM_PID.kI,
-                                                                           ArmConstants.ARM_PID.kD,
-                                                                           new TrapezoidProfile.Constraints(
-                                                                                ArmConstants.MAX_VELOCITY,
-                                                                                ArmConstants.MAX_ACCELERATION));
+    private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
+                                                           ArmConstants.ARM_PID.kI,
+                                                           ArmConstants.ARM_PID.kD);
 
-    private final ArmFeedforward armFeedforward = new ArmFeedforward(ArmConstants.FEEDFORWARD_kS, ArmConstants.FEEDFORWARD_kV, ArmConstants.FEEDFORWARD_kA); // Might need kG after kS.
+    private final ArmFeedforward armFeedforward = new ArmFeedforward(ArmConstants.FEEDFORWARD_kS, ArmConstants.FEEDFORWARD_kG, ArmConstants.FEEDFORWARD_kV);
 
-    private final double[] setpoints = {0, 0, 0, 0, 0}; // TODO: Determine setpoint values.
+    private final double[] SETPOINTS = {0, 0, 0, 0, 0}; // TODO: Determine setpoint values.
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -56,13 +52,13 @@ public class ArmSubsystem extends SubsystemBase {
      * @param state The desired arm position.
      * @return The {@link ArmSubsystem#setpoints} value corresponding to the state.
      */
-    private double getArmStates(ArmStates state) {
+    private double getArmState(ArmStates state) {
         return switch (state) {
-            case BOTTOM -> setpoints[0];
-            case L1 -> setpoints[1];
-            case L2 -> setpoints[2];
-            case L3 -> setpoints[3];
-            case L4 -> setpoints[4];
+            case BOTTOM -> SETPOINTS[0];
+            case L1 -> SETPOINTS[1];
+            case L2 -> SETPOINTS[2];
+            case L3 -> SETPOINTS[3];
+            case L4 -> SETPOINTS[4];
             default -> -1;
         };
     }
@@ -71,9 +67,9 @@ public class ArmSubsystem extends SubsystemBase {
      * Sets the setpoint of the arm to the target state.
      * @param state The desired arm position.
      */
-    public void setArmSetpoint(ArmStates state) {
-        double target = getArmStates(state);
-        armPID.setGoal(target);
+    public void setArmState(ArmStates state) {
+        double target = getArmState(state);
+        armPID.setSetpoint(target);
         SmartDashboard.putNumber("A-Setpoint", target);
     }
 
@@ -81,12 +77,16 @@ public class ArmSubsystem extends SubsystemBase {
     /** ----- Arm State system ----- */
 
     /**
-     * Controls the state of the swing arm based on the limit switch inputs and encoder feedback.
-     * <p>If no limit switches are pressed, then use regular PID control.</p>
+     * Controls arm movement based on limit switch inputs and encoder feedback.
+     * <ul>
+     *  <li>Stops the motor if both the top and bottom limit switches are pressed (i.e. system malfunction).</li>
+     *  <li>Handles specific behavior when either the top or bottom limit switch is pressed.</li>
+     *  <li>Uses PID Control to adjust the motor output when no limit switches are triggered.</li>
+     * </ul>
      */
     public void controlArmState() {
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            stopArmMotor();
+            stopMotor();
         } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
         } else if (isBottomLimitSwitchPressed()) {
@@ -96,17 +96,18 @@ public class ArmSubsystem extends SubsystemBase {
         }
     }
 
-    /** Controls the arm based on the encoder feedback and setpoint. */
+    /** Controls the Arm System using a PID Controller. */
     private void controlArm() {
-        boolean atSetpoint = armPID.atGoal();
+        boolean atSetpoint = armPID.atSetpoint();
+
+        double positionRadians = ((getEncoderValue()/ArmConstants.PARALLEL_OFFSET) - 1) * (Math.PI/2);
+        double velocitySetpoint = armEncoder.getRate();
 
         if (atSetpoint) {
-            // Stop the motors and hold the elevator in place.
-            stopArmMotor();
+            stopMotor();
         } else {
-            // Use PID control to adjust the motor output.
             double pidOutput = armPID.calculate(getEncoderValue());
-            double ffOutput = armFeedforward.calculate(Math.toRadians(getEncoderValue()), armPID.getSetpoint().velocity);
+            double ffOutput = armFeedforward.calculate(positionRadians, velocitySetpoint);
             setMotorSpeed(pidOutput + ffOutput);
         }
     }
@@ -117,29 +118,40 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * Handles the behavior when the top limit switch is pressed.
      * <ul>
-     *  <li>Ensures the arm's PID setpoint doesn't go above the current encoder position.</li>
-     *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
-     *      limit switch, otherwise sets the motor speed to the PID output.</li>
+     *  <li>Stops the motor and sets the current position as the new setpoint.</li>
+     *  <li>Allows downward movement without interference.</li>
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        stopArmMotor();
-        armPID.reset(getEncoderValue());
+        double currentPosition = getEncoderValue();
+        double setpoint = getSetpoint();
+
+        if (setpoint >= currentPosition) {
+            stopMotor();
+            armPID.setSetpoint(currentPosition);
+        } else {
+            controlArm();
+        }
     }
 
     /**
      * Handles the behavior when the bottom limit switch is pressed.
      * <ul>
-     *  <li>Resets the encoder.</li>
-     *  <li>Ensures the arm's PID setpoint doesn't go below the current encoder position.</li>
-     *  <li>Calculates the PID output and stops the motor if output is attempting to drive past
-     *      limit switch, otherwise sets the motor speed to the PID output.</li>
+     *  <li>Resets the encoder, stops the motor, and sets the current position as the new setpoint. </li>
+     *  <li>Allows upward movement without interference.</li>
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        resetArmEncoder();
-        stopArmMotor();
-        armPID.reset(0);
+        double setpoint = getSetpoint();
+        
+        resetEncoder();
+
+        if (setpoint <= SETPOINTS[0]) {
+            stopMotor();
+            armPID.setSetpoint(0);
+        } else {
+            controlArm();
+        }
     }
 
 
@@ -171,11 +183,8 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor.set(speed);
     }
 
-    /**
-     * Stops the arm motor.
-     * <p>Stops the motor to prevent any movement.</p>
-     */
-    public void stopArmMotor() {
+    /** Stops movement for the arm motor. */
+    public void stopMotor() {
         armMotor.stopMotor();
     }
 
@@ -189,8 +198,16 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /** Resets the arm encoder. */
-    private void resetArmEncoder() {
+    private void resetEncoder() {
         SmartDashboard.putNumber("A-Encoder", 0);
         armEncoder.reset();
+    }
+
+    /**
+     * Gets the setpoint for the Arm PID Controller.
+     * @return The current numerical setpoint value.
+     */
+    private double getSetpoint() {
+        return armPID.getSetpoint();
     }
 }

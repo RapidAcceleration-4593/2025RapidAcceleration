@@ -38,14 +38,14 @@ import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
+import org.photonvision.targeting.PhotonTrackedTarget; 
 import swervelib.SwerveDrive;
 import swervelib.telemetry.SwerveDriveTelemetry;
 
 /** Utility class for handling vision-related functions like Object Detection and AprilTag localization. */
 public class VisionUtils {
     /** AprilTag Field Layout of the year. */
-    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025Reefscape);
+    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
     /** Ambiguity defined as a value between (0,1). Used in {@link VisionUtils#filterPose}. */
     private final double maximumAmbiguity = 0.25;
