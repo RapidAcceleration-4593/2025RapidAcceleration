@@ -18,11 +18,11 @@ public final class Constants {
     public static final double ROBOT_MASS = (115) * 0.453592; // 115 Pounds to Kilograms.
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
-    public static final double MAX_SPEED = Units.feetToMeters(14.5); // Maximum speed of robot in meters per second, used to limit acceleration.
+    public static final double MAX_SPEED = Units.feetToMeters(12.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
         public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.001, 0, 0); // TODO: Tune PID.
-        public static final int PID_TOLERANCE = 5;
+        public static final int PID_TOLERANCE = 10;
 
         public static final double MAX_VELOCITY = 27500; // TODO: Adjust Maximum Velocity.
         public static final double MAX_ACCELERATION = 250000; // TODO: Adjust Maximum Acceleration.
@@ -45,7 +45,7 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final PIDConstants ARM_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
-        public static final int PID_TOLERANCE = 5;
+        public static final int PID_TOLERANCE = 10;
 
         public static final double FEEDFORWARD_kS = 0; // (Static gain, the voltage to start moving)
         public static final double FEEDFORWARD_kG = 0; // (Gravity gain, the voltage to hold position where gravity has full effect)
@@ -104,7 +104,7 @@ public final class Constants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
 
-        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5 + 6);
+        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5 + 4);
         public static final boolean DRIVE_WITH_VISION = true;
     }
 

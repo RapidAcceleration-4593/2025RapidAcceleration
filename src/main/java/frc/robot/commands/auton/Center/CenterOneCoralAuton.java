@@ -26,7 +26,8 @@ public class CenterOneCoralAuton extends AutonCommand {
         this.utils = utils;
 
         paths = List.of(
-            utils.loadPath("CenterOneCoral-1")
+            utils.loadPath("CenterOneCoral-1"),
+            utils.loadPath("CenterOneCoral-2")
         );
 
         if (Robot.isSimulation()) {
@@ -35,10 +36,17 @@ public class CenterOneCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                utils.SetElevatorState(ElevatorStates.PICKUP),
+                utils.setElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(0)),
-                    utils.SetArmState(ArmStates.L3)
+                    utils.setArmState(ArmStates.L3)
+                ),
+                utils.scoreCoralCommand(),
+                Commands.waitSeconds(0.5),
+                AutoBuilder.followPath(paths.get(1)),
+                Commands.parallel(
+                    utils.setElevatorState(ElevatorStates.BOTTOM),
+                    utils.setArmState(ArmStates.BOTTOM)
                 )
             )
         );

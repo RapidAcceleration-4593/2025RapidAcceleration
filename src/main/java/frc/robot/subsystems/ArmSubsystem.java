@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmStates;
@@ -215,7 +216,9 @@ public class ArmSubsystem extends SubsystemBase {
     /** ----- Command Factory Methods ----- */
 
     /** Rotates the arm mechanism down to score on a branch. */
-    public void placeCoralCommand() {
-        armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
+    public Command placeCoralCommand() {
+        return runOnce(() ->
+            armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT)
+        );
     }
 }

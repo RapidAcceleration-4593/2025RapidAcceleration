@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
+import frc.robot.Constants.ArmConstants.ArmStates;
+import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
@@ -24,7 +26,8 @@ public class TopOneCoralAuton extends AutonCommand {
         this.utils = utils;
 
         paths = List.of(
-            utils.loadPath("TopOneCoral-1")
+            utils.loadPath("TopOneCoral-1"),
+            utils.loadPath("TopOneCoral-2")
         );
 
         if (Robot.isSimulation()) {
@@ -33,7 +36,18 @@ public class TopOneCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                AutoBuilder.followPath(paths.get(0))
+                utils.setElevatorState(ElevatorStates.PICKUP),
+                Commands.parallel(
+                    AutoBuilder.followPath(paths.get(0)),
+                    utils.setArmState(ArmStates.L3)
+                ),
+                utils.scoreCoralCommand(),
+                Commands.waitSeconds(0.5),
+                AutoBuilder.followPath(paths.get(1)),
+                Commands.parallel(
+                    utils.setElevatorState(ElevatorStates.BOTTOM),
+                    utils.setArmState(ArmStates.BOTTOM)
+                )
             )
         );
     }

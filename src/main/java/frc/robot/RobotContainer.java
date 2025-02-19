@@ -160,7 +160,7 @@ public class RobotContainer {
             )
         );
 
-        driverController.a().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+        driverController.a().onTrue(armSubsystem.placeCoralCommand());
     }
 
     /**

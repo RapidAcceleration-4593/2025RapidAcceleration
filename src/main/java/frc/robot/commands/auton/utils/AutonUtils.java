@@ -60,13 +60,31 @@ public class AutonUtils {
         });
     }
 
-    public Command SetElevatorState(ElevatorStates state) {
+    /**
+     * Command to set Elevator State in Autonomous.
+     * @param state The selected Elevator State.
+     * @return The New Elevator State.
+     */
+    public Command setElevatorState(ElevatorStates state) {
         return new SetElevatorState(elevatorSubsystem, state);
     }
 
-    public Command SetArmState(ArmStates state) {
+    /**
+     * Command to set Arm State in Autonomous.
+     * @param state The selected Arm State.
+     * @return The New Arm State.
+     */
+    public Command setArmState(ArmStates state) {
         return new SetArmState(armSubsystem, state);
     }
+
+    /**
+     * Command to rotate the arm down in Autonomous.
+     * @return A lower setpoint for the arm mechanism.
+     */
+    public Command scoreCoralCommand() {
+        return armSubsystem.placeCoralCommand();
+    } 
 
     /**
      * Load the PathPlanner trajectory file to path.

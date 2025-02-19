@@ -40,7 +40,7 @@ public class BottomMoveOutAuton extends AutonCommand {
 
     @Override
     public List<Pose2d> getAllPathPoses() {
-        return paths.subList(0, 1).stream()
+        return paths.subList(0, 0).stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());
