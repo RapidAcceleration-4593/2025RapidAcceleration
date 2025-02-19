@@ -1,4 +1,4 @@
-package frc.robot.commands.auton.center;
+package frc.robot.commands.auton.bottom;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,16 +15,16 @@ import frc.robot.Robot;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
-public class CenterMoveOutAuton extends AutonCommand {
+public class BottomOneCoralAuton extends AutonCommand {
     private AutonUtils utils;
 
     private final List<PathPlannerPath> paths;
 
-    public CenterMoveOutAuton(AutonUtils utils) {
+    public BottomOneCoralAuton(AutonUtils utils) {
         this.utils = utils;
 
         paths = List.of(
-            utils.loadPath("CenterMoveOut-1")
+            utils.loadPath("BottomOneCoral-1")
         );
 
         if (Robot.isSimulation()) {

@@ -98,41 +98,6 @@ public class VisionUtils {
             throw new RuntimeException("Cannot get AprilTag " + aprilTag + " from field " + fieldLayout.toString());
         }
     }
-    
-    /**
-     * Calculates the target pose relative to a detected object (from the camera).
-     * @param robotPose The current global pose of the robot.
-     * @param robotToCameraOffset The offset {@link Transform2d} of the robot to apply to the pose for the robot to position.
-     * @return The target pose of the object detected by the camera.
-     */
-    // public Optional<Pose2d> getObjectPose(Pose2d robotPose, Transform2d robotToCameraOffset) {
-    //     Optional<PhotonPipelineResult> latestResultOptional = Cameras.OBJECT_DETECTION.getLatestResult();
-        
-    //     if (latestResultOptional.isPresent()) {
-    //         PhotonTrackedTarget bestTarget = latestResultOptional.get().getBestTarget();
-
-    //         if (bestTarget.getDetectedObjectConfidence() > 0.75) {
-    //             Transform3d cameraToTarget = bestTarget.getBestCameraToTarget();
-
-    //             // Translation and rotation of the object relative to the camera frame.
-    //             Translation3d translation = cameraToTarget.getTranslation();
-    //             Rotation2d rotation = cameraToTarget.getRotation().toRotation2d(); // 0, depending on shape.
-    //             Pose2d objectPoseInCamera = new Pose2d(translation.getX(), translation.getY(), rotation);
-
-    //             // Convert the object pose from camera frame to robot frame.
-    //             Pose2d objectPoseInRobot = objectPoseInCamera.transformBy(robotToCameraOffset.inverse());
-
-    //             // Transform from robot frame to global field coordinates.
-    //             Transform2d objectTransformFromRobot = new Transform2d(objectPoseInRobot.getTranslation(), objectPoseInRobot.getRotation());
-
-    //             // Return the object pose in global coordinates wrapped in an Optional.
-    //             return Optional.of(robotPose.transformBy(objectTransformFromRobot));
-    //         }
-    //     }
-        
-    //     // No object is detected or confidence is low, return an empty Optional.
-    //     return Optional.empty();
-    // }
 
     /**
      * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.

@@ -2,12 +2,19 @@ package frc.robot.commands.auton.utils;
 
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
-import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.FieldConstants;
+import frc.robot.Constants.ArmConstants.ArmStates;
+import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.elevator.SetElevatorState;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
@@ -15,9 +22,17 @@ public class AutonUtils {
     /** SwerveSubsystem Object. */
     private SwerveSubsystem drivebase;
 
+    /** ElevatorSubsystem Object. */
+    private ElevatorSubsystem elevatorSubsystem;
+
+    /** ArmSubsystem Object. */
+    private ArmSubsystem armSubsystem;
+
     /** Constructor for AutonUtils. */
-    public AutonUtils(SwerveSubsystem drivebase) {
+    public AutonUtils(SwerveSubsystem drivebase, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         this.drivebase = drivebase;
+        this.elevatorSubsystem = elevatorSubsystem;
+        this.armSubsystem = armSubsystem;
     }
 
     /**
@@ -38,11 +53,19 @@ public class AutonUtils {
                     .getInitialPose();
 
                 if (drivebase.isRedAlliance()) {
-                    pose = FlippingUtil.flipFieldPose(pose);
+                    pose = flipFieldPose(pose);
                 }
     
                 drivebase.resetOdometry(pose);
         });
+    }
+
+    public Command SetElevatorState(ElevatorStates state) {
+        return new SetElevatorState(elevatorSubsystem, state);
+    }
+
+    public Command SetArmState(ArmStates state) {
+        return new SetArmState(armSubsystem, state);
     }
 
     /**
@@ -57,6 +80,33 @@ public class AutonUtils {
             e.printStackTrace();
             throw new RuntimeException("Failed to load path: " + pathName, e);
         }
+    }
+
+    /**
+     * Flip a field position to the other side of the field, maintaining a blue alliance origin.
+     * @param position The position to flip.
+     * @return The flipped position.
+     */
+    private Translation2d flipFieldPosition(Translation2d position) {
+        return new Translation2d(FieldConstants.FIELD_LENGTH - position.getX(), position.getY());
+    }
+
+    /**
+     * Flip a field rotation to the other side of the field, maintaining a blue alliance origin.
+     * @param rotation The rotation to flip.
+     * @return The flipped rotation.
+     */
+    private Rotation2d flipFieldRotation(Rotation2d rotation) {
+        return new Rotation2d(Math.PI).minus(rotation);
+    }
+    
+    /**
+     * Flip a field pose to the other side of the field, maintaining a blue alliance origin.
+     * @param pose The pose to flip.
+     * @return The flipped pose.
+     */
+    public Pose2d flipFieldPose(Pose2d pose) {
+        return new Pose2d(flipFieldPosition(pose.getTranslation()), flipFieldRotation(pose.getRotation()));
     }
 
     /**
@@ -75,16 +125,16 @@ public class AutonUtils {
 
     /** Pose2d for Coral Station on bottom of blue alliance. */
     public final Pose2d[] BLUE_BOTTOM_CHUTE = {
-        new Pose2d(0.5781, 1.3135, Rotation2d.fromDegrees(-126)),
-        new Pose2d(1.0714, 0.9553, Rotation2d.fromDegrees(-126)),
-        new Pose2d(1.5646, 0.5971, Rotation2d.fromDegrees(-126))
+        new Pose2d(0.708291, 1.303966, Rotation2d.fromDegrees(-126)),
+        new Pose2d(1.117988, 1.006304, Rotation2d.fromDegrees(-126)),
+        new Pose2d(1.527684, 0.708642, Rotation2d.fromDegrees(-126))
     };
 
     /** Pose2d for Coral Station on top of blue alliance. */
     public final Pose2d[] BLUE_TOP_CHUTE = {
-        new Pose2d(0.5781, 6.7383, Rotation2d.fromDegrees(126)),
-        new Pose2d(1.0714, 7.0965, Rotation2d.fromDegrees(126)),
-        new Pose2d(1.5646, 7.4547, Rotation2d.fromDegrees(126))
+        new Pose2d(0.708291, 6.747834, Rotation2d.fromDegrees(126)),
+        new Pose2d(1.117988, 7.045496, Rotation2d.fromDegrees(126)),
+        new Pose2d(1.527684, 7.343158, Rotation2d.fromDegrees(126))
     };
 
     /** Pose2d for Coral Station on bottom of red alliance. */
@@ -97,7 +147,7 @@ public class AutonUtils {
     private Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
         Pose2d[] redPoses = new Pose2d[bluePoses.length];
         for (int i = 0; i < bluePoses.length; i++) {
-            redPoses[i] = FlippingUtil.flipFieldPose(bluePoses[i]);
+            redPoses[i] = flipFieldPose(bluePoses[i]);
         }
         return redPoses;
     }

@@ -210,4 +210,12 @@ public class ArmSubsystem extends SubsystemBase {
     private double getSetpoint() {
         return armPID.getSetpoint();
     }
+
+
+    /** ----- Command Factory Methods ----- */
+
+    /** Rotates the arm mechanism down to score on a branch. */
+    public void placeCoralCommand() {
+        armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
+    }
 }

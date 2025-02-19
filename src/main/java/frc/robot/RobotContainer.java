@@ -16,12 +16,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ArmConstants.ArmStates;
+import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
-import frc.robot.commands.auton.Bottom.BottomMoveOutAuton;
-import frc.robot.commands.auton.Center.CenterMoveOutAuton;
-import frc.robot.commands.auton.Top.TopMoveOutAuton;
+import frc.robot.commands.auton.bottom.BottomMoveOutAuton;
+import frc.robot.commands.auton.bottom.BottomOneCoralAuton;
+import frc.robot.commands.auton.center.CenterMoveOutAuton;
+import frc.robot.commands.auton.center.CenterOneCoralAuton;
+import frc.robot.commands.auton.top.TopMoveOutAuton;
+import frc.robot.commands.auton.top.TopOneCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.SetElevatorState;
@@ -54,7 +59,7 @@ public class RobotContainer {
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
 
     // Util(s)
-    public final AutonUtils autonUtils = new AutonUtils(drivebase);
+    public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem);
     public final PoseNavigator poseNavigator = new PoseNavigator(autonUtils);
 
     // Controller(s)
@@ -146,6 +151,16 @@ public class RobotContainer {
 
         auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
         auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
+
+
+        driverController.a().onTrue(
+            Commands.parallel(
+                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP),
+                new SetArmState(armSubsystem, ArmStates.BOTTOM)
+            )
+        );
+
+        driverController.a().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
     }
 
     /**
@@ -158,8 +173,11 @@ public class RobotContainer {
         return switch(selectedAutonomous) {
             case "Do Nothing" -> new NoneAuton();
             case "Top, Move Out" -> new TopMoveOutAuton(autonUtils);
+            case "Top, 1-Coral" -> new TopOneCoralAuton(autonUtils);
             case "Center, Move Out" -> new CenterMoveOutAuton(autonUtils);
+            case "Center, 1-Coral" -> new CenterOneCoralAuton(autonUtils);
             case "Bottom, Move Out" -> new BottomMoveOutAuton(autonUtils);
+            case "Bottom, 1-Coral" -> new BottomOneCoralAuton(autonUtils);
             default -> new NoneAuton();
         };
     }

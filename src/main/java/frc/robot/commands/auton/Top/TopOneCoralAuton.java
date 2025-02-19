@@ -1,4 +1,4 @@
-package frc.robot.commands.auton.Top;
+package frc.robot.commands.auton.top;
 
 import java.util.Collection;
 import java.util.List;
@@ -15,20 +15,16 @@ import frc.robot.Robot;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
-public class TopThreeCoralAuton extends AutonCommand {
+public class TopOneCoralAuton extends AutonCommand {
     private AutonUtils utils;
 
     private final List<PathPlannerPath> paths;
 
-    public TopThreeCoralAuton(AutonUtils utils) {
+    public TopOneCoralAuton(AutonUtils utils) {
         this.utils = utils;
 
         paths = List.of(
-            utils.loadPath("TopThreeCoral-1"),
-            utils.loadPath("TopThreeCoral-2"),
-            utils.loadPath("TopThreeCoral-3"),
-            utils.loadPath("TopThreeCoral-4"),
-            utils.loadPath("TopThreeCoral-5")
+            utils.loadPath("TopOneCoral-1")
         );
 
         if (Robot.isSimulation()) {
@@ -37,18 +33,14 @@ public class TopThreeCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                AutoBuilder.followPath(paths.get(0)),
-                AutoBuilder.followPath(paths.get(1)),
-                AutoBuilder.followPath(paths.get(2)),
-                AutoBuilder.followPath(paths.get(3)),
-                AutoBuilder.followPath(paths.get(4))
+                AutoBuilder.followPath(paths.get(0))
             )
         );
     }
 
     @Override
     public List<Pose2d> getAllPathPoses() {
-        return paths.subList(0, 5).stream()
+        return paths.subList(0, 1).stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());

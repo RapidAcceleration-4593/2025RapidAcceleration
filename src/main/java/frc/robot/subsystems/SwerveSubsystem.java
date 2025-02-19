@@ -182,19 +182,19 @@ public class SwerveSubsystem extends SubsystemBase {
     /**
      * Use PathPlanner Path finding to go to a point on the field.
      * @param pose Target {@link Pose2d} to go to.
-     * @return PathFinding command
+     * @return PathFinding command.
      */
     public Command driveToPose(Pose2d pose) {
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
-            swerveDrive.getMaximumChassisVelocity(), 1.0,
+            swerveDrive.getMaximumChassisVelocity(), 1.5,
             swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
-        // Since AutoBuilder is configured, we can use it to build pathfinding commands
+        // Since AutoBuilder is configured, we can use it to build pathfinding commands.
         return AutoBuilder.pathfindToPose(
             pose,
             constraints,
-            edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec
+            edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec.
         );
     }
 
@@ -211,8 +211,8 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Command to characterize the robot angle motors using SysId
-     * @return SysId Angle Command
+     * Command to characterize the robot angle motors using SysId.
+     * @return SysId Angle Command.
      */
     public Command sysIdAngleMotorCommand() {
         return SwerveDriveTest.generateSysIdCommand(
@@ -224,7 +224,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Returns a Command that centers the modules of the SwerveDrive subsystem.
-     * @return a Command that centers the modules of the SwerveDrive subsystem
+     * @return a Command that centers the modules of the SwerveDrive subsystem.
      */
     public Command centerModulesCommand() {
         return run(() -> Arrays.asList(swerveDrive.getModules())
@@ -233,9 +233,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Returns a Command that drives the swerve drive to a specific distance at a given speed.
-     * @param distanceInMeters       the distance to drive in meters
-     * @param speedInMetersPerSecond the speed at which to drive in meters per second
-     * @return a Command that drives the swerve drive to a specific distance at a given speed
+     * @param distanceInMeters       the distance to drive in meters.
+     * @param speedInMetersPerSecond the speed at which to drive in meters per second.
+     * @return a Command that drives the swerve drive to a specific distance at a given speed.
      */
     public Command driveToDistanceCommand(double distanceInMeters, double speedInMetersPerSecond) {
         return run(() -> drive(new ChassisSpeeds(speedInMetersPerSecond, 0, 0)))
@@ -245,9 +245,9 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Replaces the swerve module feedforward with a new SimpleMotorFeedforward object.
-     * @param kS the static gain of the feedforward
-     * @param kV the velocity gain of the feedforward
-     * @param kA the acceleration gain of the feedforward
+     * @param kS the static gain of the feedforward.
+     * @param kV the velocity gain of the feedforward.
+     * @param kA the acceleration gain of the feedforward.
      */
     public void replaceSwerveModuleFeedforward(double kS, double kV, double kA) {
         swerveDrive.replaceSwerveModuleFeedforward(new SimpleMotorFeedforward(kS, kV, kA));
@@ -336,7 +336,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Drive according to the chassis robot oriented velocity.
-     * @param velocity Robot oriented {@link ChassisSpeeds}
+     * @param velocity Robot oriented {@link ChassisSpeeds}.
      */
     public void drive(ChassisSpeeds velocity) {
         swerveDrive.drive(velocity);
@@ -354,7 +354,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * Resets odometry to the given pose. Gyro angle and module positions do not need to be reset when calling this
      * method.  However, if either gyro angle or module position is reset, this must be called in order for odometry to
      * keep working.
-     * @param initialHolonomicPose The pose to set the odometry to
+     * @param initialHolonomicPose The pose to set the odometry to.
      */
     public void resetOdometry(Pose2d initialHolonomicPose) {
         swerveDrive.resetOdometry(initialHolonomicPose);
@@ -399,7 +399,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * This will zero (calibrate) the robot to assume the current position is facing forward
+     * This will zero (calibrate) the robot to assume the current position is facing forward.
      * <p>If red alliance rotate the robot 180 after the drivebase zero command.
      */
     public void zeroGyroWithAlliance() {
@@ -448,8 +448,7 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Get the chassis speeds based on controller input of 1 joystick and one angle. Control the robot at an offset of
-     * 90deg.
+     * Get the chassis speeds based on controller input of 1 joystick and one angle. Control the robot at an offset of 90deg.
      * @param xInput X joystick input for the robot to move in the X direction.
      * @param yInput Y joystick input for the robot to move in the Y direction.
      * @param angle  The angle in as a {@link Rotation2d}.
@@ -465,16 +464,16 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
-     * Gets the current field-relative velocity (x, y and omega) of the robot
-     * @return A ChassisSpeeds object of the current field-relative velocity
+     * Gets the current field-relative velocity (x, y and omega) of the robot.
+     * @return A ChassisSpeeds object of the current field-relative velocity.
      */
     public ChassisSpeeds getFieldVelocity() {
         return swerveDrive.getFieldVelocity();
     }
 
     /**
-     * Gets the current velocity (x, y and omega) of the robot
-     * @return A {@link ChassisSpeeds} object of the current velocity
+     * Gets the current velocity (x, y and omega) of the robot.
+     * @return A {@link ChassisSpeeds} object of the current velocity.
      */
     public ChassisSpeeds getRobotVelocity() {
         return swerveDrive.getRobotVelocity();
@@ -503,7 +502,7 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Gets the current pitch angle of the robot, as reported by the IMU.
-     * @return The heading as a {@link Rotation2d} angle
+     * @return The heading as a {@link Rotation2d} angle.
      */
     public Rotation2d getPitch() {
         return swerveDrive.getPitch();
