@@ -147,12 +147,12 @@ public class IntakeSubsystem extends SubsystemBase {
     /** ----- Temporary Manual Control ----- */
 
     public void runLeftIntake(boolean reversed) {
-        double speed = reversed ? -1.0 : 1.0;
+        double speed = reversed ? -IntakeConstants.INTAKE_MOTOR_SPEED : IntakeConstants.INTAKE_MOTOR_SPEED;
         leftIntakeMotor.set(speed);
     }
 
     public void runRightIntake(boolean reversed) {
-        double speed = reversed ? 1.0 : -1.0;
+        double speed = reversed ? IntakeConstants.INTAKE_MOTOR_SPEED : -IntakeConstants.INTAKE_MOTOR_SPEED;
         rightIntakeMotor.set(speed);
     }
 
@@ -166,22 +166,29 @@ public class IntakeSubsystem extends SubsystemBase {
 
     public void extendLeftIntake(boolean retract) {
         SmartDashboard.putNumber("L-EOutput", leftExtensionMotor.getOutputCurrent());
-        double speed = retract ? 1.0 : -1.0;
-        leftExtensionMotor.set(speed);
+        double speed = retract ? -IntakeConstants.EXTENSION_MOTOR_SPEED : IntakeConstants.EXTENSION_MOTOR_SPEED;
+        // if (leftExtensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
+        //     stopLeftExtension();
+        // } else {
+            leftExtensionMotor.set(speed);
+        // }
+    }
+
+    public void extendRightIntake(boolean retract) {
+        SmartDashboard.putNumber("R-EOutput", rightExtensionMotor.getOutputCurrent());
+        double speed = retract ? IntakeConstants.EXTENSION_MOTOR_SPEED : -IntakeConstants.EXTENSION_MOTOR_SPEED;
+        // if (rightExtensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
+        //     stopRightExtension();
+        // } else {
+            rightExtensionMotor.set(speed);
+        // }
     }
 
     public void stopLeftExtension() {
         leftExtensionMotor.stopMotor();
     }
 
-    public void extendRightIntake(boolean retract) {
-        SmartDashboard.putNumber("R-EOutput", leftExtensionMotor.getOutputCurrent());
-        double speed = retract ? -1.0 : 1.0;
-        rightExtensionMotor.set(speed);
-    }
-
     public void stopRightExtension() {
         rightExtensionMotor.stopMotor();
     }
-
 }

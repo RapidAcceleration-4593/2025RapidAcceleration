@@ -21,11 +21,11 @@ public final class Constants {
     public static final double MAX_SPEED = Units.feetToMeters(12.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
-        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.001, 0, 0); // TODO: Tune PID.
+        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.00275, 0, 0); // TODO: Tune PID.
         public static final int PID_TOLERANCE = 10;
 
-        public static final double MAX_VELOCITY = 27500; // TODO: Adjust Maximum Velocity.
-        public static final double MAX_ACCELERATION = 250000; // TODO: Adjust Maximum Acceleration.
+        public static final double MAX_VELOCITY = 30000; // TODO: Adjust Maximum Velocity.
+        public static final double MAX_ACCELERATION = 350000; // TODO: Adjust Maximum Acceleration.
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
 
@@ -72,15 +72,15 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int MOTOR_STALL_LIMIT = 50; // In Amps.
+        public static final int MOTOR_STALL_LIMIT = 2; // In Amps.
         
-        public static final double EXTENSION_MOTOR_SPEED = 0.25; // Speed (0 to 1).
-        public static final double INTAKE_MOTOR_SPEED = 0.25; // Speed (0 to 1).
+        public static final double EXTENSION_MOTOR_SPEED = 1.0; // Speed (0 to 1).
+        public static final double INTAKE_MOTOR_SPEED = 0.75; // Speed (0 to 1).
 
-        public static final SparkMax leftExtensionMotor = new SparkMax(3, MotorType.kBrushless);
+        public static final SparkMax leftExtensionMotor = new SparkMax(2, MotorType.kBrushless);
         public static final SparkMax rightExtensionMotor = new SparkMax(4, MotorType.kBrushless);
 
-        public static final SparkMax leftIntakeMotor = new SparkMax(2, MotorType.kBrushless);
+        public static final SparkMax leftIntakeMotor = new SparkMax(3, MotorType.kBrushless);
         public static final SparkMax rightIntakeMotor = new SparkMax(5, MotorType.kBrushless);
     
         public enum IntakeStates {

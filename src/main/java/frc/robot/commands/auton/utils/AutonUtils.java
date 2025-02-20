@@ -84,7 +84,7 @@ public class AutonUtils {
      */
     public Command scoreCoralCommand() {
         return armSubsystem.placeCoralCommand();
-    } 
+    }
 
     /**
      * Load the PathPlanner trajectory file to path.

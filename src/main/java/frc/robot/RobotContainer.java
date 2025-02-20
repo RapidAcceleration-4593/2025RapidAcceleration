@@ -13,22 +13,20 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
-import frc.robot.commands.auton.bottom.BottomMoveOutAuton;
-import frc.robot.commands.auton.bottom.BottomOneCoralAuton;
-import frc.robot.commands.auton.center.CenterMoveOutAuton;
-import frc.robot.commands.auton.center.CenterOneCoralAuton;
-import frc.robot.commands.auton.top.TopMoveOutAuton;
-import frc.robot.commands.auton.top.TopOneCoralAuton;
+import frc.robot.commands.auton.Bottom.BottomMoveOutAuton;
+import frc.robot.commands.auton.Bottom.BottomOneCoralAuton;
+import frc.robot.commands.auton.Center.CenterMoveOutAuton;
+import frc.robot.commands.auton.Center.CenterOneCoralAuton;
+import frc.robot.commands.auton.Top.TopMoveOutAuton;
+import frc.robot.commands.auton.Top.TopOneCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
+import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
@@ -67,7 +65,7 @@ public class RobotContainer {
     private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
-    private Command driveToPoseCommand = null;
+    // private Command driveToPoseCommand = null;
 
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
@@ -104,7 +102,7 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        // elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
+        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         // armSubsystem.setDefaultCommand(new ControlArmAngle(armSubsystem));
         // intakeSubsystem.setDefaultCommand(new ControlIntake(intakeSubsystem));
         // serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
@@ -114,18 +112,18 @@ public class RobotContainer {
         // (Condition) ? Return-On-True : Return-On-False.
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
 
-        driverController.leftTrigger()
-            .whileTrue(Commands.runOnce(() -> {
-                driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose(AutonConstants.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
-                );
-                driveToPoseCommand.schedule();
-            }))
-            .onFalse(Commands.runOnce(() -> {
-                if (driveToPoseCommand != null) {
-                    driveToPoseCommand.cancel();
-                }
-            }));
+        // driverController.leftTrigger()
+        //     .whileTrue(Commands.runOnce(() -> {
+        //         driveToPoseCommand = drivebase.driveToPose(
+        //             poseNavigator.selectTargetPose(AutonConstants.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
+        //         );
+        //         driveToPoseCommand.schedule();
+        //     }))
+        //     .onFalse(Commands.runOnce(() -> {
+        //         if (driveToPoseCommand != null) {
+        //             driveToPoseCommand.cancel();
+        //         }
+        //     }));
 
         // Manual Elevator Control for Testing Purposes.
         driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
@@ -153,14 +151,27 @@ public class RobotContainer {
         auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
 
 
-        driverController.a().onTrue(
-            Commands.parallel(
-                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP),
-                new SetArmState(armSubsystem, ArmStates.BOTTOM)
-            )
-        );
+        // driverController.leftBumper().onTrue(
+        //     Commands.parallel(
+        //         new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP),
+        //         new SetArmState(armSubsystem, ArmStates.BOTTOM)
+        //     )
+        // );
 
-        driverController.a().onTrue(armSubsystem.placeCoralCommand());
+        // driverController.rightBumper().onTrue(
+        //     Commands.sequence(
+        //         Commands.parallel(
+        //             armSubsystem.placeCoralCommand(),
+        //             Commands.runOnce(() -> elevatorSubsystem.setElevatorState(ElevatorStates.PICKUP))
+        //         ),
+        //         Commands.race(
+        //             drivebase.driveToDistanceCommand(-0.5, 2.0),
+        //             Commands.runOnce(() -> drivebase.drive(new Translation2d(-0.5, 0), 0, false)),
+        //             Commands.run(elevatorSubsystem::controlElevatorState),
+        //             Commands.run(armSubsystem::controlArmState)
+        //         )
+        //     )
+        // );
     }
 
     /**

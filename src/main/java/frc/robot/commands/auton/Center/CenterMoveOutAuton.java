@@ -1,4 +1,4 @@
-package frc.robot.commands.auton.center;
+package frc.robot.commands.auton.Center;
 
 import java.util.Collection;
 import java.util.List;
