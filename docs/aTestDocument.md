@@ -1,0 +1,1 @@
+This document was created to test git on the new laptop
