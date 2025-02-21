@@ -29,8 +29,7 @@ public final class Constants {
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
 
-        public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
-        public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
+        public static final SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
 
         public static final Encoder elevatorEncoder = new Encoder(8, 9);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);
@@ -72,7 +71,7 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int MOTOR_STALL_LIMIT = 2; // In Amps.
+        public static final int MOTOR_STALL_LIMIT = 5; // In Amps.
         
         public static final double EXTENSION_MOTOR_SPEED = 1.0; // Speed (0 to 1).
         public static final double INTAKE_MOTOR_SPEED = 0.75; // Speed (0 to 1).

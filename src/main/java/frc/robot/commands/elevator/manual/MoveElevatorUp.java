@@ -16,14 +16,14 @@ public class MoveElevatorUp extends Command {
     @Override
     public void execute() {
         if (elevatorSubsystem.isTopLimitSwitchPressed()) {
-            elevatorSubsystem.stopMotors();
+            elevatorSubsystem.stopMotor();
         } else {
-            elevatorSubsystem.setMotorSpeeds(ElevatorConstants.MANUAL_CONTROL_SPEED);
+            elevatorSubsystem.setMotorSpeed(ElevatorConstants.MANUAL_CONTROL_SPEED);
         }
     }
 
     @Override
     public void end(boolean interrupted) {
-        elevatorSubsystem.stopMotors();
+        elevatorSubsystem.stopMotor();
     }
 }

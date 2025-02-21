@@ -17,8 +17,7 @@ import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-    // private final SparkMax rightElevatorLeader = ElevatorConstants.rightElevatorMotor;
-    private final SparkMax leftElevatorFollower = ElevatorConstants.leftElevatorMotor;
+    private final SparkMax elevatorMotor = ElevatorConstants.elevatorMotor;
 
     private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ElevatorConstants.bottomLimitSwitch;
@@ -32,22 +31,18 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorConstants.MAX_VELOCITY, 
                                                                                     ElevatorConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {0, 3000, 12800};
+    private final double[] SETPOINTS = {0, 3000, 12000};
 
-    private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
-    private final SparkMaxConfig followerConfig = new SparkMaxConfig();
+    private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
      * Constructor for the ElevatorSubsystem class.
      * Configures motor settings and establishes leader-follower configuration.
      */
     public ElevatorSubsystem() {
-        leaderConfig.idleMode(IdleMode.kBrake);
-        followerConfig.idleMode(IdleMode.kBrake);
-        // .follow(rightElevatorLeader, true);
+        config.idleMode(IdleMode.kBrake);
         
-        // rightElevatorLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        leftElevatorFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        elevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         elevatorPID.setTolerance(ElevatorConstants.PID_TOLERANCE);
         elevatorPID.reset(0);
@@ -92,7 +87,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public void controlElevatorState() {
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            stopMotors();
+            stopMotor();
         } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
         } else if (isBottomLimitSwitchPressed()) {
@@ -108,9 +103,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         boolean atSetpoint = elevatorPID.atGoal();
 
         if (atSetpoint) {
-            stopMotors();
+            stopMotor();
         } else {
-            setMotorSpeeds(output);
+            setMotorSpeed(output);
         }
     }
 
@@ -129,7 +124,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         double setpoint = getSetpoint();
 
         if (setpoint >= currentPosition) {
-            stopMotors();
+            stopMotor();
             elevatorPID.setGoal(currentPosition);
             elevatorPID.reset(currentPosition);
         } else {
@@ -150,7 +145,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         resetEncoder();
 
         if (setpoint <= SETPOINTS[0]) {
-            stopMotors();
+            stopMotor();
             elevatorPID.setGoal(0);
             elevatorPID.reset(0);
         } else {
@@ -183,15 +178,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Sets the motor speed for both motors; {@link ElevatorSubsystem#leftElevatorFollower} is mirrored.
      * @param speed The speed value for the elevator motors.
      */
-    public void setMotorSpeeds(double speed) {
-        // rightElevatorLeader.set(speed);
-        leftElevatorFollower.set(-speed);
+    public void setMotorSpeed(double speed) {
+        elevatorMotor.set(-speed);
     }
 
     /** Stops movement for the elevator motors. */
-    public void stopMotors() {
-        // rightElevatorLeader.stopMotor();
-        leftElevatorFollower.stopMotor();
+    public void stopMotor() {
+        elevatorMotor.stopMotor();
     }
 
     /**
