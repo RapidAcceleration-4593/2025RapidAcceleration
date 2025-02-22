@@ -85,15 +85,19 @@ public class ElevatorSubsystem extends SubsystemBase {
      *  <li>Uses Profiled PID Control to adjust the motor output when no limit switches are triggered.</li>
      * </ul>
      */
-    public void controlElevatorState() {
-        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            stopMotor();
-        } else if (isTopLimitSwitchPressed()) {
-            handleTopLimitSwitchPressed();
-        } else if (isBottomLimitSwitchPressed()) {
-            handleBottomLimitSwitchPressed();
-        } else {
-            controlElevator();
+    public void controlElevatorState(boolean usePID) {
+        updateValues();
+
+        if (usePID) {
+            if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
+                stopMotor();
+            } else if (isTopLimitSwitchPressed()) {
+                handleTopLimitSwitchPressed();
+            } else if (isBottomLimitSwitchPressed()) {
+                handleBottomLimitSwitchPressed();
+            } else {
+                controlElevator();
+            }
         }
     }
 
@@ -161,7 +165,6 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return Whether {@link ElevatorSubsystem#topLimitSwitch} is pressed.
      */
     public boolean isTopLimitSwitchPressed() {
-        SmartDashboard.putBoolean("E-TopLS", !topLimitSwitch.get());
         return !topLimitSwitch.get();
     }
 
@@ -170,7 +173,6 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return Whether {@link ElevatorSubsystem#bottomLimitSwitch} is pressed.
      */
     public boolean isBottomLimitSwitchPressed() {
-        SmartDashboard.putBoolean("E-BotLS", bottomLimitSwitch.get());
         return bottomLimitSwitch.get();
     }
 
@@ -192,13 +194,11 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return The current encoder value of the elevator.
      */
     private double getEncoderValue() {
-        SmartDashboard.putNumber("E-Encoder", -elevatorEncoder.get());
         return -elevatorEncoder.get();
     }
 
     /** Resets the elevator encoder. */
     private void resetEncoder() {
-        SmartDashboard.putNumber("E-Encoder", 0);
         elevatorEncoder.reset();
     }
 
@@ -208,5 +208,14 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private double getSetpoint() {
         return elevatorPID.getGoal().position;
+    }
+
+    /**
+     * Updates values to SmartDashboard/ShuffleBoard.
+     */
+    private void updateValues() {
+        SmartDashboard.putBoolean("E-TopLS", isTopLimitSwitchPressed());
+        SmartDashboard.putBoolean("E-BotLS", isBottomLimitSwitchPressed());
+        SmartDashboard.putNumber("E-Encoder", getEncoderValue());
     }
 }

@@ -85,15 +85,19 @@ public class ArmSubsystem extends SubsystemBase {
      *  <li>Uses PID Control to adjust the motor output when no limit switches are triggered.</li>
      * </ul>
      */
-    public void controlArmState() {
-        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            stopMotor();
-        } else if (isTopLimitSwitchPressed()) {
-            handleTopLimitSwitchPressed();
-        } else if (isBottomLimitSwitchPressed()) {
-            handleBottomLimitSwitchPressed();
-        } else {
-            controlArm();
+    public void controlArmState(boolean usePID) {
+        updateValues();
+        
+        if (usePID) {
+            if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
+                stopMotor();
+            } else if (isTopLimitSwitchPressed()) {
+                handleTopLimitSwitchPressed();
+            } else if (isBottomLimitSwitchPressed()) {
+                handleBottomLimitSwitchPressed();
+            } else {
+                controlArm();
+            }
         }
     }
 
@@ -163,7 +167,6 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Whether {@link ArmSubsystem#topLimitSwitch} is pressed.
      */
     public boolean isTopLimitSwitchPressed() {
-        SmartDashboard.putBoolean("A-TopLS", !topLimitSwitch.get());
         return !topLimitSwitch.get();
     }
 
@@ -172,7 +175,6 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Whether {@link ArmSubsystem#bottomLimitSwitch} is pressed.
      */
     public boolean isBottomLimitSwitchPressed() {
-        SmartDashboard.putBoolean("A-BotLS", !bottomLimitSwitch.get());
         return !bottomLimitSwitch.get();
     }
 
@@ -194,13 +196,11 @@ public class ArmSubsystem extends SubsystemBase {
      * @return The current encoder value of the arm.
      */
     private double getEncoderValue() {
-        SmartDashboard.putNumber("A-Encoder", -armEncoder.get());
         return -armEncoder.get();
     }
 
     /** Resets the arm encoder. */
     private void resetEncoder() {
-        SmartDashboard.putNumber("A-Encoder", 0);
         armEncoder.reset();
     }
 
@@ -210,6 +210,15 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private double getSetpoint() {
         return armPID.getSetpoint();
+    }
+
+    /**
+     * Updates values to SmartDashboard/ShuffleBoard.
+     */
+    private void updateValues() {
+        SmartDashboard.putBoolean("A-TopLS", isTopLimitSwitchPressed());
+        SmartDashboard.putBoolean("A-BotLS", isBottomLimitSwitchPressed());
+        SmartDashboard.putNumber("A-Encoder", getEncoderValue());
     }
 
 
