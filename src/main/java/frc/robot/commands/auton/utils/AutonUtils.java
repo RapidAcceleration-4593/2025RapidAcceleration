@@ -8,11 +8,10 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
-import frc.robot.commands.arm.SetArmState;
-import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -20,13 +19,13 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class AutonUtils {
 
     /** SwerveSubsystem Object. */
-    private SwerveSubsystem drivebase;
+    public SwerveSubsystem drivebase;
 
     /** ElevatorSubsystem Object. */
-    private ElevatorSubsystem elevatorSubsystem;
+    public ElevatorSubsystem elevatorSubsystem;
 
     /** ArmSubsystem Object. */
-    private ArmSubsystem armSubsystem;
+    public ArmSubsystem armSubsystem;
 
     /** Constructor for AutonUtils. */
     public AutonUtils(SwerveSubsystem drivebase, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
@@ -61,37 +60,47 @@ public class AutonUtils {
     }
 
     /**
-     * Command to set Elevator State in Autonomous.
-     * @param state The selected Elevator State.
-     * @return The New Elevator State.
+     * Functional Command to set elevator state while running PID Control.
+     * @param state The selected state of the elevator.
+     * @return A Functional Command to set the state of the elevator during autonomous.
      */
-    public Command setElevatorState(ElevatorStates state) {
-        return new SetElevatorState(elevatorSubsystem, state);
+    public FunctionalCommand setElevatorState(ElevatorStates state) {
+        return new FunctionalCommand(
+            () -> elevatorSubsystem.setElevatorState(state),
+            () -> elevatorSubsystem.controlElevatorState(true),
+            interrupted -> elevatorSubsystem.stopMotor(),
+            () -> elevatorSubsystem.atSetpoint(),
+            elevatorSubsystem
+        );
     }
 
     /**
-     * Command to set Arm State in Autonomous.
-     * @param state The selected Arm State.
-     * @return The New Arm State.
+     * Functional Command to set arm state while running PID Control.
+     * @param state The selected state of the arm.
+     * @return A Functional Command to set the state of the arm during autonomous.
      */
-    public Command setArmState(ArmStates state) {
-        return new SetArmState(armSubsystem, state);
+    public FunctionalCommand setArmState(ArmStates state) {
+        return new FunctionalCommand(
+            () -> armSubsystem.setArmState(state),
+            () -> armSubsystem.controlArmState(true),
+            interrupted -> armSubsystem.stopMotor(),
+            () -> armSubsystem.atSetpoint(),
+            armSubsystem
+        );
     }
 
     /**
-     * Command to rotate the arm down in Autonomous.
+     * Functional Command to rotate the arm down in Autonomous.
      * @return A lower setpoint for the arm mechanism.
      */
-    public Command scoreCoralCommand() {
-        return armSubsystem.placeCoralCommand();
-    }
-
-    public Command runElevatorPID() {
-        return elevatorSubsystem.run(() -> elevatorSubsystem.controlElevatorState(true));
-    }
-
-    public Command runArmPID() {
-        return armSubsystem.run(() -> armSubsystem.controlArmState(true));
+    public FunctionalCommand scoreCoralCommand() {
+        return new FunctionalCommand(
+            () -> armSubsystem.placeCoralCommand(),
+            () -> armSubsystem.controlArmState(true),
+            interrupted -> armSubsystem.stopMotor(),
+            () -> armSubsystem.atSetpoint(),
+            armSubsystem
+        );
     }
 
     /**

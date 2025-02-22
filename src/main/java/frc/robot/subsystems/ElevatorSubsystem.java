@@ -60,7 +60,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return switch(state) {
             case BOTTOM -> SETPOINTS[0];
             case PICKUP -> SETPOINTS[1];
-            case L4 -> SETPOINTS[2];
+            case TOP -> SETPOINTS[2];
             default -> -1;
         };
     }
@@ -104,9 +104,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     /** Controls the Elevator System using Profiled PID Control. */
     private void controlElevator() {
         double output = elevatorPID.calculate(getEncoderValue());
-        boolean atSetpoint = elevatorPID.atGoal();
 
-        if (atSetpoint) {
+        if (atSetpoint()) {
             stopMotor();
         } else {
             setMotorSpeed(output);
@@ -208,6 +207,14 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private double getSetpoint() {
         return elevatorPID.getGoal().position;
+    }
+
+    /**
+     * Whether the elevator is at its setpoint.
+     * @return If the elevator is at the setpoint, accounting for tolerance.
+     */
+    public boolean atSetpoint() {
+        return elevatorPID.atGoal();
     }
 
     /**

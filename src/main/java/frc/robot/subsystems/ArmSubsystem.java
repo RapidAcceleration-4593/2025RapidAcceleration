@@ -10,7 +10,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmStates;
@@ -27,7 +26,7 @@ public class ArmSubsystem extends SubsystemBase {
                                                            ArmConstants.ARM_PID.kI,
                                                            ArmConstants.ARM_PID.kD);
 
-    private final double[] SETPOINTS = {-5, 900}; // TODO: Determine setpoint values.
+    private final double[] SETPOINTS = {-5, 900};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -185,7 +184,7 @@ public class ArmSubsystem extends SubsystemBase {
      * Retrieves the current encoder value of the arm.
      * @return The current encoder value of the arm.
      */
-    private double getEncoderValue() {
+    public double getEncoderValue() {
         return armEncoder.get();
     }
 
@@ -203,6 +202,14 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /**
+     * Whether the arm is at its setpoint.
+     * @return If the arm is at the setpoint, accounting for tolerance.
+     */
+    public boolean atSetpoint() {
+        return armPID.atSetpoint();
+    }
+
+    /**
      * Updates values to SmartDashboard/ShuffleBoard.
      */
     private void updateValues() {
@@ -216,9 +223,7 @@ public class ArmSubsystem extends SubsystemBase {
     /** ----- Command Factory Methods ----- */
 
     /** Rotates the arm mechanism down to score on a branch. */
-    public Command placeCoralCommand() {
-        return runOnce(() ->
-            armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT)
-        );
+    public void placeCoralCommand() {
+        armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
     }
 }

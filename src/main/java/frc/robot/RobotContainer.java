@@ -13,14 +13,16 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.AutonConstants;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.commands.arm.ControlArmState;
-import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
+import frc.robot.commands.armivator.HomeCommand;
+import frc.robot.commands.armivator.PickUpCoralCommand;
+import frc.robot.commands.armivator.ScoreL3Command;
+import frc.robot.commands.armivator.ScoreL4Command;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.Bottom.BottomMoveOutAuton;
 import frc.robot.commands.auton.Bottom.BottomOneCoralAuton;
@@ -31,11 +33,14 @@ import frc.robot.commands.auton.Top.TopOneCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
-import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.commands.elevator.manual.MoveElevatorDown;
 import frc.robot.commands.elevator.manual.MoveElevatorUp;
+import frc.robot.commands.intake.manual.extension.ExtendLeftIntakeCommand;
 import frc.robot.commands.intake.manual.extension.ExtendRightIntakeCommand;
+import frc.robot.commands.intake.manual.extension.RetractLeftIntakeCommand;
 import frc.robot.commands.intake.manual.extension.RetractRightIntakeCommand;
+import frc.robot.commands.intake.manual.intake.RunLeftIntakeCommand;
+import frc.robot.commands.intake.manual.intake.RunLeftIntakeReversedCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeCommand;
 import frc.robot.commands.intake.manual.intake.RunRightIntakeReversedCommand;
 import frc.robot.commands.serializer.manual.RunBeltCommand;
@@ -106,15 +111,20 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, true));
-        armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, true));
         // intakeSubsystem.setDefaultCommand(new ControlIntake(intakeSubsystem));
         // serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
 
     private void configureBindings() {
+        new Trigger(() -> SmartDashboard.getBoolean("ManualControl", false))
+            .debounce(0.5)
+            .onTrue(Commands.runOnce(this::configureBindings))
+            .onFalse(Commands.runOnce(this::configureBindings));
+
+        boolean manualControl = SmartDashboard.getBoolean("ManualControl", false);
+
         // (Condition) ? Return-On-True : Return-On-False.
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyroWithAlliance));
+        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
@@ -129,47 +139,48 @@ public class RobotContainer {
                 }
             }));
 
-        // Manual Elevator Control for Testing Purposes.
-        driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
-        driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
+        if (manualControl) {
+            // Modifying default commands to disable PID Control.
+            elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, false));
+            armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, false));
 
-        // Manual Arm Control for Testing Purposes.
-        driverController.x().whileTrue(new MoveArmUp(armSubsystem));
-        driverController.b().whileTrue(new MoveArmDown(armSubsystem));
+            // Manual Control for Elevator Mechanism.
+            driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
+            driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
 
-        // Elevator PID Setpoints.
-        driverController.povUp().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.L4));
-        driverController.povLeft().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP));
-        driverController.povDown().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.BOTTOM));
+            // Manual Control for Arm Mechanism.
+            driverController.x().whileTrue(new MoveArmUp(armSubsystem));
+            driverController.b().whileTrue(new MoveArmDown(armSubsystem));
+        } else {
+            // Modifying default commands to enable PID Control.
+            elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, true));
+            armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, true));
 
-        auxiliaryController.povUp().onTrue(new SetArmState(armSubsystem, ArmStates.TOP));
-        auxiliaryController.povDown().onTrue(new SetArmState(armSubsystem, ArmStates.BOTTOM));
+            driverController.povUp().onTrue(new ScoreL4Command(elevatorSubsystem, armSubsystem));
+            driverController.povRight().onTrue(new ScoreL3Command(elevatorSubsystem, armSubsystem));
+            driverController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
+
+            driverController.leftBumper().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
+            driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+        }
+
 
         // Intake / Serializer Commands
+        auxiliaryController.leftBumper().whileTrue(new RunLeftIntakeCommand(intakeSubsystem));
+        auxiliaryController.leftTrigger().whileTrue(new RunLeftIntakeReversedCommand(intakeSubsystem));
+        auxiliaryController.povDown().whileTrue(new ExtendLeftIntakeCommand(intakeSubsystem));
+        auxiliaryController.povUp().whileTrue(new RetractLeftIntakeCommand(intakeSubsystem));
+
+        auxiliaryController.rightBumper().whileTrue(new RunRightIntakeCommand(intakeSubsystem));
+        auxiliaryController.rightTrigger().whileTrue(new RunRightIntakeReversedCommand(intakeSubsystem));
+        auxiliaryController.a().whileTrue(new ExtendRightIntakeCommand(intakeSubsystem));
+        auxiliaryController.y().whileTrue(new RetractRightIntakeCommand(intakeSubsystem));
+
+        auxiliaryController.x().whileTrue(new RunBeltCommand(serializerSubsystem));
+        auxiliaryController.b().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
+
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
         // auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
-
-        auxiliaryController.x().whileTrue(new RunRightIntakeCommand(intakeSubsystem));
-        auxiliaryController.b().whileTrue(new RunRightIntakeReversedCommand(intakeSubsystem));
-        auxiliaryController.leftBumper().whileTrue(new ExtendRightIntakeCommand(intakeSubsystem));
-        auxiliaryController.rightBumper().whileTrue(new RetractRightIntakeCommand(intakeSubsystem));
-
-        // auxiliaryController.x().whileTrue(new RunLeftIntakeCommand(intakeSubsystem));
-        // auxiliaryController.b().whileTrue(new RunLeftIntakeReversedCommand(intakeSubsystem));
-        // auxiliaryController.povUp().whileTrue(new ExtendLeftIntakeCommand(intakeSubsystem));
-        // auxiliaryController.povDown().whileTrue(new RetractLeftIntakeCommand(intakeSubsystem));
-
-        auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
-        auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
-
-        driverController.leftBumper().onTrue(
-            Commands.parallel(
-                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP),
-                new SetArmState(armSubsystem, ArmStates.BOTTOM)
-            )
-        );
-
-        driverController.rightBumper().onTrue(armSubsystem.placeCoralCommand());
     }
 
     /**

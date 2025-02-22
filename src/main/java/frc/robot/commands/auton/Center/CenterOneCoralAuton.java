@@ -36,15 +36,18 @@ public class CenterOneCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                utils.setElevatorState(ElevatorStates.BOTTOM),
-                utils.setArmState(ArmStates.TOP),
-                AutoBuilder.followPath(paths.get(0)),
-                utils.scoreCoralCommand(),
-                Commands.waitSeconds(0.5),
-                AutoBuilder.followPath(paths.get(1)),
+                utils.setElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
-                    utils.setElevatorState(ElevatorStates.BOTTOM),
-                    utils.setArmState(ArmStates.BOTTOM)
+                    AutoBuilder.followPath(paths.get(0)),
+                    utils.setArmState(ArmStates.TOP)
+                ),
+                utils.setElevatorState(ElevatorStates.BOTTOM),
+                utils.scoreCoralCommand(),
+                Commands.waitSeconds(1.0),
+                Commands.parallel(
+                    AutoBuilder.followPath(paths.get(1)),
+                    utils.setArmState(ArmStates.BOTTOM),
+                    utils.setElevatorState(ElevatorStates.BOTTOM)
                 )
             )
         );

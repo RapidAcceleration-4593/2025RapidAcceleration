@@ -270,14 +270,14 @@ public class VisionUtils {
         OV9782_Colored_1("Arducam_OV9782_Colored_1",
                 new Rotation3d(0, Units.degreesToRadians(15), 0),
                 new Translation3d(Units.inchesToMeters(10),
-                                  Units.inchesToMeters(-9),
+                                  Units.inchesToMeters(9),
                                   Units.inchesToMeters(18)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
         OV9782_Colored_2("Arducam_OV9782_Colored_2",
                 new Rotation3d(0, Units.degreesToRadians(15), 0),
                 new Translation3d(Units.inchesToMeters(10),
-                                  Units.inchesToMeters(9),
+                                  Units.inchesToMeters(-9),
                                   Units.inchesToMeters(18)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
