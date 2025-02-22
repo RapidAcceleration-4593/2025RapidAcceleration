@@ -6,7 +6,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
@@ -28,9 +27,7 @@ public class ArmSubsystem extends SubsystemBase {
                                                            ArmConstants.ARM_PID.kI,
                                                            ArmConstants.ARM_PID.kD);
 
-    private final ArmFeedforward armFeedforward = new ArmFeedforward(ArmConstants.FEEDFORWARD_kS, ArmConstants.FEEDFORWARD_kG, ArmConstants.FEEDFORWARD_kV);
-
-    private final double[] SETPOINTS = {0, 0, 0, 0, 0}; // TODO: Determine setpoint values.
+    private final double[] SETPOINTS = {-5, 900}; // TODO: Determine setpoint values.
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -51,15 +48,12 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * Retrieves the setpoint for the specified SwingArmStates.
      * @param state The desired arm position.
-     * @return The {@link ArmSubsystem#setpoints} value corresponding to the state.
+     * @return The {@link ArmSubsystem#SETPOINTS} value corresponding to the state.
      */
     private double getArmState(ArmStates state) {
         return switch (state) {
             case BOTTOM -> SETPOINTS[0];
-            case L1 -> SETPOINTS[1];
-            case L2 -> SETPOINTS[2];
-            case L3 -> SETPOINTS[3];
-            case L4 -> SETPOINTS[4];
+            case TOP -> SETPOINTS[1];
             default -> -1;
         };
     }
@@ -103,17 +97,13 @@ public class ArmSubsystem extends SubsystemBase {
 
     /** Controls the Arm System using a PID Controller. */
     private void controlArm() {
+        double output = armPID.calculate(getEncoderValue());
         boolean atSetpoint = armPID.atSetpoint();
-
-        double positionRadians = ((getEncoderValue()/ArmConstants.PARALLEL_OFFSET) - 1) * (Math.PI/2);
-        double velocitySetpoint = armEncoder.getRate();
 
         if (atSetpoint) {
             stopMotor();
         } else {
-            double pidOutput = armPID.calculate(getEncoderValue());
-            double ffOutput = armFeedforward.calculate(positionRadians, velocitySetpoint);
-            setMotorSpeed(pidOutput + ffOutput);
+            setMotorSpeed(output);
         }
     }
 
@@ -196,7 +186,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return The current encoder value of the arm.
      */
     private double getEncoderValue() {
-        return -armEncoder.get();
+        return armEncoder.get();
     }
 
     /** Resets the arm encoder. */
@@ -219,6 +209,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("A-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("A-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("A-Encoder", getEncoderValue());
+        SmartDashboard.putNumber("A-PIDOutput", armPID.calculate(getEncoderValue(), getSetpoint()));
     }
 
 

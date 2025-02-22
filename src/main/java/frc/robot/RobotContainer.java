@@ -16,7 +16,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.commands.arm.ControlArmState;
+import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.auton.NoneAuton;
@@ -104,8 +106,8 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, false));
-        armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, false));
+        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, true));
+        armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, true));
         // intakeSubsystem.setDefaultCommand(new ControlIntake(intakeSubsystem));
         // serializerSubsystem.setDefaultCommand(new ControlSerializerBelt(serializerSubsystem));
     }
@@ -140,14 +142,17 @@ public class RobotContainer {
         driverController.povLeft().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP));
         driverController.povDown().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.BOTTOM));
 
+        auxiliaryController.povUp().onTrue(new SetArmState(armSubsystem, ArmStates.TOP));
+        auxiliaryController.povDown().onTrue(new SetArmState(armSubsystem, ArmStates.BOTTOM));
+
         // Intake / Serializer Commands
         // auxiliaryController.leftBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleLeftIntakeCommand));
         // auxiliaryController.rightBumper().onTrue(Commands.runOnce(intakeSubsystem::toggleRightIntakeCommand));
 
         auxiliaryController.x().whileTrue(new RunRightIntakeCommand(intakeSubsystem));
         auxiliaryController.b().whileTrue(new RunRightIntakeReversedCommand(intakeSubsystem));
-        auxiliaryController.povUp().whileTrue(new ExtendRightIntakeCommand(intakeSubsystem));
-        auxiliaryController.povDown().whileTrue(new RetractRightIntakeCommand(intakeSubsystem));
+        auxiliaryController.leftBumper().whileTrue(new ExtendRightIntakeCommand(intakeSubsystem));
+        auxiliaryController.rightBumper().whileTrue(new RetractRightIntakeCommand(intakeSubsystem));
 
         // auxiliaryController.x().whileTrue(new RunLeftIntakeCommand(intakeSubsystem));
         // auxiliaryController.b().whileTrue(new RunLeftIntakeReversedCommand(intakeSubsystem));
@@ -157,14 +162,14 @@ public class RobotContainer {
         auxiliaryController.a().whileTrue(new RunBeltCommand(serializerSubsystem));
         auxiliaryController.y().whileTrue(new RunBeltReversedCommand(serializerSubsystem));
 
-        // driverController.leftBumper().onTrue(
-        //     Commands.parallel(
-        //         new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP),
-        //         new SetArmState(armSubsystem, ArmStates.BOTTOM)
-        //     )
-        // );
+        driverController.leftBumper().onTrue(
+            Commands.parallel(
+                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP),
+                new SetArmState(armSubsystem, ArmStates.BOTTOM)
+            )
+        );
 
-        // driverController.rightBumper().onTrue(armSubsystem.placeCoralCommand());
+        driverController.rightBumper().onTrue(armSubsystem.placeCoralCommand());
     }
 
     /**

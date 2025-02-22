@@ -167,21 +167,21 @@ public class IntakeSubsystem extends SubsystemBase {
     public void extendLeftIntake(boolean retract) {
         SmartDashboard.putNumber("L-EOutput", leftExtensionMotor.getOutputCurrent());
         double speed = retract ? -IntakeConstants.EXTENSION_MOTOR_SPEED : IntakeConstants.EXTENSION_MOTOR_SPEED;
-        // if (leftExtensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
-        //     stopLeftExtension();
-        // } else {
+        if (leftExtensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
+            stopLeftExtension();
+        } else {
             leftExtensionMotor.set(speed);
-        // }
+        }
     }
 
     public void extendRightIntake(boolean retract) {
         SmartDashboard.putNumber("R-EOutput", rightExtensionMotor.getOutputCurrent());
         double speed = retract ? IntakeConstants.EXTENSION_MOTOR_SPEED : -IntakeConstants.EXTENSION_MOTOR_SPEED;
-        // if (rightExtensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
-        //     stopRightExtension();
-        // } else {
+        if (rightExtensionMotor.getOutputCurrent() > IntakeConstants.MOTOR_STALL_LIMIT) {
+            stopRightExtension();
+        } else {
             rightExtensionMotor.set(speed);
-        // }
+        }
     }
 
     public void stopLeftExtension() {

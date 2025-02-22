@@ -43,17 +43,13 @@ public final class Constants {
     }
 
     public static final class ArmConstants {
-        public static final PIDConstants ARM_PID = new PIDConstants(0, 0, 0); // TODO: Tune PID.
+        public static final PIDConstants ARM_PID = new PIDConstants(0.02, 0, 0); // TODO: Tune PID.
         public static final int PID_TOLERANCE = 10;
 
-        public static final double FEEDFORWARD_kS = 0; // (Static gain, the voltage to start moving)
-        public static final double FEEDFORWARD_kG = 0; // (Gravity gain, the voltage to hold position where gravity has full effect)
-        public static final double FEEDFORWARD_kV = 0; // (Velocity gain, the voltage to maintain speed)
-
-        public static final double PARALLEL_OFFSET = 0; // Offset of encoder ticks from parallel.
+        public static final double PARALLEL_OFFSET = 515; // Offset of encoder ticks from parallel.
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
-        public static final int PLACE_ROTATION_AMOUNT = 100; // Encoder ticks.
+        public static final int PLACE_ROTATION_AMOUNT = 300; // Encoder ticks.
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
@@ -63,10 +59,7 @@ public final class Constants {
         
         public enum ArmStates {
             BOTTOM,
-            L1,
-            L2,
-            L3,
-            L4
+            TOP
         }
     }
 
@@ -74,7 +67,7 @@ public final class Constants {
         public static final int MOTOR_STALL_LIMIT = 5; // In Amps.
         
         public static final double EXTENSION_MOTOR_SPEED = 1.0; // Speed (0 to 1).
-        public static final double INTAKE_MOTOR_SPEED = 0.75; // Speed (0 to 1).
+        public static final double INTAKE_MOTOR_SPEED = 1.0; // Speed (0 to 1).
 
         public static final SparkMax leftExtensionMotor = new SparkMax(2, MotorType.kBrushless);
         public static final SparkMax rightExtensionMotor = new SparkMax(4, MotorType.kBrushless);

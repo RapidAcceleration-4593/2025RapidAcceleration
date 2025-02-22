@@ -39,7 +39,7 @@ public class BottomOneCoralAuton extends AutonCommand {
                 utils.setElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(0)),
-                    utils.setArmState(ArmStates.L3)
+                    utils.setArmState(ArmStates.TOP)
                 ),
                 utils.scoreCoralCommand(),
                 Commands.waitSeconds(0.5),

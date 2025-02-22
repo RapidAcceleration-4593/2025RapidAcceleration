@@ -31,7 +31,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorConstants.MAX_VELOCITY, 
                                                                                     ElevatorConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {0, 3000, 12000};
+    private final double[] SETPOINTS = {0, 2500, 12000};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 

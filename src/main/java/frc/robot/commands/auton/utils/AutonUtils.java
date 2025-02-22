@@ -86,6 +86,14 @@ public class AutonUtils {
         return armSubsystem.placeCoralCommand();
     }
 
+    public Command runElevatorPID() {
+        return elevatorSubsystem.run(() -> elevatorSubsystem.controlElevatorState(true));
+    }
+
+    public Command runArmPID() {
+        return armSubsystem.run(() -> armSubsystem.controlArmState(true));
+    }
+
     /**
      * Load the PathPlanner trajectory file to path.
      * @param pathName Name of the path.
