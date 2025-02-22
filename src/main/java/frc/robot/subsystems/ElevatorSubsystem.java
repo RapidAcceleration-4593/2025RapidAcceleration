@@ -11,6 +11,8 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
@@ -224,5 +226,15 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("E-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("E-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("E-Encoder", getEncoderValue());
+    }
+
+    public Command GoToStateCommand(ElevatorStates state) {
+        return new FunctionalCommand(
+            () -> setElevatorState(state),
+            () -> controlElevatorState(true),
+            interrupted -> stopMotor(),
+            () -> atSetpoint(),
+            this
+        );
     }
 }

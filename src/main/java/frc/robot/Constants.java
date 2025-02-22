@@ -25,7 +25,7 @@ public final class Constants {
         public static final int PID_TOLERANCE = 10;
 
         public static final double MAX_VELOCITY = 30000;
-        public static final double MAX_ACCELERATION = 350000;
+        public static final double MAX_ACCELERATION = 300000;
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
 
@@ -96,6 +96,13 @@ public final class Constants {
 
         public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5 + 3);
         public static final boolean DRIVE_WITH_VISION = true;
+        public static final boolean MANUAL_CONTROL = false;
+
+        public enum AutonPositions {
+            TOP,
+            CENTER,
+            BOTTOM
+        }
     }
 
     public static final class FieldConstants {

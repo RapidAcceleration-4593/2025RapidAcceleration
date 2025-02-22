@@ -1,4 +1,4 @@
-package frc.robot.commands.auton.Center;
+package frc.robot.commands.auton;
 
 import java.util.Collection;
 import java.util.List;
@@ -12,23 +12,19 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.AutonConstants.AutonPositions;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
-public class CenterOneCoralAuton extends AutonCommand {
+public class MoveOutAuton extends AutonCommand {
     private AutonUtils utils;
 
     private final List<PathPlannerPath> paths;
 
-    public CenterOneCoralAuton(AutonUtils utils) {
+    public MoveOutAuton(AutonUtils utils, AutonPositions position) {
         this.utils = utils;
 
-        paths = List.of(
-            utils.loadPath("CenterOneCoral-1"),
-            utils.loadPath("CenterOneCoral-2")
-        );
+        paths = List.of(getAutonPaths(position));
 
         if (Robot.isSimulation()) {
             addCommands(utils.resetOdometry(paths.get(0)));
@@ -36,26 +32,23 @@ public class CenterOneCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                utils.setElevatorState(ElevatorStates.PICKUP),
-                Commands.parallel(
-                    AutoBuilder.followPath(paths.get(0)),
-                    utils.setArmState(ArmStates.TOP)
-                ),
-                utils.setElevatorState(ElevatorStates.BOTTOM),
-                utils.scoreCoralCommand(),
-                Commands.waitSeconds(1.0),
-                Commands.parallel(
-                    AutoBuilder.followPath(paths.get(1)),
-                    utils.setArmState(ArmStates.BOTTOM),
-                    utils.setElevatorState(ElevatorStates.BOTTOM)
-                )
+                AutoBuilder.followPath(paths.get(0))
             )
         );
     }
 
+    private PathPlannerPath getAutonPaths(AutonPositions position) {
+        return switch (position) {
+            case TOP -> utils.loadPath("TopMoveOut-1");
+            case CENTER -> utils.loadPath("CenterMoveOut-1");
+            case BOTTOM -> utils.loadPath("BottomMoveOut-1");
+            default -> null;
+        };
+    } 
+
     @Override
     public List<Pose2d> getAllPathPoses() {
-        return paths.subList(0, 1).stream()
+        return paths.subList(0, 0).stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());

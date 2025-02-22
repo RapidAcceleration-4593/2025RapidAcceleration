@@ -64,14 +64,8 @@ public class AutonUtils {
      * @param state The selected state of the elevator.
      * @return A Functional Command to set the state of the elevator during autonomous.
      */
-    public FunctionalCommand setElevatorState(ElevatorStates state) {
-        return new FunctionalCommand(
-            () -> elevatorSubsystem.setElevatorState(state),
-            () -> elevatorSubsystem.controlElevatorState(true),
-            interrupted -> elevatorSubsystem.stopMotor(),
-            () -> elevatorSubsystem.atSetpoint(),
-            elevatorSubsystem
-        );
+    public Command goToElevatorState(ElevatorStates state) {
+        return elevatorSubsystem.GoToStateCommand(state);
     }
 
     /**
@@ -79,14 +73,8 @@ public class AutonUtils {
      * @param state The selected state of the arm.
      * @return A Functional Command to set the state of the arm during autonomous.
      */
-    public FunctionalCommand setArmState(ArmStates state) {
-        return new FunctionalCommand(
-            () -> armSubsystem.setArmState(state),
-            () -> armSubsystem.controlArmState(true),
-            interrupted -> armSubsystem.stopMotor(),
-            () -> armSubsystem.atSetpoint(),
-            armSubsystem
-        );
+    public Command goToArmState(ArmStates state) {
+        return armSubsystem.GoToStateCommand(state);
     }
 
     /**
