@@ -63,30 +63,25 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int MOTOR_STALL_LIMIT = 5; // In Amps.
-        
-        public static final double EXTENSION_MOTOR_SPEED = 1.0; // Speed (0 to 1).
-        public static final double INTAKE_MOTOR_SPEED = 1.0; // Speed (0 to 1).
-
-        public static final SparkMax leftExtensionMotor = new SparkMax(2, MotorType.kBrushless);
-        public static final SparkMax rightExtensionMotor = new SparkMax(4, MotorType.kBrushless);
-
         public static final SparkMax leftIntakeMotor = new SparkMax(3, MotorType.kBrushless);
         public static final SparkMax rightIntakeMotor = new SparkMax(5, MotorType.kBrushless);
     
+        public static final double CONTROL_SPEED = 1.0; // Speed (0 to 1).
+
+        public enum IntakeSides {
+            LEFT,
+            RIGHT
+        }
+
         public enum IntakeStates {
-            EXTENDING,
-            EXTENDED_RUNNING,
-            EXTENDED_RUNNING_REVERSE,
-            EXTENDED_STOPPED,
-            RETRACTING,
-            RETRACTED_STOPPED
+            RUNNING,
+            RUNNING_REVERSE,
+            STOPPED
         }
     }
 
     public static final class SerializerConstants {
-        public static final SparkMax beltMotor = new SparkMax(8, MotorType.kBrushless);
-        // public static final DigitalInput beltLimitSwitch = new DigitalInput(0); // TODO: Assign Limit Switch Channel.
+        public static final SparkMax serializerMotor = new SparkMax(8, MotorType.kBrushless);
 
         public static final double CONTROL_SPEED = 0.75;
     }
@@ -97,7 +92,6 @@ public final class Constants {
 
         public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5 + 1);
         public static final boolean DRIVE_WITH_VISION = true;
-        public static final boolean MANUAL_CONTROL = false;
 
         public enum AutonPositions {
             TOP,
