@@ -28,6 +28,11 @@ public final class Constants {
         public static final double MAX_ACCELERATION = 300000;
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
+        /**
+         * This value is used when switching from manual back to PID mode to determine the new PID setpoint.
+         * The PID setpoint caluclation is setpoint = encoder reading + motorspeed * MANUAL_MOMENTUM_CORRECTION
+         */
+        public static final double MANUAL_MOMENTUM_CORRECTION = 1000;
 
         public static final SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
 
@@ -48,6 +53,12 @@ public final class Constants {
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
         public static final int PLACE_ROTATION_AMOUNT = 225; // Encoder ticks.
+
+            /**
+         * This value is used when switching from manual back to PID mode to determine the new PID setpoint.
+         * The PID setpoint caluclation is setpoint = encoder reading + motorspeed * MANUAL_MOMENTUM_CORRECTION
+         */
+        public static final double MANUAL_MOMENTUM_CORRECTION = 100;
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
