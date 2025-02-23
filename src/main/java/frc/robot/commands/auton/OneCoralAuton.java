@@ -34,19 +34,17 @@ public class OneCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                utils.goToElevatorState(ElevatorStates.PICKUP),
-                utils.goToArmState(ArmStates.TOP),
-                utils.goToElevatorState(ElevatorStates.BOTTOM),
+                Commands.parallel(
+                    utils.goToElevatorState(ElevatorStates.TOP),
+                    utils.goToArmState(ArmStates.TOP)
+                ),
                 AutoBuilder.followPath(paths.get(0)),
                 utils.scoreCoralCommand(),
                 Commands.waitSeconds(1.0),
+                AutoBuilder.followPath(paths.get(1)),
                 Commands.parallel(
-                    AutoBuilder.followPath(paths.get(1)),
-                    Commands.sequence(
-                        utils.goToElevatorState(ElevatorStates.PICKUP),
-                        utils.goToArmState(ArmStates.BOTTOM),
-                        utils.goToElevatorState(ElevatorStates.BOTTOM)
-                    )
+                    utils.goToElevatorState(ElevatorStates.PICKUP),
+                    utils.goToArmState(ArmStates.BOTTOM)
                 )
             )
         );

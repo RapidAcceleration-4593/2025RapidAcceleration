@@ -95,10 +95,13 @@ public class RobotContainer {
     public RobotContainer() {
         configureBindings();
         DriverStation.silenceJoystickConnectionWarning(true);
+
+        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
+        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
+        armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
     }
 
     private void configureBindings() {
-        drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()
@@ -113,12 +116,6 @@ public class RobotContainer {
                     driveToPoseCommand.cancel();
                 }
             }));
-        auxiliaryController.leftStick().whileTrue(elevatorSubsystem.manualElevatorCommand(() -> auxiliaryController.getLeftY() * -1));
-        auxiliaryController.rightStick().whileTrue(armSubsystem.manualArmCommand(() -> auxiliaryController.getRightY() * -1));
-
-        // Changing default commands to enable PID Control.
-        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
-        armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
 
         auxiliaryController.povUp().onTrue(new ScoreL4Command(elevatorSubsystem, armSubsystem));
         auxiliaryController.povRight().onTrue(new ScoreL3Command(elevatorSubsystem, armSubsystem));
@@ -128,7 +125,6 @@ public class RobotContainer {
         driverController.leftBumper().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
         driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
         driverController.povUp().onTrue(Commands.runOnce(armSubsystem::removeAlgaeCommand));
-        
 
         // Intake / Serializer Commands
         auxiliaryController.leftBumper().whileTrue(new RunIntakeCommand(intakeSubsystem, IntakeSides.LEFT, false)); // Left Intake, Forward.
@@ -139,6 +135,10 @@ public class RobotContainer {
 
         auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false)); // Serializer, Forward.
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
+
+        // Manual Control
+        auxiliaryController.leftStick().whileTrue(elevatorSubsystem.manualElevatorCommand(() -> (Math.pow(auxiliaryController.getLeftY(), 3)) * -1));
+        auxiliaryController.rightStick().whileTrue(armSubsystem.manualArmCommand(() -> (Math.pow(auxiliaryController.getRightY(), 3)) * -1));
     }
 
     /**

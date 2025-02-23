@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ArmConstants;
@@ -250,18 +251,23 @@ public class ArmSubsystem extends SubsystemBase {
 
     public Command manualArmCommand(DoubleSupplier controlInput) {
         return new FunctionalCommand(
-            null,
+            () -> Commands.none(),
             () -> {
-                if (isBottomLimitSwitchPressed() || isTopLimitSwitchPressed())
+                if (
+                    (isBottomLimitSwitchPressed() && controlInput.getAsDouble() < 0) || 
+                    (isTopLimitSwitchPressed() && controlInput.getAsDouble() > 0)
+                ) {
                     stopMotor();
-                else
+                }
+                else {
                     setMotorSpeed(controlInput.getAsDouble());
+                }
             },
             (interrupted) -> {
                 armPID.setSetpoint(getEncoderValue());
-                stopMotor();
+                armPID.reset();
             },
-            null,
+            () -> false,
             this
         );
     }

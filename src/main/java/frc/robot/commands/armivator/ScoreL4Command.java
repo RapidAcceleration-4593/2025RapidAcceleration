@@ -12,7 +12,6 @@ public class ScoreL4Command extends SequentialCommandGroup {
     public ScoreL4Command(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         addCommands(
             elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-
             Commands.parallel(
                 elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
                 armSubsystem.GoToStateCommand(ArmStates.TOP)
