@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
@@ -255,7 +256,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 }
             },
             (interrupted) -> {
-                elevatorPID.setGoal(getEncoderValue());
+                elevatorPID.setGoal(getEncoderValue() + ArmConstants.MANUAL_MOMENTUM_CORRECTION * elevatorMotor.get());
                 elevatorPID.reset(getEncoderValue());
             },
             () -> false,

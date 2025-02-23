@@ -264,7 +264,7 @@ public class ArmSubsystem extends SubsystemBase {
                 }
             },
             (interrupted) -> {
-                armPID.setSetpoint(getEncoderValue());
+                armPID.setSetpoint(getEncoderValue() + ArmConstants.MANUAL_MOMENTUM_CORRECTION * armMotor.get());
                 armPID.reset();
             },
             () -> false,
