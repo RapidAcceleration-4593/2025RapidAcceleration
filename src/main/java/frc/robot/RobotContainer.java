@@ -18,8 +18,6 @@ import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.AutonConstants.AutonPositions;
 import frc.robot.Constants.IntakeConstants.IntakeSides;
 import frc.robot.commands.arm.ControlArmState;
-import frc.robot.commands.arm.manual.MoveArmDown;
-import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.armivator.HomeCommand;
 import frc.robot.commands.armivator.PickUpCoralCommand;
 import frc.robot.commands.armivator.ScoreL2Command;
@@ -31,8 +29,6 @@ import frc.robot.commands.auton.OneCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
-import frc.robot.commands.elevator.manual.MoveElevatorDown;
-import frc.robot.commands.elevator.manual.MoveElevatorUp;
 import frc.robot.commands.intakes.RunIntakeCommand;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -117,35 +113,22 @@ public class RobotContainer {
                     driveToPoseCommand.cancel();
                 }
             }));
+        auxiliaryController.leftStick().whileTrue(elevatorSubsystem.manualElevatorCommand(() -> auxiliaryController.getLeftY() * -1));
+        auxiliaryController.rightStick().whileTrue(armSubsystem.manualArmCommand(() -> auxiliaryController.getRightY() * -1));
 
-        if (DriverStation.isTest()) {
-            // Changing default commands to disable PID Control.
-            elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, false));
-            armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, false));
+        // Changing default commands to enable PID Control.
+        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
+        armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
 
-            // Manual Control for Elevator Mechanism.
-            driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
-            driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
+        auxiliaryController.povUp().onTrue(new ScoreL4Command(elevatorSubsystem, armSubsystem));
+        auxiliaryController.povRight().onTrue(new ScoreL3Command(elevatorSubsystem, armSubsystem));
+        auxiliaryController.povLeft().onTrue(new ScoreL2Command(elevatorSubsystem, armSubsystem));
+        auxiliaryController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
 
-            // Manual Control for Arm Mechanism.
-            driverController.x().whileTrue(new MoveArmUp(armSubsystem));
-            driverController.b().whileTrue(new MoveArmDown(armSubsystem));
-        } else {
-            driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
-
-            // Changing default commands to enable PID Control.
-            elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, true));
-            armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, true));
-
-            auxiliaryController.povUp().onTrue(new ScoreL4Command(elevatorSubsystem, armSubsystem));
-            auxiliaryController.povRight().onTrue(new ScoreL3Command(elevatorSubsystem, armSubsystem));
-            auxiliaryController.povLeft().onTrue(new ScoreL2Command(elevatorSubsystem, armSubsystem));
-            auxiliaryController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
-
-            driverController.leftBumper().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
-            driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
-            driverController.povUp().onTrue(Commands.runOnce(armSubsystem::removeAlgaeCommand));
-        }
+        driverController.leftBumper().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
+        driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+        driverController.povUp().onTrue(Commands.runOnce(armSubsystem::removeAlgaeCommand));
+        
 
         // Intake / Serializer Commands
         auxiliaryController.leftBumper().whileTrue(new RunIntakeCommand(intakeSubsystem, IntakeSides.LEFT, false)); // Left Intake, Forward.

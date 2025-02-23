@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -86,23 +89,17 @@ public class ElevatorSubsystem extends SubsystemBase {
      *  <li>Uses Profiled PID Control to adjust the motor output when no limit switches are triggered.</li>
      * </ul>
      */
-    public void controlElevatorState(boolean usePID) {
+    public void controlElevatorState() {
         updateValues();
 
-        if (isBottomLimitSwitchPressed()) {
-            resetEncoder();
-        }
-
-        if (usePID) {
-            if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-                stopMotor();
-            } else if (isTopLimitSwitchPressed()) {
-                handleTopLimitSwitchPressed();
-            } else if (isBottomLimitSwitchPressed()) {
-                handleBottomLimitSwitchPressed();
-            } else {
-                controlElevator();
-            }
+        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
+            stopMotor();
+        } else if (isTopLimitSwitchPressed()) {
+            handleTopLimitSwitchPressed();
+        } else if (isBottomLimitSwitchPressed()) {
+            handleBottomLimitSwitchPressed();
+        } else {
+            controlElevator();
         }
     }
 
@@ -234,9 +231,27 @@ public class ElevatorSubsystem extends SubsystemBase {
     public Command GoToStateCommand(ElevatorStates state) {
         return new FunctionalCommand(
             () -> setElevatorState(state),
-            () -> controlElevatorState(true),
+            () -> controlElevatorState(),
             interrupted -> stopMotor(),
             () -> atSetpoint(),
+            this
+        );
+    }
+
+    public Command manualElevatorCommand(DoubleSupplier controlInput) {
+        return new FunctionalCommand(
+            null,
+            () -> {
+                if (isBottomLimitSwitchPressed() || isTopLimitSwitchPressed())
+                    stopMotor();
+                else
+                    setMotorSpeed(controlInput.getAsDouble());
+            },
+            (interrupted) -> {
+                elevatorPID.setGoal(getEncoderValue());
+                stopMotor();
+            },
+            null,
             this
         );
     }

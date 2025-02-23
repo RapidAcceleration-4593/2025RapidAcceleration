@@ -1,6 +1,9 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
+
+import java.util.function.DoubleSupplier;
+
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -84,23 +87,17 @@ public class ArmSubsystem extends SubsystemBase {
      *  <li>Uses PID Control to adjust the motor output when no limit switches are triggered.</li>
      * </ul>
      */
-    public void controlArmState(boolean usePID) {
+    public void controlArmState() {
         updateValues();
 
-        if (isBottomLimitSwitchPressed()) {
-            resetEncoder();
-        }
-        
-        if (usePID) {
-            if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-                stopMotor();
-            } else if (isTopLimitSwitchPressed()) {
-                handleTopLimitSwitchPressed();
-            } else if (isBottomLimitSwitchPressed()) {
-                handleBottomLimitSwitchPressed();
-            } else {
-                controlArm();
-            }
+        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
+            stopMotor();
+        } else if (isTopLimitSwitchPressed()) {
+            handleTopLimitSwitchPressed();
+        } else if (isBottomLimitSwitchPressed()) {
+            handleBottomLimitSwitchPressed();
+        } else {
+            controlArm();
         }
     }
 
@@ -244,9 +241,27 @@ public class ArmSubsystem extends SubsystemBase {
     public Command GoToStateCommand(ArmStates state) {
         return new FunctionalCommand(
             () -> setArmState(state),
-            () -> controlArmState(true),
+            () -> controlArmState(),
             interrupted -> stopMotor(),
             () -> atSetpoint(),
+            this
+        );
+    }
+
+    public Command manualArmCommand(DoubleSupplier controlInput) {
+        return new FunctionalCommand(
+            null,
+            () -> {
+                if (isBottomLimitSwitchPressed() || isTopLimitSwitchPressed())
+                    stopMotor();
+                else
+                    setMotorSpeed(controlInput.getAsDouble());
+            },
+            (interrupted) -> {
+                armPID.setSetpoint(getEncoderValue());
+                stopMotor();
+            },
+            null,
             this
         );
     }

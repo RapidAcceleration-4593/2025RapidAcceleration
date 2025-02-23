@@ -84,7 +84,7 @@ public class AutonUtils {
     public FunctionalCommand scoreCoralCommand() {
         return new FunctionalCommand(
             () -> armSubsystem.placeCoralCommand(),
-            () -> armSubsystem.controlArmState(true),
+            () -> armSubsystem.controlArmState(),
             interrupted -> armSubsystem.stopMotor(),
             () -> armSubsystem.atSetpoint(),
             armSubsystem
