@@ -33,7 +33,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorConstants.MAX_VELOCITY, 
                                                                                     ElevatorConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {0, 2500, 12000};
+    private final double[] SETPOINTS = {0, 2500, 12250};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -74,7 +74,6 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void setElevatorState(ElevatorStates state) {
         double target = getElevatorState(state);
         elevatorPID.setGoal(target);
-        SmartDashboard.putNumber("E-Setpoint", target);
     }
 
     /** ----- Elevator State System ----- */
@@ -89,6 +88,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public void controlElevatorState(boolean usePID) {
         updateValues();
+
+        if (isBottomLimitSwitchPressed()) {
+            resetEncoder();
+        }
 
         if (usePID) {
             if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
@@ -126,9 +129,8 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private void handleTopLimitSwitchPressed() {
         double currentPosition = getEncoderValue();
-        double setpoint = getSetpoint();
 
-        if (setpoint >= currentPosition) {
+        if (getSetpoint() >= currentPosition) {
             stopMotor();
             elevatorPID.setGoal(currentPosition);
             elevatorPID.reset(currentPosition);
@@ -178,14 +180,14 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Sets the motor speed for both motors; {@link ElevatorSubsystem#leftElevatorFollower} is mirrored.
-     * @param speed The speed value for the elevator motors.
+     * Sets the motor speed for the elevator motor.
+     * @param speed The speed value for the elevator motor.
      */
     public void setMotorSpeed(double speed) {
         elevatorMotor.set(-speed);
     }
 
-    /** Stops movement for the elevator motors. */
+    /** Stops movement for the elevator motor. */
     public void stopMotor() {
         elevatorMotor.stopMotor();
     }
@@ -226,6 +228,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("E-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("E-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("E-Encoder", getEncoderValue());
+        SmartDashboard.putNumber("E-Setpoint", getSetpoint());
     }
 
     public Command GoToStateCommand(ElevatorStates state) {

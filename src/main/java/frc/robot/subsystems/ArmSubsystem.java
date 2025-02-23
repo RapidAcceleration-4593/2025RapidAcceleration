@@ -6,6 +6,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
@@ -25,10 +26,12 @@ public class ArmSubsystem extends SubsystemBase {
     private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
     
     private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
-                                                           ArmConstants.ARM_PID.kI,
-                                                           ArmConstants.ARM_PID.kD);
+                                                            ArmConstants.ARM_PID.kI,
+                                                            ArmConstants.ARM_PID.kD);
 
-    private final double[] SETPOINTS = {-5, 900};
+    private final ArmFeedforward armFeedforward = new ArmFeedforward(0.15, 0.15, 0.5);
+
+    private final double[] SETPOINTS = {-20, 600, 900};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -40,6 +43,7 @@ public class ArmSubsystem extends SubsystemBase {
         config.idleMode(IdleMode.kBrake);
 
         armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        
         armPID.setTolerance(ArmConstants.PID_TOLERANCE);
     }
 
@@ -54,7 +58,8 @@ public class ArmSubsystem extends SubsystemBase {
     private double getArmState(ArmStates state) {
         return switch (state) {
             case BOTTOM -> SETPOINTS[0];
-            case TOP -> SETPOINTS[1];
+            case L2 -> SETPOINTS[1];
+            case TOP -> SETPOINTS[2];
             default -> -1;
         };
     }
@@ -66,7 +71,6 @@ public class ArmSubsystem extends SubsystemBase {
     public void setArmState(ArmStates state) {
         double target = getArmState(state);
         armPID.setSetpoint(target);
-        SmartDashboard.putNumber("A-Setpoint", target);
     }
 
 
@@ -82,6 +86,10 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public void controlArmState(boolean usePID) {
         updateValues();
+
+        if (isBottomLimitSwitchPressed()) {
+            resetEncoder();
+        }
         
         if (usePID) {
             if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
@@ -98,13 +106,13 @@ public class ArmSubsystem extends SubsystemBase {
 
     /** Controls the Arm System using a PID Controller. */
     private void controlArm() {
-        double output = armPID.calculate(getEncoderValue());
-        boolean atSetpoint = armPID.atSetpoint();
+        double pidOutput = armPID.calculate(getEncoderValue());
+        double ffOutput = armFeedforward.calculate(1.58, 0);
 
-        if (atSetpoint) {
+        if (atSetpoint()) {
             stopMotor();
         } else {
-            setMotorSpeed(output);
+            setMotorSpeed(pidOutput + ffOutput);
         }
     }
 
@@ -120,9 +128,8 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleTopLimitSwitchPressed() {
         double currentPosition = getEncoderValue();
-        double setpoint = getSetpoint();
 
-        if (setpoint >= currentPosition) {
+        if (getSetpoint() >= currentPosition) {
             stopMotor();
             armPID.setSetpoint(currentPosition);
         } else {
@@ -143,8 +150,8 @@ public class ArmSubsystem extends SubsystemBase {
         resetEncoder();
 
         if (setpoint <= SETPOINTS[0]) {
-            stopMotor();
             armPID.setSetpoint(0);
+            stopMotor();
         } else {
             controlArm();
         }
@@ -218,7 +225,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("A-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("A-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("A-Encoder", getEncoderValue());
-        SmartDashboard.putNumber("A-PIDOutput", armPID.calculate(getEncoderValue(), getSetpoint()));
+        SmartDashboard.putNumber("A-Setpoint", getSetpoint());
     }
 
 

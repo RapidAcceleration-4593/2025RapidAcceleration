@@ -21,6 +21,7 @@ import frc.robot.commands.arm.manual.MoveArmDown;
 import frc.robot.commands.arm.manual.MoveArmUp;
 import frc.robot.commands.armivator.HomeCommand;
 import frc.robot.commands.armivator.PickUpCoralCommand;
+import frc.robot.commands.armivator.ScoreL2Command;
 import frc.robot.commands.armivator.ScoreL3Command;
 import frc.robot.commands.armivator.ScoreL4Command;
 import frc.robot.commands.auton.MoveOutAuton;
@@ -129,27 +130,37 @@ public class RobotContainer {
 
         if (AutonConstants.MANUAL_CONTROL) {
             // Modifying default commands to disable PID Control.
-            elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, false));
-            armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, false));
+            // elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, false));
+            // armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, false));
 
-            // Manual Control for Elevator Mechanism.
-            driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
-            driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
+            // // Manual Control for Elevator Mechanism.
+            // driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
+            // driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
 
-            // Manual Control for Arm Mechanism.
-            driverController.x().whileTrue(new MoveArmUp(armSubsystem));
-            driverController.b().whileTrue(new MoveArmDown(armSubsystem));
+            // // Manual Control for Arm Mechanism.
+            // driverController.x().whileTrue(new MoveArmUp(armSubsystem));
+            // driverController.b().whileTrue(new MoveArmDown(armSubsystem));
         } else {
             // Modifying default commands to enable PID Control.
             elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, true));
             armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, true));
 
+            // driverController.povUp().onTrue(new SetArmState(armSubsystem, ArmStates.TOP));
+            // driverController.povLeft().onTrue(new SetArmState(armSubsystem, ArmStates.L2));
+            // driverController.povDown().onTrue(new SetArmState(armSubsystem, ArmStates.BOTTOM));
+
             driverController.povUp().onTrue(new ScoreL4Command(elevatorSubsystem, armSubsystem));
+            driverController.povLeft().onTrue(new ScoreL2Command(elevatorSubsystem, armSubsystem));
             driverController.povRight().onTrue(new ScoreL3Command(elevatorSubsystem, armSubsystem));
             driverController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
 
             driverController.leftBumper().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
             driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+
+            driverController.y().whileTrue(new MoveElevatorUp(elevatorSubsystem));
+            driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
+            driverController.x().whileTrue(new MoveArmUp(armSubsystem));
+            driverController.b().whileTrue(new MoveArmDown(armSubsystem));
         }
 
 
