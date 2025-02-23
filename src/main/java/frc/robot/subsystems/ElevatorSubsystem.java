@@ -257,7 +257,8 @@ public class ElevatorSubsystem extends SubsystemBase {
             },
             (interrupted) -> {
                 elevatorPID.setGoal(getEncoderValue() + ArmConstants.MANUAL_MOMENTUM_CORRECTION * elevatorMotor.get());
-                elevatorPID.reset(getEncoderValue());
+                // elevatorPID.reset(getEncoderValue());
+                stopMotor();
             },
             () -> false,
             this
