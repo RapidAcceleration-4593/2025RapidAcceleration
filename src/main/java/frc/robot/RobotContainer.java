@@ -131,6 +131,8 @@ public class RobotContainer {
             driverController.x().whileTrue(new MoveArmUp(armSubsystem));
             driverController.b().whileTrue(new MoveArmDown(armSubsystem));
         } else {
+            driverController.a().whileTrue(new MoveElevatorDown(elevatorSubsystem));
+
             // Changing default commands to enable PID Control.
             elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem, true));
             armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem, true));
@@ -140,8 +142,9 @@ public class RobotContainer {
             auxiliaryController.povLeft().onTrue(new ScoreL2Command(elevatorSubsystem, armSubsystem));
             auxiliaryController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
 
-            auxiliaryController.a().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
-            auxiliaryController.y().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+            driverController.leftBumper().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
+            driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
+            driverController.povUp().onTrue(Commands.runOnce(armSubsystem::removeAlgaeCommand));
         }
 
         // Intake / Serializer Commands

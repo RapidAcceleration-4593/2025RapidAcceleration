@@ -236,6 +236,11 @@ public class ArmSubsystem extends SubsystemBase {
         armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
     }
 
+    /** Rotates the arm mechanism up to remove algae. */
+    public void removeAlgaeCommand() {
+        armPID.setSetpoint(getSetpoint() + ArmConstants.PLACE_ROTATION_AMOUNT);
+    }
+
     public Command GoToStateCommand(ArmStates state) {
         return new FunctionalCommand(
             () -> setArmState(state),
