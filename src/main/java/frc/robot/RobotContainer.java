@@ -60,7 +60,7 @@ public class RobotContainer {
     private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
-    private Command driveToPoseCommand = null;
+    private Command driveToPoseCommand = Commands.none();
 
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
@@ -112,7 +112,7 @@ public class RobotContainer {
                 driveToPoseCommand.schedule();
             }))
             .onFalse(Commands.runOnce(() -> {
-                if (driveToPoseCommand != null) {
+                if (driveToPoseCommand != Commands.none()) {
                     driveToPoseCommand.cancel();
                 }
             }));

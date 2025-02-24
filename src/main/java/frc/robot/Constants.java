@@ -21,18 +21,13 @@ public final class Constants {
     public static final double MAX_SPEED = Units.feetToMeters(12.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
-        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0025, 0.0005, 0); // TODO: Tune PID.
-        public static final int PID_TOLERANCE = 20;
+        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0025, 0.00075, 0); // TODO: Tune PID.
+        public static final int PID_TOLERANCE = 25;
 
         public static final double MAX_VELOCITY = 11000; // 11000
         public static final double MAX_ACCELERATION = 26000; // 26000
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
-        /**
-         * This value is used when switching from manual back to PID mode to determine the new PID setpoint.
-         * The PID setpoint caluclation is setpoint = encoder reading + motorspeed * MANUAL_MOMENTUM_CORRECTION
-         */
-        public static final double MANUAL_MOMENTUM_CORRECTION = 1000;
 
         public static final SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
 
@@ -49,16 +44,10 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final PIDConstants ARM_PID = new PIDConstants(0.04, 0, 0); // TODO: Tune PID.
-        public static final int PID_TOLERANCE = 10;
+        public static final int PID_TOLERANCE = 15;
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
         public static final int PLACE_ROTATION_AMOUNT = 225; // Encoder ticks.
-
-            /**
-         * This value is used when switching from manual back to PID mode to determine the new PID setpoint.
-         * The PID setpoint caluclation is setpoint = encoder reading + motorspeed * MANUAL_MOMENTUM_CORRECTION
-         */
-        public static final double MANUAL_MOMENTUM_CORRECTION = 100;
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);

@@ -87,7 +87,7 @@ public class PoseNavigator extends SubsystemBase {
 
         // Reef Parameters.
         final double radius = Units.inchesToMeters(32.75);
-        final double branchOffset = Units.inchesToMeters(6.5);
+        final double branchOffset = Units.inchesToMeters(6.25);
         final double angleIncrement = Math.toRadians(60.0);
 
         // Loop through each side of the Reef.

@@ -18,7 +18,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
@@ -38,7 +37,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorConstants.MAX_VELOCITY, 
                                                                                     ElevatorConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-300, 2500, 12250};
+    private final double[] SETPOINTS = {-300, 2500, 12550};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -256,9 +255,8 @@ public class ElevatorSubsystem extends SubsystemBase {
                 }
             },
             (interrupted) -> {
-                elevatorPID.setGoal(getEncoderValue() + ArmConstants.MANUAL_MOMENTUM_CORRECTION * elevatorMotor.get());
-                // elevatorPID.reset(getEncoderValue());
-                stopMotor();
+                elevatorPID.setGoal(getEncoderValue());
+                elevatorPID.reset(getEncoderValue());
             },
             () -> false,
             this
