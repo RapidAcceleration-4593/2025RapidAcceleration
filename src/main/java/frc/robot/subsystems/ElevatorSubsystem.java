@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkMax;
 
-import java.util.function.DoubleSupplier;
-
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
@@ -20,6 +18,8 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL;
+import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
@@ -261,29 +261,46 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     /**
      * Command to control the elevator manually during PID control.
-     * @param controlInput The joystick input, cubed for smoother controls.
+     * @param direction The direction to manually move the elevator.
      * @return A Functional Command to control the elevator manually.
      */
-    public Command manualElevatorCommand(DoubleSupplier controlInput) {
-        return new FunctionalCommand(
-            ()-> Commands.none(),
-            () -> {
-                if (
-                    (isBottomLimitSwitchPressed() && controlInput.getAsDouble() < 0) || 
-                    (isTopLimitSwitchPressed() && controlInput.getAsDouble() > 0)
-                ) {
+    public Command manualElevatorCommand(ElevatorDirections direction) {
+        return switch (direction) {
+            case UP -> new FunctionalCommand(
+                ()-> {},
+                () -> {
+                    if (isTopLimitSwitchPressed()) {
+                        stopMotor();
+                    } else {
+                        setMotorSpeed(ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
+                    }
+                },
+                (interrupted) -> {
                     stopMotor();
-                }
-                else {
-                    setMotorSpeed(controlInput.getAsDouble());
-                }
-            },
-            (interrupted) -> {
-                elevatorPID.setGoal(getEncoderValue());
-                elevatorPID.reset(getEncoderValue());
-            },
-            () -> false,
-            this
-        );
+                    elevatorPID.setGoal(getEncoderValue());
+                    elevatorPID.reset(getEncoderValue());
+                },
+                () -> false,
+                this
+            );
+
+            case DOWN -> new FunctionalCommand(
+                ()-> {},
+                () -> {
+                    if (isBottomLimitSwitchPressed()) {
+                        stopMotor();
+                    } else {
+                        setMotorSpeed(-ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
+                    }
+                },
+                (interrupted) -> {
+                    stopMotor();
+                    elevatorPID.setGoal(getEncoderValue());
+                    elevatorPID.reset(getEncoderValue());
+                },
+                () -> false,
+                this
+            );
+        };
     }
 }

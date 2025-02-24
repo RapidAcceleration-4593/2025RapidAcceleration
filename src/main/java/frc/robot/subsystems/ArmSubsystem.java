@@ -2,8 +2,6 @@ package frc.robot.subsystems;
 
 import com.revrobotics.spark.SparkBase.ResetMode;
 
-import java.util.function.DoubleSupplier;
-
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
@@ -20,7 +18,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL;
 import frc.robot.Constants.ArmConstants.ArmStates;
+import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -31,10 +31,12 @@ public class ArmSubsystem extends SubsystemBase {
     private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
     
     private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
-                                                            ArmConstants.ARM_PID.kI,
-                                                            ArmConstants.ARM_PID.kD);
+                                                           ArmConstants.ARM_PID.kI,
+                                                           ArmConstants.ARM_PID.kD);
 
-    private final ArmFeedforward armFeedforward = new ArmFeedforward(0.15, 0.15, 0.5);
+    private final ArmFeedforward armFeedforward = new ArmFeedforward(ArmConstants.ARM_FEEDFORWARD.kS,
+                                                                     ArmConstants.ARM_FEEDFORWARD.kG,
+                                                                     ArmConstants.ARM_FEEDFORWARD.kV);
 
     private final double[] SETPOINTS = {-20, 600, 900};
 
@@ -270,29 +272,44 @@ public class ArmSubsystem extends SubsystemBase {
 
     /**
      * Command to control the arm manually during PID control.
-     * @param controlInput The joystick input, cubed for smoother controls.
+     * @param direction The direction to manually move the arm.
      * @return A Functional Command to control the arm manually.
      */
-    public Command manualArmCommand(DoubleSupplier controlInput) {
-        return new FunctionalCommand(
-            () -> Commands.none(),
-            () -> {
-                if (
-                    (isBottomLimitSwitchPressed() && controlInput.getAsDouble() < 0) || 
-                    (isTopLimitSwitchPressed() && controlInput.getAsDouble() > 0)
-                ) {
-                    stopMotor();
-                }
-                else {
-                    setMotorSpeed(controlInput.getAsDouble());
-                }
-            },
-            (interrupted) -> {
-                armPID.setSetpoint(getEncoderValue());
-                armPID.reset();
-            },
-            () -> false,
-            this
-        );
+    public Command manualArmCommand(ArmDirections direction) {
+        return switch (direction) {
+            case UP -> new FunctionalCommand(
+                () -> {},
+                () -> {
+                    if (isTopLimitSwitchPressed()) {
+                        stopMotor();
+                    } else {
+                        setMotorSpeed(ARM_MANUAL_CONTROL.MOTOR_SPEED);
+                    }
+                },
+                (interrupted) -> {
+                    armPID.setSetpoint(getEncoderValue());
+                    armPID.reset();
+                },
+                () -> false,
+                this
+            );
+
+            case DOWN -> new FunctionalCommand(
+                () -> {},
+                () -> {
+                    if (isBottomLimitSwitchPressed()) {
+                        stopMotor();
+                    } else {
+                        setMotorSpeed(-ARM_MANUAL_CONTROL.MOTOR_SPEED);
+                    }
+                },
+                (interrupted) -> {
+                    armPID.setSetpoint(getEncoderValue());
+                    armPID.reset();
+                },
+                () -> false,
+                this
+            );
+        };
     }
 }

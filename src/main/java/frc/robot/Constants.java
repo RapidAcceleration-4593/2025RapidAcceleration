@@ -27,7 +27,14 @@ public final class Constants {
         public static final double MAX_VELOCITY = 11000;
         public static final double MAX_ACCELERATION = 26000;
 
-        public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
+        public static final class ELEVATOR_MANUAL_CONTROL {
+            public static final double MOTOR_SPEED = 1.0;
+
+            public enum ElevatorDirections {
+                UP,
+                DOWN
+            }
+        }
 
         public static final SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
 
@@ -45,9 +52,22 @@ public final class Constants {
     public static final class ArmConstants {
         public static final PIDConstants ARM_PID = new PIDConstants(0.04, 0, 0);
         public static final int PID_TOLERANCE = 15;
+        public static final int PLACE_ROTATION_AMOUNT = 225;
 
-        public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
-        public static final int PLACE_ROTATION_AMOUNT = 225; // Encoder ticks.
+        public static final class ARM_FEEDFORWARD {
+            public static final double kS = 0.15;
+            public static final double kG = 0.15;
+            public static final double kV = 0.5;
+        }
+
+        public static final class ARM_MANUAL_CONTROL {
+            public static final double MOTOR_SPEED = 1.0;
+
+            public enum ArmDirections {
+                UP,
+                DOWN
+            }
+        }
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
@@ -71,12 +91,6 @@ public final class Constants {
         public enum IntakeSides {
             LEFT,
             RIGHT
-        }
-
-        public enum IntakeStates {
-            RUNNING,
-            RUNNING_REVERSE,
-            STOPPED
         }
     }
 

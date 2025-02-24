@@ -15,7 +15,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
 import frc.robot.Constants.AutonConstants.AutonPositions;
+import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
 import frc.robot.Constants.IntakeConstants.IntakeSides;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.HomeCommand;
@@ -137,8 +139,11 @@ public class RobotContainer {
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
 
         // Manual Control
-        auxiliaryController.leftStick().whileTrue(elevatorSubsystem.manualElevatorCommand(() -> (Math.pow(auxiliaryController.getLeftY(), 3)) * -1));
-        auxiliaryController.rightStick().whileTrue(armSubsystem.manualArmCommand(() -> (Math.pow(auxiliaryController.getRightY(), 3)) * -1));
+        driverController.y().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.UP));
+        driverController.a().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.DOWN));
+
+        driverController.x().whileTrue(armSubsystem.manualArmCommand(ArmDirections.UP));
+        driverController.b().whileTrue(armSubsystem.manualArmCommand(ArmDirections.DOWN));
     }
 
     /**
