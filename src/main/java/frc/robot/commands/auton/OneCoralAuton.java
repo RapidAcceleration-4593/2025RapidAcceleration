@@ -37,13 +37,13 @@ public class OneCoralAuton extends AutonCommand {
                 utils.goToElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
                     utils.goToElevatorState(ElevatorStates.TOP),
-                    utils.goToArmState(ArmStates.TOP)
+                    utils.goToArmState(ArmStates.TOP),
+                    Commands.sequence(
+                        Commands.waitSeconds(1.0),
+                        AutoBuilder.followPath(paths.get(0))
+                    )
                 ),
-                AutoBuilder.followPath(paths.get(0)),
-                Commands.race(
-                    utils.scoreCoralCommand(),
-                    Commands.waitSeconds(0.5)
-                ),
+                utils.scoreCoralCommand(),
                 AutoBuilder.followPath(paths.get(1)),
                 Commands.parallel(
                     utils.goToElevatorState(ElevatorStates.PICKUP),
@@ -56,10 +56,9 @@ public class OneCoralAuton extends AutonCommand {
 
     private List<PathPlannerPath> getAutonPaths(AutonPositions position) {
         return switch (position) {
-            case TOP -> List.of(utils.loadPath("TopOneCoral-1"), utils.loadPath("TopOneCoral-2"));
+            case LEFT -> List.of(utils.loadPath("LeftOneCoral-1"), utils.loadPath("LeftOneCoral-2"));
             case CENTER -> List.of(utils.loadPath("CenterOneCoral-1"), utils.loadPath("CenterOneCoral-2"));
-            case BOTTOM -> List.of(utils.loadPath("BottomOneCoral-1"), utils.loadPath("BottomOneCoral-2"));
-            default -> null;
+            case RIGHT -> List.of(utils.loadPath("RightOneCoral-1"), utils.loadPath("RightOneCoral-2"));
         };
     } 
 

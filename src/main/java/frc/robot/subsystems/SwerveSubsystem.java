@@ -60,7 +60,7 @@ public class SwerveSubsystem extends SubsystemBase {
         // double driveConversionFactor = SwerveMath.calculateMetersPerRotation(Units.inchesToMeters(4), 5.36);
 
         // Configure the Telemetry before creating the SwerveDrive to avoid unnecessary objects being created.
-        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.MACHINE;
+        SwerveDriveTelemetry.verbosity = TelemetryVerbosity.HIGH;
 
         try {
             // swerveDrive = new SwerveParser(directory).createSwerveDrive(Constants.MAX_SPEED, angleConversionFactor, driveConversionFactor);
@@ -156,8 +156,7 @@ public class SwerveSubsystem extends SubsystemBase {
                     new PIDConstants(5.0, 0.0, 0.0)
                     // Rotation PID constants.
                 ),
-                config,
-                // The robot configuration
+                config, // The robot configuration
                 () -> {
                     // Boolean supplier that controls when the path will be mirrored for the red alliance
                     // This will flip the path being followed to the red side of the field.

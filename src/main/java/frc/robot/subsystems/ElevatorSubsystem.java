@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
@@ -40,6 +41,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final double[] SETPOINTS = {-300, 2500, 12550};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
+
+    private ElevatorStates currentElevatorState = ElevatorStates.BOTTOM; // DO NOT ASSIGN DIRECTLY!
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -76,9 +79,18 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param state Desired elevator state.
      */
     public void setElevatorState(ElevatorStates state) {
-        double target = getElevatorState(state);
-        elevatorPID.setGoal(target);
+        currentElevatorState = state;
+        elevatorPID.setGoal(getElevatorState(state));
     }
+
+    /**
+     * Retrieves the current {@link ElevatorStates} of the arm mechanism.
+     * @return The current {@link ElevatorStates}.
+     */
+    public ElevatorStates getCurrentElevatorState() {
+        return currentElevatorState;
+    }
+
 
     /** ----- Elevator State System ----- */
 
@@ -229,21 +241,33 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("E-Setpoint", getSetpoint());
     }
 
+    /**
+     * Command to set and control the state of the elevator mechanism.
+     * @param state The desired state of the elevator.
+     * @return A Command Race to set elevator state with a timeout.
+     */
     public Command GoToStateCommand(ElevatorStates state) {
-        return new FunctionalCommand(
-            () -> setElevatorState(state),
-            () -> controlElevatorState(),
-            interrupted -> stopMotor(),
-            () -> atSetpoint(),
-            this
+        return Commands.race(
+            new FunctionalCommand(
+                () -> setElevatorState(state),  // Initialization
+                () -> controlElevatorState(),   // Execute
+                interrupted -> stopMotor(),     // End
+                () -> atSetpoint(),             // IsFinished
+                this
+            ),
+            new WaitCommand(3.0) // Timeout after 3 seconds.
         );
     }
 
+    /**
+     * Command to control the elevator manually during PID control.
+     * @param controlInput The joystick input, cubed for smoother controls.
+     * @return A Functional Command to control the elevator manually.
+     */
     public Command manualElevatorCommand(DoubleSupplier controlInput) {
         return new FunctionalCommand(
             ()-> Commands.none(),
             () -> {
-                SmartDashboard.putNumber("E-Encoder", getEncoderValue());
                 if (
                     (isBottomLimitSwitchPressed() && controlInput.getAsDouble() < 0) || 
                     (isTopLimitSwitchPressed() && controlInput.getAsDouble() > 0)

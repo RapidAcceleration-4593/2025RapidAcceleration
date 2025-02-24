@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmStates;
 
@@ -38,6 +39,8 @@ public class ArmSubsystem extends SubsystemBase {
     private final double[] SETPOINTS = {-20, 600, 900};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
+
+    private ArmStates currentArmState = ArmStates.BOTTOM; // DO NOT ASSIGN DIRECTLY!
 
     /**
      * Constructor for the SwingArmSubsystem class.
@@ -73,8 +76,16 @@ public class ArmSubsystem extends SubsystemBase {
      * @param state The desired arm position.
      */
     public void setArmState(ArmStates state) {
-        double target = getArmState(state);
-        armPID.setSetpoint(target);
+        currentArmState = state;
+        armPID.setSetpoint(getArmState(state));
+    }
+
+    /**
+     * Retrieves the current {@link ArmStates} of the arm mechanism.
+     * @return The current {@link ArmStates}.
+     */
+    public ArmStates getCurrentArmState() {
+        return currentArmState;
     }
 
 
@@ -239,16 +250,29 @@ public class ArmSubsystem extends SubsystemBase {
         armPID.setSetpoint(getSetpoint() + ArmConstants.PLACE_ROTATION_AMOUNT);
     }
 
+    /**
+     * Command to set and control the state of the arm mechanism.
+     * @param state The desired state of the arm.
+     * @return A Command Race to set arm state with a timeout.
+     */
     public Command GoToStateCommand(ArmStates state) {
-        return new FunctionalCommand(
-            () -> setArmState(state),
-            () -> controlArmState(),
-            interrupted -> stopMotor(),
-            () -> atSetpoint(),
-            this
+        return Commands.race(
+            new FunctionalCommand(
+                () -> setArmState(state),    // Initialization
+                () -> controlArmState(),     // Execute
+                interrupted -> stopMotor(),  // End
+                () -> atSetpoint(),          // IsFinished
+                this
+            ),
+            new WaitCommand(4.0) // Timeout after 4 seconds.
         );
     }
 
+    /**
+     * Command to control the arm manually during PID control.
+     * @param controlInput The joystick input, cubed for smoother controls.
+     * @return A Functional Command to control the arm manually.
+     */
     public Command manualArmCommand(DoubleSupplier controlInput) {
         return new FunctionalCommand(
             () -> Commands.none(),

@@ -10,12 +10,44 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class ScoreL4Command extends SequentialCommandGroup {
 
     public ScoreL4Command(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
-        addCommands(
-            elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-            Commands.parallel(
-                elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
-                armSubsystem.GoToStateCommand(ArmStates.TOP)
-            )
-        );
+        
+        ElevatorStates currentElevatorState = elevatorSubsystem.getCurrentElevatorState();
+        
+        switch (currentElevatorState) {
+            case BOTTOM:
+                addCommands(
+                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
+                    Commands.parallel(
+                        elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
+                        armSubsystem.GoToStateCommand(ArmStates.TOP)
+                    )
+                );
+                break;
+            
+            case PICKUP:
+                addCommands(
+                    Commands.parallel(
+                        elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
+                        armSubsystem.GoToStateCommand(ArmStates.TOP)
+                    )
+                );
+                break;
+            
+            case TOP:
+                addCommands(
+                    armSubsystem.GoToStateCommand(ArmStates.TOP)
+                );
+                break;
+            
+            default:
+                addCommands(
+                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
+                    Commands.parallel(
+                        elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
+                        armSubsystem.GoToStateCommand(ArmStates.TOP)
+                    )
+                );
+                break;
+        }
     }
 }

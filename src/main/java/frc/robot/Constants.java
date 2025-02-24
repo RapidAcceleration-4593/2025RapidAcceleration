@@ -21,11 +21,11 @@ public final class Constants {
     public static final double MAX_SPEED = Units.feetToMeters(12.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
-        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0025, 0.00075, 0); // TODO: Tune PID.
+        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0025, 0.00075, 0);
         public static final int PID_TOLERANCE = 25;
 
-        public static final double MAX_VELOCITY = 11000; // 11000
-        public static final double MAX_ACCELERATION = 26000; // 26000
+        public static final double MAX_VELOCITY = 11000;
+        public static final double MAX_ACCELERATION = 26000;
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
 
@@ -43,7 +43,7 @@ public final class Constants {
     }
 
     public static final class ArmConstants {
-        public static final PIDConstants ARM_PID = new PIDConstants(0.04, 0, 0); // TODO: Tune PID.
+        public static final PIDConstants ARM_PID = new PIDConstants(0.04, 0, 0);
         public static final int PID_TOLERANCE = 15;
 
         public static final double MANUAL_CONTROL_SPEED = 1.0; // Speed (0 to 1).
@@ -90,13 +90,13 @@ public final class Constants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
 
-        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5 + 1);
+        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0); // Robot Half-Length: 18.5 inches.
         public static final boolean DRIVE_WITH_VISION = true;
 
         public enum AutonPositions {
-            TOP,
+            LEFT,
             CENTER,
-            BOTTOM
+            RIGHT
         }
     }
 

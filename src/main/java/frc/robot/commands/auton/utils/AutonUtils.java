@@ -2,13 +2,16 @@ package frc.robot.commands.auton.utils;
 
 import com.pathplanner.lib.config.RobotConfig;
 import com.pathplanner.lib.path.PathPlannerPath;
+import com.pathplanner.lib.util.FlippingUtil;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
@@ -52,7 +55,7 @@ public class AutonUtils {
                     .getInitialPose();
 
                 if (drivebase.isRedAlliance()) {
-                    pose = flipFieldPose(pose);
+                    pose = FlippingUtil.flipFieldPose(pose);
                 }
     
                 drivebase.resetOdometry(pose);
@@ -81,13 +84,16 @@ public class AutonUtils {
      * Functional Command to rotate the arm down in Autonomous.
      * @return A lower setpoint for the arm mechanism.
      */
-    public FunctionalCommand scoreCoralCommand() {
-        return new FunctionalCommand(
-            () -> armSubsystem.placeCoralCommand(),
-            () -> armSubsystem.controlArmState(),
-            interrupted -> armSubsystem.stopMotor(),
-            () -> armSubsystem.atSetpoint(),
-            armSubsystem
+    public Command scoreCoralCommand() {
+        return Commands.race(
+            new FunctionalCommand(
+                () -> armSubsystem.placeCoralCommand(),
+                () -> armSubsystem.controlArmState(),
+                interrupted -> armSubsystem.stopMotor(),
+                () -> armSubsystem.atSetpoint(),
+                armSubsystem
+            ),
+            new WaitCommand(0.5) // Timeout after 0.5 seconds.
         );
     }
 
@@ -148,16 +154,16 @@ public class AutonUtils {
 
     /** Pose2d for Coral Station on bottom of blue alliance. */
     public final Pose2d[] BLUE_BOTTOM_CHUTE = {
-        new Pose2d(0.708291, 1.303966, Rotation2d.fromDegrees(-126)),
-        new Pose2d(1.117988, 1.006304, Rotation2d.fromDegrees(-126)),
-        new Pose2d(1.527684, 0.708642, Rotation2d.fromDegrees(-126))
+        new Pose2d(0.708291, 1.303966, Rotation2d.fromDegrees(54)),
+        new Pose2d(1.117988, 1.006304, Rotation2d.fromDegrees(54)),
+        new Pose2d(1.527684, 0.708642, Rotation2d.fromDegrees(54))
     };
 
     /** Pose2d for Coral Station on top of blue alliance. */
     public final Pose2d[] BLUE_TOP_CHUTE = {
-        new Pose2d(0.708291, 6.747834, Rotation2d.fromDegrees(126)),
-        new Pose2d(1.117988, 7.045496, Rotation2d.fromDegrees(126)),
-        new Pose2d(1.527684, 7.343158, Rotation2d.fromDegrees(126))
+        new Pose2d(0.708291, 6.747834, Rotation2d.fromDegrees(-54)),
+        new Pose2d(1.117988, 7.045496, Rotation2d.fromDegrees(-54)),
+        new Pose2d(1.527684, 7.343158, Rotation2d.fromDegrees(-54))
     };
 
     /** Pose2d for Coral Station on bottom of red alliance. */

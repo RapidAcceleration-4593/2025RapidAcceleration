@@ -150,12 +150,12 @@ public class RobotContainer {
 
         return switch(selectedAutonomous) {
             case "Do Nothing" -> new NoneAuton();
-            case "Top, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.TOP);
-            case "Top, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.TOP);
+            case "Left, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.LEFT);
+            case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.LEFT);
             case "Center, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.CENTER);
             case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.CENTER);
-            case "Bottom, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.BOTTOM);
-            case "Bottom, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.BOTTOM);
+            case "Right, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.RIGHT);
+            case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.RIGHT);
             default -> new NoneAuton();
         };
     }
