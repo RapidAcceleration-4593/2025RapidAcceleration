@@ -12,17 +12,29 @@ public class ScoreL2Command extends SequentialCommandGroup {
     public ScoreL2Command(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         
         ElevatorStates currentElevatorState = elevatorSubsystem.getCurrentElevatorState();
+        ArmStates currentArmState = armSubsystem.getCurrentArmState();
 
         switch (currentElevatorState) {
             case BOTTOM:
-                addCommands(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.L2),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
+                switch (currentArmState) {
+                    case TOP:
+                        addCommands(
+                            armSubsystem.GoToStateCommand(ArmStates.L2)
+                        );
+                        break;
+                    
+                    default:
+                        addCommands(
+                            elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
+                            Commands.parallel(
+                                armSubsystem.GoToStateCommand(ArmStates.L2),
+                                elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
+                            )
+                        );
+                        break;
+                }
+
+                
             
             case PICKUP:
                 addCommands(
