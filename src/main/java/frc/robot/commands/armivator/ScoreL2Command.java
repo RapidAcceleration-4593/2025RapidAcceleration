@@ -13,44 +13,18 @@ public class ScoreL2Command extends SequentialCommandGroup {
         
         ElevatorStates currentElevatorState = elevatorSubsystem.getCurrentElevatorState();
 
-        switch (currentElevatorState) {
-            case BOTTOM:
-                addCommands(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.L2),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
-            
-            case PICKUP:
-                addCommands(
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.L2),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
-            
-            case TOP:
-                addCommands(
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.L2),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
-
-            default:
-                addCommands(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.L2),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
+        if (
+            currentElevatorState != ElevatorStates.PICKUP &&
+            currentElevatorState != ElevatorStates.TOP
+        ) {
+            addCommands(elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP));
         }
+
+        addCommands(
+            Commands.parallel(
+                armSubsystem.GoToStateCommand(ArmStates.L2),
+                elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
+            )
+        );
     }
 }
