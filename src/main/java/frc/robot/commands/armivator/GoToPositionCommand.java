@@ -20,9 +20,8 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         handleKachunkCollision(armState, elevatorState);
 
         addCommands(
-            elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-            armSubsystem.GoToStateCommand(ArmStates.L2),
-            elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
+            elevatorSubsystem.GoToStateCommand(elevatorState),
+            armSubsystem.GoToStateCommand(armState)
         );
     }
 
