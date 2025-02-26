@@ -6,7 +6,6 @@ import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.ArmSubsystem.IsUpResult;
 
 public class GoToPositionCommand extends SequentialCommandGroup {
 
@@ -17,7 +16,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
     ArmStates targetArm;
 
 
-    public GoToPositionCommand(ArmStates armState, ElevatorStates elevatorState, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+    public GoToPositionCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, ElevatorStates elevatorState, ArmStates armState) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
 
@@ -34,26 +33,25 @@ public class GoToPositionCommand extends SequentialCommandGroup {
     }
 
     private boolean willCollide() {
-        var isArmUpResult = armSubsystem.isUp(); // Arm may be uncertain if it is up
-        if (isArmUpResult == IsUpResult.UNSURE) {
-            return true;
-        }
+        // var isArmUpResult = armSubsystem.isArmUp(); // Arm may be uncertain if it is up.
+        // if (isArmUpResult == ArmEncoderStates.UNKNOWN)
+        //     return true;
 
-        boolean armUp = isArmUpResult == IsUpResult.UP;
-        boolean elevatorUp = elevatorSubsystem.isUp();
+        // boolean armUp = isArmUpResult == ArmEncoderStates.UP;
+        boolean armUp = armSubsystem.isArmUp();
+        boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
         boolean targetArmUp = targetArm != ArmStates.BOTTOM;
         boolean targetElevatorUp = targetElevator != ElevatorStates.BOTTOM;
 
         boolean requirePickupState = false;
-                                                                                        // If any of these conditions are true, we need to go to INTAKE first
-        requirePickupState |= !elevatorUp && !armUp && targetElevatorUp && targetArmUp; // 1. Elevator kachunked, and wants to go all the way up
-        requirePickupState |= elevatorUp && armUp && !targetElevatorUp && !targetArmUp; // 2. The oppposite of 1.
+                                                                                         // If any of these conditions are true, we need to go to INTAKE first.
+        requirePickupState |= !elevatorUp && !armUp && targetElevatorUp && targetArmUp;  // 1. Elevator kah-chunked and wants to go all the way up.
+        requirePickupState |= elevatorUp && armUp && !targetElevatorUp && !targetArmUp;  // 2. The opposite of 1.
 
-        requirePickupState |= !elevatorUp && !armUp && !targetElevatorUp && targetArmUp;// 3. Elevator kachunked, and wants to keep elevator down but arm out
-        requirePickupState |= !elevatorUp && armUp && !targetElevatorUp && !targetArmUp;// 4. Elevator down, arm up, and wants to go to kachunk.
+        requirePickupState |= !elevatorUp && !armUp && !targetElevatorUp && targetArmUp; // 3. Elevator kah-chunked and wants to keep elevator down but arm out.
+        requirePickupState |= !elevatorUp && armUp && !targetElevatorUp && !targetArmUp; // 4. Elevator down, arm up, and wants to go to kah-chunk.
         
         return requirePickupState;
     }
-    
 }

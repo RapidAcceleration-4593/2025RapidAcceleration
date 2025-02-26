@@ -41,6 +41,8 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private final double[] SETPOINTS = {-300, 2750, 12550};
 
+    private ElevatorStates currentElevatorState = ElevatorStates.BOTTOM;
+
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
 
@@ -82,6 +84,15 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public void setElevatorState(ElevatorStates state) {
         elevatorPID.setGoal(getElevatorState(state));
+        currentElevatorState = state;
+    }
+
+    /**
+     * Gets the elevator state based on the previously set goal.
+     * @return The current elevator state.
+     */
+    public ElevatorStates getCurrentElevatorState() {
+        return currentElevatorState;
     }
 
 
@@ -243,8 +254,11 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.race(
             new FunctionalCommand(
                 () -> setElevatorState(state),  // Initialization
-                () -> controlElevatorState(),   // Execute
-                interrupted -> stopMotors(),     // End
+                () -> {
+                    controlElevatorState();
+                    SmartDashboard.putString("E-State", state.toString());
+                },                              // Execute
+                interrupted -> stopMotors(),    // End
                 () -> atSetpoint(),             // IsFinished
                 this
             ),
@@ -298,11 +312,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
-     * @return Is the elevator at or above the INTAKE position.
+     * Wether the elevator is at or above the PICKUP position. Used to coordinate elevator/arm movements.
+     * @return If the elevator at or above the PICKUP position.
      */
-    public boolean isUp() {
-        return (elevatorPID.atGoal() && elevatorPID.getGoal().position == getElevatorState(ElevatorStates.PICKUP)) || // At INTAKE
-            (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP)); // Above INTAKE
+    public boolean isElevatorUp() {
+        return (currentElevatorState != ElevatorStates.BOTTOM && currentElevatorState != ElevatorStates.PICKUP);
+        // return (atSetpoint() && currentElevatorState == ElevatorStates.PICKUP) || // At PICKUP
+        //        (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 500);   // Above PICKUP
     }
 }

@@ -23,11 +23,6 @@ import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDir
 import frc.robot.Constants.IntakeConstants.IntakeSides;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.GoToPositionCommand;
-import frc.robot.commands.armivator.HomeCommand;
-import frc.robot.commands.armivator.PickUpCoralCommand;
-import frc.robot.commands.armivator.ScoreL2Command;
-import frc.robot.commands.armivator.ScoreL3Command;
-import frc.robot.commands.armivator.ScoreL4Command;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
@@ -128,12 +123,12 @@ public class RobotContainer {
         // auxiliaryController.povLeft().onTrue(new ScoreL2Command(elevatorSubsystem, armSubsystem));
         // auxiliaryController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
 
-        auxiliaryController.povUp().onTrue(new GoToPositionCommand(ArmStates.TOP, ElevatorStates.TOP, elevatorSubsystem, armSubsystem));
-        auxiliaryController.povRight().onTrue(new GoToPositionCommand(ArmStates.TOP, ElevatorStates.BOTTOM, elevatorSubsystem, armSubsystem));
-        auxiliaryController.povLeft().onTrue(new GoToPositionCommand(ArmStates.L2, ElevatorStates.BOTTOM, elevatorSubsystem, armSubsystem));
-        auxiliaryController.povDown().onTrue(new GoToPositionCommand(ArmStates.BOTTOM, ElevatorStates.BOTTOM, elevatorSubsystem, armSubsystem));
+        auxiliaryController.povUp().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
+        auxiliaryController.povRight().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
+        auxiliaryController.povLeft().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
+        auxiliaryController.povDown().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
-        driverController.leftBumper().onTrue(new GoToPositionCommand(ArmStates.BOTTOM, ElevatorStates.PICKUP, elevatorSubsystem, armSubsystem));
+        driverController.leftBumper().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
         driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
         driverController.povUp().onTrue(Commands.runOnce(armSubsystem::removeAlgaeCommand));
 

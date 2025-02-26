@@ -40,6 +40,8 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final double[] SETPOINTS = {-20, 600, 900};
 
+    private ArmStates currentArmState = ArmStates.BOTTOM;
+
     private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
@@ -77,6 +79,11 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public void setArmState(ArmStates state) {
         armPID.setSetpoint(getArmState(state));
+        currentArmState = state;
+    }
+
+    public ArmStates getCurrentArmState() {
+        return currentArmState;
     }
 
 
@@ -250,7 +257,10 @@ public class ArmSubsystem extends SubsystemBase {
         return Commands.race(
             new FunctionalCommand(
                 () -> setArmState(state),    // Initialization
-                () -> controlArmState(),     // Execute
+                () -> {
+                    controlArmState();
+                    SmartDashboard.putString("A-State", state.toString());
+                },                           // Execute
                 interrupted -> stopMotor(),  // End
                 () -> atSetpoint(),          // IsFinished
                 this
@@ -302,22 +312,19 @@ public class ArmSubsystem extends SubsystemBase {
         };
     }
 
-    public enum IsUpResult {
-        UP,
-        DOWN,
-        UNSURE
-    }
     /**
      * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
      * @return Is the elevator at or above the INTAKE position.
      */
-    public IsUpResult isUp() {
-        var encoder = getEncoderValue();
-        if (encoder < 30) 
-            return IsUpResult.DOWN;
-        else if (encoder > 200)
-            return IsUpResult.UP;
-        else
-            return IsUpResult.UNSURE;
+    // public ArmEncoderStates isArmUp() {
+    //     if (getEncoderValue() <= 30)
+    //         return ArmEncoderStates.DOWN;
+    //     else if (getEncoderValue() >= 300)
+    //         return ArmEncoderStates.UP;
+    //     else
+    //         return ArmEncoderStates.UNKNOWN;
+    // }
+    public boolean isArmUp() {
+        return currentArmState != ArmStates.BOTTOM;
     }
 }

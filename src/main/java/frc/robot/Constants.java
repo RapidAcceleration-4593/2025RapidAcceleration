@@ -70,6 +70,12 @@ public final class Constants {
             }
         }
 
+        public enum ArmEncoderStates {
+            UP,
+            DOWN,
+            UNKNOWN
+        }
+
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
 
