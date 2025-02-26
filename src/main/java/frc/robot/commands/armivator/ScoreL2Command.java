@@ -10,6 +10,21 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class ScoreL2Command extends SequentialCommandGroup {
 
     public ScoreL2Command(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+        ArmStates currentArmState = null;
+        ArmStates targetArmState = null;
+        ElevatorStates currentElevatorState = null;
+        ElevatorStates targetElevatorState = null;
+        
+        boolean currentlyKachunked = currentArmState == ArmStates.BOTTOM && currentElevatorState == ElevatorStates.BOTTOM;
+        boolean targetKachunked = targetArmState == ArmStates.BOTTOM && targetElevatorState == ElevatorStates.BOTTOM;
+
+        if (
+            (currentlyKachunked && targetArmState != ArmStates.BOTTOM) ||
+            (targetKachunked && currentArmState != ArmStates.BOTTOM)
+        ) {
+            addCommands(elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP));
+        }
+
         addCommands(
             Commands.parallel(
                 elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
