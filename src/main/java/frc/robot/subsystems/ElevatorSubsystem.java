@@ -292,4 +292,13 @@ public class ElevatorSubsystem extends SubsystemBase {
             );
         };
     }
+
+    /**
+     * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
+     * @return Is the elevator at or above the INTAKE position.
+     */
+    public boolean isUp() {
+        return (elevatorPID.atGoal() && elevatorPID.getGoal().position == getElevatorState(ElevatorStates.PICKUP)) || // At INTAKE
+            (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP)); // Above INTAKE
+    }
 }
