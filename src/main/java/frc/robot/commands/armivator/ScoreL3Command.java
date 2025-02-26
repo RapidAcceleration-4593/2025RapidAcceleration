@@ -10,19 +10,9 @@ import frc.robot.subsystems.ElevatorSubsystem;
 public class ScoreL3Command extends SequentialCommandGroup {
 
     public ScoreL3Command(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
-
-        ElevatorStates currentElevatorState = elevatorSubsystem.getCurrentElevatorState();
-        ArmStates currentArmState = armSubsystem.getCurrentArmState();
-
-        if (
-            currentElevatorState != ElevatorStates.PICKUP &&
-            currentElevatorState != ElevatorStates.TOP
-        ) {
-            addCommands(elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP));
-        }
-
         addCommands(
             Commands.parallel(
+                elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
                 armSubsystem.GoToStateCommand(ArmStates.TOP),
                 elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
             )
