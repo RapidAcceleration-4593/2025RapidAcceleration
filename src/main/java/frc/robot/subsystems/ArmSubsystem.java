@@ -20,6 +20,7 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL;
 import frc.robot.Constants.ArmConstants.ArmStates;
+import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
 
 public class ArmSubsystem extends SubsystemBase {
@@ -67,7 +68,7 @@ public class ArmSubsystem extends SubsystemBase {
             case BOTTOM -> SETPOINTS[0];
             case L2 -> SETPOINTS[1];
             case TOP -> SETPOINTS[2];
-            default -> -1;
+            default -> throw new Error("Passed in an ArmState that does not have an associated setpoint!");
         };
     }
 
@@ -300,5 +301,24 @@ public class ArmSubsystem extends SubsystemBase {
                 this
             );
         };
+    }
+
+    public enum IsUpResult {
+        UP,
+        DOWN,
+        UNSURE
+    }
+    /**
+     * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
+     * @return Is the elevator at or above the INTAKE position.
+     */
+    public IsUpResult isUp() {
+        var encoder = getEncoderValue();
+        if (encoder < 30) 
+            return IsUpResult.DOWN;
+        else if (encoder > 200)
+            return IsUpResult.UP;
+        else
+            return IsUpResult.UNSURE;
     }
 }
