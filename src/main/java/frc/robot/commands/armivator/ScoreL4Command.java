@@ -12,42 +12,19 @@ public class ScoreL4Command extends SequentialCommandGroup {
     public ScoreL4Command(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         
         ElevatorStates currentElevatorState = elevatorSubsystem.getCurrentElevatorState();
-        
-        switch (currentElevatorState) {
-            case BOTTOM:
-                addCommands(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                    Commands.parallel(
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
-                        armSubsystem.GoToStateCommand(ArmStates.TOP)
-                    )
-                );
-                break;
-            
-            case PICKUP:
-                addCommands(
-                    Commands.parallel(
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
-                        armSubsystem.GoToStateCommand(ArmStates.TOP)
-                    )
-                );
-                break;
-            
-            case TOP:
-                addCommands(
-                    armSubsystem.GoToStateCommand(ArmStates.TOP)
-                );
-                break;
-            
-            default:
-                addCommands(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                    Commands.parallel(
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP),
-                        armSubsystem.GoToStateCommand(ArmStates.TOP)
-                    )
-                );
-                break;
+
+        if (
+            currentElevatorState != ElevatorStates.PICKUP &&
+            currentElevatorState != ElevatorStates.TOP
+        ) {
+            addCommands(elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP));
         }
+
+        addCommands(
+            Commands.parallel(
+                armSubsystem.GoToStateCommand(ArmStates.TOP),
+                elevatorSubsystem.GoToStateCommand(ElevatorStates.TOP)
+            )
+        );
     }
 }

@@ -14,53 +14,18 @@ public class ScoreL3Command extends SequentialCommandGroup {
         ElevatorStates currentElevatorState = elevatorSubsystem.getCurrentElevatorState();
         ArmStates currentArmState = armSubsystem.getCurrentArmState();
 
-        switch (currentElevatorState) {
-            case BOTTOM:
-                switch (currentArmState) {
-                    case L2:
-                        addCommands(
-                            armSubsystem.GoToStateCommand(ArmStates.TOP)
-                        );
-                        break;
-                    
-                    default:
-                        addCommands(
-                            elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                            Commands.parallel(
-                                armSubsystem.GoToStateCommand(ArmStates.TOP),
-                                elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                            )
-                        );
-                        break;
-                }
-
-            case PICKUP:
-                addCommands(
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.TOP),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
-            
-            case TOP:
-                addCommands(
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.TOP),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
-
-            default:
-                addCommands(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                    Commands.parallel(
-                        armSubsystem.GoToStateCommand(ArmStates.TOP),
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
-                    )
-                );
-                break;
+        if (
+            currentElevatorState != ElevatorStates.PICKUP &&
+            currentElevatorState != ElevatorStates.TOP
+        ) {
+            addCommands(elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP));
         }
+
+        addCommands(
+            Commands.parallel(
+                armSubsystem.GoToStateCommand(ArmStates.TOP),
+                elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM)
+            )
+        );
     }
 }
