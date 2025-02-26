@@ -24,10 +24,17 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         this.targetArm = armState;
         
         addCommands(
-            elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP).onlyIf(this::willCollide),
-            Commands.parallel(
-                elevatorSubsystem.GoToStateCommand(elevatorState),
-                armSubsystem.GoToStateCommand(armState)
+            Commands.either(
+                Commands.sequence(
+                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
+                    elevatorSubsystem.GoToStateCommand(elevatorState),
+                    armSubsystem.GoToStateCommand(armState)
+                ),
+                Commands.parallel(
+                    elevatorSubsystem.GoToStateCommand(elevatorState),
+                    armSubsystem.GoToStateCommand(armState)
+                ),
+                this::willCollide
             )
         );
     }
@@ -47,7 +54,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         boolean requirePickupState = false;
                                                                                          // If any of these conditions are true, we need to go to INTAKE first.
         requirePickupState |= !elevatorUp && !armUp && targetElevatorUp && targetArmUp;  // 1. Elevator kah-chunked and wants to go all the way up.
-        requirePickupState |= elevatorUp && armUp && !targetElevatorUp && !targetArmUp;  // 2. The opposite of 1.
+        //requirePickupState |= elevatorUp && armUp && !targetElevatorUp && !targetArmUp;  // 2. The opposite of 1. Uncomment if arm is too slow and getting stuck.
 
         requirePickupState |= !elevatorUp && !armUp && !targetElevatorUp && targetArmUp; // 3. Elevator kah-chunked and wants to keep elevator down but arm out.
         requirePickupState |= !elevatorUp && armUp && !targetElevatorUp && !targetArmUp; // 4. Elevator down, arm up, and wants to go to kah-chunk.
