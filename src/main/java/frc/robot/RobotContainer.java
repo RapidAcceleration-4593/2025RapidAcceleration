@@ -31,6 +31,7 @@ import frc.robot.commands.armivator.ScoreL4Command;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
+import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
@@ -163,12 +164,18 @@ public class RobotContainer {
 
         return switch(selectedAutonomous) {
             case "Do Nothing" -> new NoneAuton();
+
             case "Left, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.LEFT);
             case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.LEFT);
+            case "Left, 2-Coral" -> new TwoCoralAuton(autonUtils, AutonPositions.LEFT);
+
             case "Center, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.CENTER);
             case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.CENTER);
+
             case "Right, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.RIGHT);
             case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.RIGHT);
+            case "Right, 2-Coral" -> new TwoCoralAuton(autonUtils, AutonPositions.RIGHT);
+            
             default -> new NoneAuton();
         };
     }
