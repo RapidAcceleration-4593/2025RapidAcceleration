@@ -36,8 +36,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
     private boolean willCollide() {
         var isArmUpResult = armSubsystem.isUp(); // Arm may be uncertain if it is up
         if (isArmUpResult == IsUpResult.UNSURE) {
-            addCommands(elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP)); // Best be careful, the arm isn't sure if it is up or down
-            return;
+            return true;
         }
 
         boolean armUp = isArmUpResult == IsUpResult.UP;
