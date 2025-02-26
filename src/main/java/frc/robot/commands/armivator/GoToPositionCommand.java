@@ -1,7 +1,5 @@
 package frc.robot.commands.armivator;
 
-import java.util.List;
-
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
@@ -18,6 +16,8 @@ public class GoToPositionCommand extends SequentialCommandGroup {
     public GoToPositionCommand(ArmStates armState, ElevatorStates elevatorState, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
+
+        handleKachunkCollision(armState, elevatorState);
 
         addCommands(
             elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),

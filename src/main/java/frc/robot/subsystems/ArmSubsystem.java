@@ -20,7 +20,6 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL;
 import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
 
 public class ArmSubsystem extends SubsystemBase {
