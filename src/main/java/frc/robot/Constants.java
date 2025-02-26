@@ -36,7 +36,8 @@ public final class Constants {
             }
         }
 
-        public static final SparkMax elevatorMotor = new SparkMax(1, MotorType.kBrushless);
+        public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
+        public static final SparkMax rightElevatorMotor = new SparkMax(4, MotorType.kBrushless);
 
         public static final Encoder elevatorEncoder = new Encoder(8, 9);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);

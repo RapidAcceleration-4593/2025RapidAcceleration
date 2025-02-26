@@ -24,7 +24,8 @@ import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
-    private final SparkMax elevatorMotor = ElevatorConstants.elevatorMotor;
+    private final SparkMax leaderElevatorMotor = ElevatorConstants.rightElevatorMotor;
+    private final SparkMax followerElevatorMotor = ElevatorConstants.leftElevatorMotor;
 
     private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ElevatorConstants.bottomLimitSwitch;
@@ -40,16 +41,19 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private final double[] SETPOINTS = {-300, 2750, 12550};
 
-    private final SparkMaxConfig config = new SparkMaxConfig();
+    private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
+    private final SparkMaxConfig followerConfig = new SparkMaxConfig();
 
     /**
      * Constructor for the ElevatorSubsystem class.
      * Configures motor settings and establishes leader-follower configuration.
      */
     public ElevatorSubsystem() {
-        config.idleMode(IdleMode.kBrake);
+        leaderConfig.idleMode(IdleMode.kBrake);
+        followerConfig.idleMode(IdleMode.kBrake).follow(leaderElevatorMotor, true);
         
-        elevatorMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        leaderElevatorMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerElevatorMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         elevatorPID.setTolerance(ElevatorConstants.PID_TOLERANCE);
         elevatorPID.reset(0);
@@ -95,7 +99,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         updateValues();
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            stopMotor();
+            stopMotors();
         } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
         } else if (isBottomLimitSwitchPressed()) {
@@ -110,9 +114,9 @@ public class ElevatorSubsystem extends SubsystemBase {
         double output = elevatorPID.calculate(getEncoderValue());
 
         if (atSetpoint()) {
-            stopMotor();
+            stopMotors();
         } else {
-            setMotorSpeed(output);
+            setMotorSpeeds(output);
         }
     }
 
@@ -130,7 +134,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         double currentPosition = getEncoderValue();
 
         if (getSetpoint() >= currentPosition) {
-            stopMotor();
+            stopMotors();
             elevatorPID.setGoal(currentPosition);
             elevatorPID.reset(currentPosition);
         } else {
@@ -151,7 +155,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         resetEncoder();
 
         if (setpoint <= SETPOINTS[0]) {
-            stopMotor();
+            stopMotors();
             elevatorPID.setGoal(0);
             elevatorPID.reset(0);
         } else {
@@ -182,13 +186,13 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Sets the motor speed for the elevator motor.
      * @param speed The speed value for the elevator motor.
      */
-    public void setMotorSpeed(double speed) {
-        elevatorMotor.set(-speed);
+    public void setMotorSpeeds(double speed) {
+        leaderElevatorMotor.set(speed);
     }
 
     /** Stops movement for the elevator motor. */
-    public void stopMotor() {
-        elevatorMotor.stopMotor();
+    public void stopMotors() {
+        leaderElevatorMotor.stopMotor();
     }
 
     /**
@@ -240,7 +244,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             new FunctionalCommand(
                 () -> setElevatorState(state),  // Initialization
                 () -> controlElevatorState(),   // Execute
-                interrupted -> stopMotor(),     // End
+                interrupted -> stopMotors(),     // End
                 () -> atSetpoint(),             // IsFinished
                 this
             ),
@@ -259,13 +263,13 @@ public class ElevatorSubsystem extends SubsystemBase {
                 ()-> {},
                 () -> {
                     if (isTopLimitSwitchPressed()) {
-                        stopMotor();
+                        stopMotors();
                     } else {
-                        setMotorSpeed(ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
+                        setMotorSpeeds(ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
                     }
                 },
                 (interrupted) -> {
-                    stopMotor();
+                    stopMotors();
                     elevatorPID.setGoal(getEncoderValue());
                     elevatorPID.reset(getEncoderValue());
                 },
@@ -277,13 +281,13 @@ public class ElevatorSubsystem extends SubsystemBase {
                 ()-> {},
                 () -> {
                     if (isBottomLimitSwitchPressed()) {
-                        stopMotor();
+                        stopMotors();
                     } else {
-                        setMotorSpeed(-ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
+                        setMotorSpeeds(-ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
                     }
                 },
                 (interrupted) -> {
-                    stopMotor();
+                    stopMotors();
                     elevatorPID.setGoal(getEncoderValue());
                     elevatorPID.reset(getEncoderValue());
                 },
