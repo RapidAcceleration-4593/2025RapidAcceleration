@@ -15,16 +15,13 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
 import frc.robot.Constants.AutonConstants.AutonPositions;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
 import frc.robot.Constants.IntakeConstants.IntakeSides;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.HomeCommand;
 import frc.robot.commands.armivator.PickUpCoralCommand;
-import frc.robot.commands.armivator.ScoreCommand;
 import frc.robot.commands.armivator.ScoreL2Command;
 import frc.robot.commands.armivator.ScoreL3Command;
 import frc.robot.commands.armivator.ScoreL4Command;
@@ -126,11 +123,6 @@ public class RobotContainer {
         auxiliaryController.povRight().onTrue(new ScoreL3Command(elevatorSubsystem, armSubsystem));
         auxiliaryController.povLeft().onTrue(new ScoreL2Command(elevatorSubsystem, armSubsystem));
         auxiliaryController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
-
-        // auxiliaryController.povUp().onTrue(new ScoreCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
-        // auxiliaryController.povRight().onTrue(new ScoreCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
-        // auxiliaryController.povLeft().onTrue(new ScoreCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
-        // auxiliaryController.povDown().onTrue(new ScoreCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
         driverController.leftBumper().onTrue(new HomeCommand(elevatorSubsystem, armSubsystem));
         driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));

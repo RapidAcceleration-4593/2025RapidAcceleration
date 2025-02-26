@@ -42,8 +42,6 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
-    private ElevatorStates currentElevatorState = ElevatorStates.BOTTOM; // DO NOT ASSIGN DIRECTLY!
-
     /**
      * Constructor for the ElevatorSubsystem class.
      * Configures motor settings and establishes leader-follower configuration.
@@ -79,16 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param state Desired elevator state.
      */
     public void setElevatorState(ElevatorStates state) {
-        currentElevatorState = state;
         elevatorPID.setGoal(getElevatorState(state));
-    }
-
-    /**
-     * Retrieves the current {@link ElevatorStates} of the arm mechanism.
-     * @return The current {@link ElevatorStates}.
-     */
-    public ElevatorStates getCurrentElevatorState() {
-        return currentElevatorState;
     }
 
 
@@ -255,7 +244,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 () -> atSetpoint(),             // IsFinished
                 this
             ),
-            new WaitCommand(3.0) // Timeout after 3 seconds.
+            new WaitCommand(2.25) // Timeout after 3 seconds.
         );
     }
 

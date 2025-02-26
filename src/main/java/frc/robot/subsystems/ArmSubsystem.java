@@ -42,8 +42,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
-    private ArmStates currentArmState = ArmStates.BOTTOM; // DO NOT ASSIGN DIRECTLY!
-
     /**
      * Constructor for the SwingArmSubsystem class.
      * Initializes the motor and encoder configuration.
@@ -78,16 +76,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @param state The desired arm position.
      */
     public void setArmState(ArmStates state) {
-        currentArmState = state;
         armPID.setSetpoint(getArmState(state));
-    }
-
-    /**
-     * Retrieves the current {@link ArmStates} of the arm mechanism.
-     * @return The current {@link ArmStates}.
-     */
-    public ArmStates getCurrentArmState() {
-        return currentArmState;
     }
 
 
@@ -266,7 +255,7 @@ public class ArmSubsystem extends SubsystemBase {
                 () -> atSetpoint(),          // IsFinished
                 this
             ),
-            new WaitCommand(4.0) // Timeout after 4 seconds.
+            new WaitCommand(3.5) // Timeout after 4 seconds.
         );
     }
 
