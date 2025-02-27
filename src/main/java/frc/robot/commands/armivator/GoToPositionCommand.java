@@ -102,8 +102,8 @@ public class GoToPositionCommand extends SequentialCommandGroup {
             ),
             Commands.sequence(
                 elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                elevatorSubsystem.GoToStateCommand(targetElevator),
-                armSubsystem.GoToStateCommand(targetArm)
+                armSubsystem.GoToStateCommand(targetArm),
+                elevatorSubsystem.GoToStateCommand(targetElevator)
             ),
             this::parallelSupported
         );
