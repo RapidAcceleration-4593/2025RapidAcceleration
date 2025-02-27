@@ -3,6 +3,7 @@ package frc.robot.commands.armivator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.ArmConstants.ArmEncoderStates;
 import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.subsystems.ArmSubsystem;
@@ -26,12 +27,20 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         
         addCommands(
             Commands.either(
-                handleCollisionCommand(),
-                Commands.parallel(
-                    elevatorSubsystem.GoToStateCommand(elevatorState),
-                    armSubsystem.GoToStateCommand(armState)
+                Commands.either(
+                    handleCollisionCommand(),
+                    Commands.parallel(
+                        elevatorSubsystem.GoToStateCommand(elevatorState),
+                        armSubsystem.GoToStateCommand(armState)
+                    ),
+                    this::willCollide
                 ),
-                this::willCollide
+                Commands.sequence(
+                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
+                    armSubsystem.GoToStateCommand(armState),
+                    elevatorSubsystem.GoToStateCommand(elevatorState)
+                ),
+                () -> armSubsystem.isArmUp() != ArmEncoderStates.UNKNOWN
             )
         );
     }
@@ -42,7 +51,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         //     return true;
 
         // boolean armUp = isArmUpResult == ArmEncoderStates.UP;
-        boolean armUp = armSubsystem.isArmUp();
+        boolean armUp = armSubsystem.isArmUp() == ArmEncoderStates.UP;
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
         boolean targetArmUp = targetArm != ArmStates.BOTTOM;
@@ -71,8 +80,12 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         return elevatorUp || elevatorUp != targetElevatorUp;
     }
 
+    /**
+     * Don't use this. It checks if the arm and elevator are currently down and are both moving to up.
+     * @return
+     */
     private boolean isKahchunkToRaised () {
-        boolean armUp = armSubsystem.isArmUp();
+        boolean armUp = armSubsystem.isArmUp() == ArmEncoderStates.UP;
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
         boolean targetArmUp = targetArm != ArmStates.BOTTOM;
@@ -81,6 +94,10 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         return !elevatorUp && !armUp && targetElevatorUp && targetArmUp;
     }
 
+    /**
+     * This command handles the nitty gritty details of what to do when the armivator has to avoid hitting the kahchunk block and bumper.
+     * @return The Command you call, when all is lost.
+     */
     private Command handleCollisionCommand() {
         return Commands.either(
             Commands.either(

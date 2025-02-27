@@ -21,6 +21,7 @@ import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL;
 import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
+import frc.robot.Constants.ArmConstants.ArmEncoderStates;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -312,19 +313,20 @@ public class ArmSubsystem extends SubsystemBase {
         };
     }
 
+
     /**
      * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
      * @return Is the elevator at or above the INTAKE position.
      */
-    // public ArmEncoderStates isArmUp() {
-    //     if (getEncoderValue() <= 30)
-    //         return ArmEncoderStates.DOWN;
-    //     else if (getEncoderValue() >= 300)
-    //         return ArmEncoderStates.UP;
-    //     else
-    //         return ArmEncoderStates.UNKNOWN;
-    // }
-    public boolean isArmUp() {
-        return currentArmState != ArmStates.BOTTOM;
+    public ArmEncoderStates isArmUp() {
+        if (getEncoderValue() <= 30)
+            return ArmEncoderStates.DOWN;
+        else if (getEncoderValue() >= 300)
+            return ArmEncoderStates.UP;
+        else
+            return ArmEncoderStates.UNKNOWN;
     }
+    // public boolean isArmUp() {
+    //     return currentArmState != ArmStates.BOTTOM;
+    // }
 }
