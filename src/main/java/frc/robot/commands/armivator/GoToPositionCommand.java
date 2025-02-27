@@ -26,15 +26,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         
         addCommands(
             Commands.either(
-                Commands.either(
-                    null,
-                    Commands.sequence(
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                        elevatorSubsystem.GoToStateCommand(elevatorState),
-                        armSubsystem.GoToStateCommand(armState)
-                    ),
-                    null
-                ),
+                handleCollisionCommand(),
                 Commands.parallel(
                     elevatorSubsystem.GoToStateCommand(elevatorState),
                     armSubsystem.GoToStateCommand(armState)
@@ -79,7 +71,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         return elevatorUp || elevatorUp != targetElevatorUp;
     }
 
-    private boolean isKahchunkToL4 () {
+    private boolean isKahchunkToRaised () {
         boolean armUp = armSubsystem.isArmUp();
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
@@ -106,7 +98,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
                     ),
                     elevatorSubsystem.GoToStateCommand(targetElevator)
                 ),
-                this::isKahchunkToL4
+                this::isKahchunkToRaised
             ),
             Commands.sequence(
                 elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
