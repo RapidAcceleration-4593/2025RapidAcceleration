@@ -49,7 +49,7 @@ public class TwoCoralAuton extends AutonCommand {
                     utils.goToElevatorState(ElevatorStates.PICKUP),
                     utils.goToArmState(ArmStates.BOTTOM)
                 ),
-                Commands.waitSeconds(0.5),
+                utils.runSerializerCommand(1.0),
                 utils.goToElevatorState(ElevatorStates.BOTTOM),
                 utils.goToElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(

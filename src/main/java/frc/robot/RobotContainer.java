@@ -53,7 +53,7 @@ public class RobotContainer {
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
 
     // Util(s)
-    public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem);
+    public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
     public final PoseNavigator poseNavigator = new PoseNavigator(autonUtils);
 
     // Controller(s)

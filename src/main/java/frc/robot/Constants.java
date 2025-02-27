@@ -15,17 +15,17 @@ import edu.wpi.first.wpilibj.Encoder;
 import swervelib.math.Matter;
 
 public final class Constants {
-    public static final double ROBOT_MASS = (115) * 0.453592; // 115 Pounds to Kilograms.
+    public static final double ROBOT_MASS = (110) * 0.453592; // 115 Pounds to Kilograms.
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
     public static final double MAX_SPEED = Units.feetToMeters(12.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
-        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0025, 0.0008, 0);
+        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.002, 0.0008, 0);
         public static final int PID_TOLERANCE = 30;
 
-        public static final double MAX_VELOCITY = 11000;
-        public static final double MAX_ACCELERATION = 27000;
+        public static final double MAX_VELOCITY = 12000;
+        public static final double MAX_ACCELERATION = 28000;
 
         public static final class ELEVATOR_MANUAL_CONTROL {
             public static final double MOTOR_SPEED = 0.6;
@@ -37,7 +37,7 @@ public final class Constants {
         }
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
-        public static final SparkMax rightElevatorMotor = new SparkMax(4, MotorType.kBrushless);
+        public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
 
         public static final Encoder elevatorEncoder = new Encoder(8, 9);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);
@@ -58,7 +58,7 @@ public final class Constants {
         public static final class ARM_FEEDFORWARD {
             public static final double kS = 0.15;
             public static final double kG = 0.15;
-            public static final double kV = 0.5;
+            public static final double kV = 0.6;
         }
 
         public static final class ARM_MANUAL_CONTROL {

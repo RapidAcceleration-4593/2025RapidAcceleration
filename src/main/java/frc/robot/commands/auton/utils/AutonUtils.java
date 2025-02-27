@@ -17,6 +17,7 @@ import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.SerializerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
@@ -30,11 +31,15 @@ public class AutonUtils {
     /** ArmSubsystem Object. */
     public ArmSubsystem armSubsystem;
 
+    /** Serializer Object. */
+    public SerializerSubsystem serializerSubsystem;
+
     /** Constructor for AutonUtils. */
-    public AutonUtils(SwerveSubsystem drivebase, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+    public AutonUtils(SwerveSubsystem drivebase, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SerializerSubsystem serializerSubsystem) {
         this.drivebase = drivebase;
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
+        this.serializerSubsystem = serializerSubsystem;
     }
 
     /**
@@ -94,6 +99,16 @@ public class AutonUtils {
                 armSubsystem
             ),
             new WaitCommand(0.5) // Timeout after 0.5 seconds.
+        );
+    }
+
+    public Command runSerializerCommand(double seconds) {
+        return Commands.sequence(
+            Commands.race(
+                Commands.run(() -> serializerSubsystem.runSerializer(false), serializerSubsystem),
+                Commands.waitSeconds(seconds)
+            ),
+            Commands.runOnce(() -> serializerSubsystem.stopSerializer())
         );
     }
 
