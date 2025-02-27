@@ -312,12 +312,12 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Wether the elevator is at or above the PICKUP position. Used to coordinate elevator/arm movements.
+     * Whether the elevator is at or above the PICKUP position. Used to coordinate elevator/arm movements.
      * @return If the elevator at or above the PICKUP position.
      */
     public boolean isElevatorUp() {
         // return (currentElevatorState != ElevatorStates.BOTTOM && currentElevatorState != ElevatorStates.PICKUP);
-        return (atSetpoint() && currentElevatorState == ElevatorStates.PICKUP) || // At PICKUP
-               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 500);   // Above PICKUP
+        return (atSetpoint() && currentElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP
+               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 300);   // Above PICKUP
     }
 }

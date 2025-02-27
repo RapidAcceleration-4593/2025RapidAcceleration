@@ -83,6 +83,10 @@ public class ArmSubsystem extends SubsystemBase {
         currentArmState = state;
     }
 
+    /**
+     * Gets the arm state based on the previously set goal.
+     * @return The current arm state.
+     */
     public ArmStates getCurrentArmState() {
         return currentArmState;
     }
@@ -326,6 +330,7 @@ public class ArmSubsystem extends SubsystemBase {
         else
             return ArmEncoderStates.UNKNOWN;
     }
+
     // public boolean isArmUp() {
     //     return currentArmState != ArmStates.BOTTOM;
     // }
