@@ -7,7 +7,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
@@ -34,10 +33,6 @@ public class ArmSubsystem extends SubsystemBase {
     private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
                                                            ArmConstants.ARM_PID.kI,
                                                            ArmConstants.ARM_PID.kD);
-
-    private final ArmFeedforward armFeedforward = new ArmFeedforward(ArmConstants.ARM_FEEDFORWARD.kS,
-                                                                     ArmConstants.ARM_FEEDFORWARD.kG,
-                                                                     ArmConstants.ARM_FEEDFORWARD.kV);
 
     private final double[] SETPOINTS = {-20, 600, 900};
 
@@ -119,12 +114,11 @@ public class ArmSubsystem extends SubsystemBase {
     /** Controls the Arm System using a PID Controller. */
     private void controlArm() {
         double pidOutput = armPID.calculate(getEncoderValue());
-        double ffOutput = armFeedforward.calculate(1.58, 0);
 
         if (atSetpoint()) {
             stopMotor();
         } else {
-            setMotorSpeed(pidOutput + ffOutput);
+            setMotorSpeed(pidOutput);
         }
     }
 
@@ -270,7 +264,7 @@ public class ArmSubsystem extends SubsystemBase {
                 () -> atSetpoint(),          // IsFinished
                 this
             ),
-            new WaitCommand(3.5) // Timeout after 4 seconds.
+            new WaitCommand(1.75) // Timeout after 4 seconds.
         );
     }
 

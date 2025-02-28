@@ -51,15 +51,9 @@ public final class Constants {
     }
 
     public static final class ArmConstants {
-        public static final PIDConstants ARM_PID = new PIDConstants(0.035, 0, 0);
+        public static final PIDConstants ARM_PID = new PIDConstants(0.008, 0, 0);
         public static final int PID_TOLERANCE = 15;
         public static final int PLACE_ROTATION_AMOUNT = 225;
-
-        public static final class ARM_FEEDFORWARD {
-            public static final double kS = 0.15;
-            public static final double kG = 0.15;
-            public static final double kV = 0.6;
-        }
 
         public static final class ARM_MANUAL_CONTROL {
             public static final double MOTOR_SPEED = 0.8;
