@@ -40,7 +40,7 @@ public class TwoCoralAuton extends AutonCommand {
                     utils.goToElevatorState(ElevatorStates.TOP),
                     utils.goToArmState(ArmStates.TOP),
                     Commands.sequence(
-                        Commands.waitSeconds(0.25),
+                        Commands.waitSeconds(0.15),
                         AutoBuilder.followPath(paths.get(0))
                     )
                 ),

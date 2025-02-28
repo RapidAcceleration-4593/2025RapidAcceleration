@@ -262,7 +262,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 () -> atSetpoint(),             // IsFinished
                 this
             ),
-            new WaitCommand(2.25) // Timeout after 3 seconds.
+            new WaitCommand(2) // Timeout after 2 seconds.
         );
     }
 

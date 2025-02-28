@@ -24,8 +24,8 @@ public final class Constants {
         public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.002, 0.0008, 0);
         public static final int PID_TOLERANCE = 30;
 
-        public static final double MAX_VELOCITY = 12000;
-        public static final double MAX_ACCELERATION = 28000;
+        public static final double MAX_VELOCITY = 11000;
+        public static final double MAX_ACCELERATION = 27000;
 
         public static final class ELEVATOR_MANUAL_CONTROL {
             public static final double MOTOR_SPEED = 0.6;
@@ -51,7 +51,7 @@ public final class Constants {
     }
 
     public static final class ArmConstants {
-        public static final PIDConstants ARM_PID = new PIDConstants(0.0085, 0, 0);
+        public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0, 0);
         public static final int PID_TOLERANCE = 15;
         public static final int PLACE_ROTATION_AMOUNT = 225;
 
@@ -98,7 +98,7 @@ public final class Constants {
     public static final class SerializerConstants {
         public static final SparkMax serializerMotor = new SparkMax(8, MotorType.kBrushless);
 
-        public static final double CONTROL_SPEED = 0.5;
+        public static final double CONTROL_SPEED = 0.35;
     }
 
     public static final class AutonConstants {
