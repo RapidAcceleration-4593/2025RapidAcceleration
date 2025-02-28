@@ -118,11 +118,6 @@ public class RobotContainer {
                 }
             }));
 
-        // auxiliaryController.povUp().onTrue(new ScoreL4Command(elevatorSubsystem, armSubsystem));
-        // auxiliaryController.povRight().onTrue(new ScoreL3Command(elevatorSubsystem, armSubsystem));
-        // auxiliaryController.povLeft().onTrue(new ScoreL2Command(elevatorSubsystem, armSubsystem));
-        // auxiliaryController.povDown().onTrue(new PickUpCoralCommand(elevatorSubsystem, armSubsystem));
-
         auxiliaryController.povUp().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
         auxiliaryController.povLeft().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));

@@ -316,7 +316,6 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return If the elevator at or above the PICKUP position.
      */
     public boolean isElevatorUp() {
-        // return (currentElevatorState != ElevatorStates.BOTTOM && currentElevatorState != ElevatorStates.PICKUP);
         return (atSetpoint() && currentElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP
                (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 300);   // Above PICKUP
     }

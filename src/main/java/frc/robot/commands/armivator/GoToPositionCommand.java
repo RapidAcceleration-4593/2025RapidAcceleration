@@ -14,16 +14,16 @@ public class GoToPositionCommand extends SequentialCommandGroup {
     ElevatorSubsystem elevatorSubsystem;
     ArmSubsystem armSubsystem;
 
-    ElevatorStates targetElevator;
-    ArmStates targetArm;
+    ElevatorStates targetElevatorState;
+    ArmStates targetArmState;
 
 
     public GoToPositionCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, ElevatorStates elevatorState, ArmStates armState) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
 
-        this.targetElevator = elevatorState;
-        this.targetArm = armState;
+        this.targetElevatorState = elevatorState;
+        this.targetArmState = armState;
         
         addCommands(
             Commands.either(
@@ -54,8 +54,8 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         boolean armUp = armSubsystem.isArmUp() == ArmEncoderStates.UP;
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
-        boolean targetArmUp = targetArm != ArmStates.BOTTOM;
-        boolean targetElevatorUp = targetElevator != ElevatorStates.BOTTOM;
+        boolean targetArmUp = targetArmState != ArmStates.BOTTOM;
+        boolean targetElevatorUp = targetElevatorState != ElevatorStates.BOTTOM;
 
         boolean requirePickupState = false;
                                                                                          // If any of these conditions are true, we need to go to INTAKE first.
@@ -75,7 +75,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
      */
     private boolean parallelSupported() {
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
-        boolean targetElevatorUp = targetElevator != ElevatorStates.BOTTOM;
+        boolean targetElevatorUp = targetElevatorState != ElevatorStates.BOTTOM;
 
         return elevatorUp || elevatorUp != targetElevatorUp;
     }
@@ -88,8 +88,8 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         boolean armUp = armSubsystem.isArmUp() == ArmEncoderStates.UP;
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
-        boolean targetArmUp = targetArm != ArmStates.BOTTOM;
-        boolean targetElevatorUp = targetElevator != ElevatorStates.BOTTOM;
+        boolean targetArmUp = targetArmState != ArmStates.BOTTOM;
+        boolean targetElevatorUp = targetElevatorState != ElevatorStates.BOTTOM;
 
         return !elevatorUp && !armUp && targetElevatorUp && targetArmUp;
     }
@@ -104,23 +104,23 @@ public class GoToPositionCommand extends SequentialCommandGroup {
                 Commands.sequence(
                     elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
                     Commands.parallel(
-                        elevatorSubsystem.GoToStateCommand(targetElevator),
-                        armSubsystem.GoToStateCommand(targetArm)
+                        elevatorSubsystem.GoToStateCommand(targetElevatorState),
+                        armSubsystem.GoToStateCommand(targetArmState)
                     )
                 ),
                 Commands.sequence(
                     Commands.parallel(
                         elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                        armSubsystem.GoToStateCommand(targetArm)
+                        armSubsystem.GoToStateCommand(targetArmState)
                     ),
-                    elevatorSubsystem.GoToStateCommand(targetElevator)
+                    elevatorSubsystem.GoToStateCommand(targetElevatorState)
                 ),
                 this::isKahchunkToRaised
             ),
             Commands.sequence(
                 elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                armSubsystem.GoToStateCommand(targetArm),
-                elevatorSubsystem.GoToStateCommand(targetElevator)
+                armSubsystem.GoToStateCommand(targetArmState),
+                elevatorSubsystem.GoToStateCommand(targetElevatorState)
             ),
             this::parallelSupported
         );

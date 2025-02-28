@@ -1,6 +1,7 @@
 package frc.robot.commands.auton;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,7 +40,7 @@ public class TwoCoralAuton extends AutonCommand {
                     utils.goToElevatorState(ElevatorStates.TOP),
                     utils.goToArmState(ArmStates.TOP),
                     Commands.sequence(
-                        Commands.waitSeconds(1.0),
+                        Commands.waitSeconds(0.25),
                         AutoBuilder.followPath(paths.get(0))
                     )
                 ),
@@ -49,14 +50,14 @@ public class TwoCoralAuton extends AutonCommand {
                     utils.goToElevatorState(ElevatorStates.PICKUP),
                     utils.goToArmState(ArmStates.BOTTOM)
                 ),
-                utils.runSerializerCommand(1.0),
+                utils.runSerializerCommand(1.5),
                 utils.goToElevatorState(ElevatorStates.BOTTOM),
                 utils.goToElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
                     utils.goToElevatorState(ElevatorStates.TOP),
                     utils.goToArmState(ArmStates.TOP),
                     Commands.sequence(
-                        Commands.waitSeconds(1.0),
+                        Commands.waitSeconds(0.25),
                         AutoBuilder.followPath(paths.get(2))
                     )
                 ),
@@ -74,7 +75,7 @@ public class TwoCoralAuton extends AutonCommand {
     private List<PathPlannerPath> getAutonPaths(AutonPositions position) {
         return switch (position) {
             case LEFT -> List.of(utils.loadPath("LeftTwoCoral-1"), utils.loadPath("LeftTwoCoral-2"), utils.loadPath("LeftTwoCoral-3"), utils.loadPath("LeftTwoCoral-4"));
-            case CENTER -> List.of();
+            case CENTER -> Collections.emptyList();
             case RIGHT -> List.of(utils.loadPath("RightTwoCoral-1"), utils.loadPath("RightTwoCoral-2"), utils.loadPath("RightTwoCoral-3"), utils.loadPath("RightTwoCoral-4"));
         };
     } 

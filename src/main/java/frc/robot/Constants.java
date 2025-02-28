@@ -51,7 +51,7 @@ public final class Constants {
     }
 
     public static final class ArmConstants {
-        public static final PIDConstants ARM_PID = new PIDConstants(0.008, 0, 0);
+        public static final PIDConstants ARM_PID = new PIDConstants(0.0085, 0, 0);
         public static final int PID_TOLERANCE = 15;
         public static final int PLACE_ROTATION_AMOUNT = 225;
 
@@ -105,7 +105,7 @@ public final class Constants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
 
-        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0); // Robot Half-Length: 18.5 inches.
+        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0); // Including half-robot length.
         public static final boolean DRIVE_WITH_VISION = true;
 
         public enum AutonPositions {

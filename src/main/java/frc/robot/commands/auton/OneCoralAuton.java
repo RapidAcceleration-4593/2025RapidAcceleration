@@ -39,7 +39,7 @@ public class OneCoralAuton extends AutonCommand {
                     utils.goToElevatorState(ElevatorStates.TOP),
                     utils.goToArmState(ArmStates.TOP),
                     Commands.sequence(
-                        Commands.waitSeconds(1.0),
+                        Commands.waitSeconds(0.5),
                         AutoBuilder.followPath(paths.get(0))
                     )
                 ),

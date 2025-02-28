@@ -36,8 +36,6 @@ public class ArmSubsystem extends SubsystemBase {
 
     private final double[] SETPOINTS = {-20, 600, 900};
 
-    private ArmStates currentArmState = ArmStates.BOTTOM;
-
     private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
@@ -75,15 +73,6 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public void setArmState(ArmStates state) {
         armPID.setSetpoint(getArmState(state));
-        currentArmState = state;
-    }
-
-    /**
-     * Gets the arm state based on the previously set goal.
-     * @return The current arm state.
-     */
-    public ArmStates getCurrentArmState() {
-        return currentArmState;
     }
 
 
@@ -324,8 +313,4 @@ public class ArmSubsystem extends SubsystemBase {
         else
             return ArmEncoderStates.UNKNOWN;
     }
-
-    // public boolean isArmUp() {
-    //     return currentArmState != ArmStates.BOTTOM;
-    // }
 }
