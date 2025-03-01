@@ -39,10 +39,7 @@ public class TwoCoralAuton extends AutonCommand {
                 Commands.parallel(
                     utils.goToElevatorState(ElevatorStates.TOP),
                     utils.goToArmState(ArmStates.TOP),
-                    Commands.sequence(
-                        Commands.waitSeconds(0.15),
-                        AutoBuilder.followPath(paths.get(0))
-                    )
+                    AutoBuilder.followPath(paths.get(0))
                 ),
                 utils.scoreCoralCommand(),
                 Commands.parallel(
@@ -66,8 +63,7 @@ public class TwoCoralAuton extends AutonCommand {
                     AutoBuilder.followPath(paths.get(3)),
                     utils.goToElevatorState(ElevatorStates.PICKUP),
                     utils.goToArmState(ArmStates.BOTTOM)
-                ),
-                utils.goToElevatorState(ElevatorStates.BOTTOM)
+                )
             )
         );
     }

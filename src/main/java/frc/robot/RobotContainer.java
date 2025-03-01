@@ -23,6 +23,7 @@ import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDir
 import frc.robot.Constants.IntakeConstants.IntakeSides;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.GoToPositionCommand;
+import frc.robot.commands.armivator.KahChunkCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
@@ -121,7 +122,7 @@ public class RobotContainer {
         auxiliaryController.povUp().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
         auxiliaryController.povLeft().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
-        auxiliaryController.povDown().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
+        auxiliaryController.povDown().onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
 
         driverController.leftBumper().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
         driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
