@@ -8,6 +8,9 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -105,8 +108,15 @@ public final class Constants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
 
-        public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0); // Including half-robot length.
         public static final boolean DRIVE_WITH_VISION = true;
+
+        public static final class DashboardAlignment {
+            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0); // Including half-robot length.
+            public static final double REEF_RADIUS = Units.inchesToMeters(32.75);
+            public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
+            public static final double ANGLE_INCREMENT = Math.toRadians(60.0);
+
+        }
 
         public enum AutonPositions {
             LEFT,
@@ -119,8 +129,7 @@ public final class Constants {
         public static final double FIELD_LENGTH = Units.inchesToMeters(690.875);
         public static final double FIELD_WIDTH = Units.inchesToMeters(317);
 
-        public static final double[] BLUE_REEF_POSE = {4.4895, 4.0259};
-        public static final double[] RED_REEF_POSE = {13.0588, 4.0259};
+        public static final Pose2d REEF_POSE = new Pose2d(new Translation2d(4.4895, 4.0259), new Rotation2d(0));
     }
 
     public static final class DrivebaseConstants {

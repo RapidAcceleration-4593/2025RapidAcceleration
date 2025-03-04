@@ -13,11 +13,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
 import frc.robot.Constants.AutonConstants.AutonPositions;
+import frc.robot.Constants.AutonConstants.DashboardAlignment;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
 import frc.robot.Constants.IntakeConstants.IntakeSides;
@@ -109,7 +109,7 @@ public class RobotContainer {
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose(AutonConstants.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
+                    poseNavigator.selectTargetPose(DashboardAlignment.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
                 );
                 driveToPoseCommand.schedule();
             }))
