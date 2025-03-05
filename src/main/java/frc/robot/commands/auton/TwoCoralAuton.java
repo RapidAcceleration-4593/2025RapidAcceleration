@@ -68,7 +68,8 @@ public class TwoCoralAuton extends AutonCommand {
         );
     }
 
-    private List<PathPlannerPath> getAutonPaths(AutonPositions position) {
+    @Override
+    protected List<PathPlannerPath> getAutonPaths(AutonPositions position) {
         return switch (position) {
             case LEFT -> List.of(
                 utils.loadPath("RightTwoCoral-1").mirrorPath(),

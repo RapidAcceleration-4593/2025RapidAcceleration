@@ -24,7 +24,7 @@ public class MoveOutAuton extends AutonCommand {
     public MoveOutAuton(AutonUtils utils, AutonPositions position) {
         this.utils = utils;
 
-        paths = List.of(getAutonPaths(position));
+        paths = getAutonPaths(position);
 
         if (Robot.isSimulation()) {
             addCommands(utils.resetOdometry(paths.get(0)));
@@ -37,11 +37,12 @@ public class MoveOutAuton extends AutonCommand {
         );
     }
 
-    private PathPlannerPath getAutonPaths(AutonPositions position) {
+    @Override
+    protected List<PathPlannerPath> getAutonPaths(AutonPositions position) {
         return switch (position) {
-            case LEFT -> utils.loadPath("LeftMoveOut-1").mirrorPath();
-            case CENTER -> utils.loadPath("CenterMoveOut-1");
-            case RIGHT -> utils.loadPath("RightMoveOut-1");
+            case LEFT -> List.of(utils.loadPath("LeftMoveOut-1").mirrorPath());
+            case CENTER -> List.of(utils.loadPath("CenterMoveOut-1"));
+            case RIGHT -> List.of(utils.loadPath("RightMoveOut-1"));
         };
     } 
 
