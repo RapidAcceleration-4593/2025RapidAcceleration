@@ -159,7 +159,7 @@ public class AutonUtils {
     /** Pose2d for Coral Station on top of red alliance. */
     public final Pose2d[] RED_TOP_CHUTE = flipFieldPoses(BLUE_TOP_CHUTE);
 
-    /** Flip Pose2d locations on field for Coral Station on red alliance. */
+    /** Flip Pose2d locations on field for Coral Station (aka Acceleration Station) on red alliance. */
     private Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
         Pose2d[] redPoses = new Pose2d[bluePoses.length];
         for (int i = 0; i < bluePoses.length; i++) {
