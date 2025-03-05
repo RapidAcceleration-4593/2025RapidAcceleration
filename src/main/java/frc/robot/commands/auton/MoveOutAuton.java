@@ -12,7 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Robot;
-import frc.robot.Constants.AutonConstants.AutonPositions;
+import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
@@ -21,7 +21,7 @@ public class MoveOutAuton extends AutonCommand {
 
     private final List<PathPlannerPath> paths;
 
-    public MoveOutAuton(AutonUtils utils, AutonPositions position) {
+    public MoveOutAuton(AutonUtils utils, StartingPosition position) {
         this.utils = utils;
 
         paths = getAutonPaths(position);
@@ -38,7 +38,7 @@ public class MoveOutAuton extends AutonCommand {
     }
 
     @Override
-    protected List<PathPlannerPath> getAutonPaths(AutonPositions position) {
+    protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return switch (position) {
             case LEFT -> List.of(utils.loadPath("SideMoveOut-1").mirrorPath());
             case CENTER -> List.of(utils.loadPath("CenterMoveOut-1"));

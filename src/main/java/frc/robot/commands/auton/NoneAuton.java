@@ -7,7 +7,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.AutonConstants.AutonPositions;
+import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.commands.auton.utils.AutonCommand;
 
 public class NoneAuton extends AutonCommand {
@@ -26,7 +26,7 @@ public class NoneAuton extends AutonCommand {
     }
 
     @Override
-    protected List<PathPlannerPath> getAutonPaths(AutonPositions position) {
+    protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return Collections.emptyList();
     }
 }

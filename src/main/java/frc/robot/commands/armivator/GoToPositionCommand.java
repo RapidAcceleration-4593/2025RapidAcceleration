@@ -3,9 +3,9 @@ package frc.robot.commands.armivator;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.ArmConstants.ArmEncoderStates;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.RobotStates.Arm.ArmDirections;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
@@ -39,7 +39,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
                     armSubsystem.goToStateCommand(armState),
                     elevatorSubsystem.goToStateCommand(elevatorState)
                 ),
-                () -> armSubsystem.isArmUp() != ArmEncoderStates.UNKNOWN
+                () -> armSubsystem.isArmUp() != ArmDirections.UNKNOWN
             )
         );
     }
@@ -50,7 +50,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         //     return true;
 
         // boolean armUp = isArmUpResult == ArmEncoderStates.UP;
-        boolean armUp = armSubsystem.isArmUp() == ArmEncoderStates.UP;
+        boolean armUp = armSubsystem.isArmUp() == ArmDirections.UP;
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
         boolean targetArmUp = targetArmState != ArmStates.BOTTOM;
@@ -84,7 +84,7 @@ public class GoToPositionCommand extends SequentialCommandGroup {
      * @return
      */
     private boolean isKahchunkToRaised () {
-        boolean armUp = armSubsystem.isArmUp() == ArmEncoderStates.UP;
+        boolean armUp = armSubsystem.isArmUp() == ArmDirections.UP;
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
         boolean targetArmUp = targetArmState != ArmStates.BOTTOM;

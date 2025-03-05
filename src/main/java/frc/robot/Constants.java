@@ -24,20 +24,15 @@ public final class Constants {
     public static final double MAX_SPEED = Units.feetToMeters(8.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
-        public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0007, 0, 0); // 0.0021, 0.0009, 0
-        public static final int PID_TOLERANCE = 30;
+        public static final class ElevatorPIDConstants {
+            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0, 0, 0); // Previously: 0.0021, 0, 0
+            public static final int TOLERANCE = 30;
 
-        public static final double MAX_VELOCITY = 20000;
-        public static final double MAX_ACCELERATION = 50000;
-
-        public static final class ELEVATOR_MANUAL_CONTROL {
-            public static final double MOTOR_SPEED = 1.0;
-
-            public enum ElevatorDirections {
-                UP,
-                DOWN
-            }
+            public static final double MAX_VELOCITY = 0;
+            public static final double MAX_ACCELERATION = 0;
         }
+
+        public static final double CONTROL_SPEED = 1.0;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
         public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
@@ -45,45 +40,25 @@ public final class Constants {
         public static final Encoder elevatorEncoder = new Encoder(8, 9);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);
         public static final DigitalInput topLimitSwitch = new DigitalInput(6);
-
-        public enum ElevatorStates {
-            BOTTOM,
-            PICKUP,
-            TOP
-        }
     }
 
     public static final class ArmConstants {
-        public static final PIDConstants ARM_PID = new PIDConstants(0.01, 0, 0); // 0.009, 0, 0
-        public static final int PID_TOLERANCE = 15;
+        public static final class ArmPIDConstants {
+            public static final PIDConstants ARM_PID = new PIDConstants(0, 0, 0); // Previously: 0.01, 0, 0
+            public static final int TOLERANCE = 15;
+
+            public static final double MAX_VELOCITY = 0;
+            public static final double MAX_ACCELERATION = 0;
+        }
+
         public static final int PLACE_ROTATION_AMOUNT = 225;
-
-        public static final class ARM_MANUAL_CONTROL {
-            public static final double MOTOR_SPEED = 1.0;
-
-            public enum ArmDirections {
-                UP,
-                DOWN
-            }
-        }
-
-        public enum ArmEncoderStates {
-            UP,
-            DOWN,
-            UNKNOWN
-        }
+        public static final double CONTROL_SPEED = 1.0;
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
 
         public static final DigitalInput topLimitSwitch = new DigitalInput(2);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(3);
-        
-        public enum ArmStates {
-            BOTTOM,
-            L2,
-            TOP
-        }
     }
 
     public static final class SerializerConstants {
@@ -105,11 +80,33 @@ public final class Constants {
             public static final double ANGLE_INCREMENT = Math.toRadians(60.0);
 
         }
+    }
 
-        public enum AutonPositions {
-            LEFT,
-            CENTER,
-            RIGHT
+    public static final class RobotStates {
+        public static final class Elevator {
+            public enum ElevatorStates {
+                BOTTOM, PICKUP, TOP
+            }
+
+            public enum ElevatorDirections {
+                UP, DOWN
+            }
+        }
+
+        public static final class Arm {
+            public enum ArmStates {
+                BOTTOM, L2, TOP
+            }
+    
+            public enum ArmDirections {
+                UP, DOWN, UNKNOWN
+            }
+        }
+
+        public static final class Autonomous {
+            public enum StartingPosition {
+                LEFT, CENTER, RIGHT
+            }
         }
     }
 
@@ -130,6 +127,6 @@ public final class Constants {
 
         public static final double DEADBAND = 0.1;
         public static final double TURN_CONSTANT = 6;
-        public static final double SCALE_TRANSLATION = 0.9;
+        public static final double SCALE_TRANSLATION = 0.8;
     }
 }

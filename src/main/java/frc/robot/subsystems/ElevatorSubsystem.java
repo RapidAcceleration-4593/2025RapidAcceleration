@@ -18,9 +18,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL;
-import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -32,12 +32,12 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     public final Encoder elevatorEncoder = ElevatorConstants.elevatorEncoder;
 
-    private final ProfiledPIDController elevatorPID = new ProfiledPIDController(ElevatorConstants.ELEVATOR_PID.kP,
-                                                                                ElevatorConstants.ELEVATOR_PID.kI,
-                                                                                ElevatorConstants.ELEVATOR_PID.kD,
+    private final ProfiledPIDController elevatorPID = new ProfiledPIDController(ElevatorPIDConstants.ELEVATOR_PID.kP,
+                                                                                ElevatorPIDConstants.ELEVATOR_PID.kI,
+                                                                                ElevatorPIDConstants.ELEVATOR_PID.kD,
                                                                                 new TrapezoidProfile.Constraints(
-                                                                                    ElevatorConstants.MAX_VELOCITY, 
-                                                                                    ElevatorConstants.MAX_ACCELERATION));
+                                                                                    ElevatorPIDConstants.MAX_VELOCITY, 
+                                                                                    ElevatorPIDConstants.MAX_ACCELERATION));
 
     private final double[] SETPOINTS = {-300, 2750, 12550};
 
@@ -49,7 +49,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     /**
      * Returns if the elevator is solely in manual mode. PID is completely disabled and
      * {@link #handleBottomLimitSwitchPressed()} and {@link #handleTopLimitSwitchPressed()}
-     * behave differently. Access throug {@link #isHardManualControlEnabled()}.
+     * behave differently. Access through {@link #isHardManualControlEnabled()}.
      */
     private boolean hardManualEnabled = false;
 
@@ -64,7 +64,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         leaderElevatorMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerElevatorMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        elevatorPID.setTolerance(ElevatorConstants.PID_TOLERANCE);
+        elevatorPID.setTolerance(ElevatorPIDConstants.TOLERANCE);
         elevatorPID.reset(0);
     }
 
@@ -81,7 +81,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             case BOTTOM -> SETPOINTS[0];
             case PICKUP -> SETPOINTS[1];
             case TOP -> SETPOINTS[2];
-            default -> -1;
+            default -> throw new Error("Passed in an ElevatorState that does not have an associated setpoint!");
         };
     }
 
@@ -116,16 +116,13 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void controlElevatorState() {
         updateValues();
 
-        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) { // Some sort of error
+        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotors();
-        }
-        else if (isTopLimitSwitchPressed()) {
+        } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
-        }
-        else if (isBottomLimitSwitchPressed()) {
+        } else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
-        }
-        else if (!isHardManualControlEnabled()) {
+        } else if (!isHardManualControlEnabled()) {
             controlElevator();
         }
     }
@@ -155,7 +152,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void handleTopLimitSwitchPressed() {
         if (isHardManualControlEnabled()) {
             if (leaderElevatorMotor.get() > 0) {
-                setMotorSpeeds(0);
+                stopMotors();
             }
             return;
         }
@@ -182,7 +179,7 @@ public class ElevatorSubsystem extends SubsystemBase {
 
         if (isHardManualControlEnabled()) {
             if (leaderElevatorMotor.get() < 0) {
-                setMotorSpeeds(0);
+                stopMotors();
             }
             return;
         }
@@ -267,6 +264,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("E-Setpoint", getSetpoint());
     }
 
+
     /**
      * Command to set and control the state of the elevator mechanism.
      * @param state The desired state of the elevator.
@@ -276,9 +274,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         return Commands.race(
             new FunctionalCommand(
                 () -> setElevatorState(state),
-                () -> {
-                    controlElevatorState();
-                },
+                () -> controlElevatorState(),
                 interrupted -> stopMotors(),
                 () -> atSetpoint(),
                 this
@@ -300,13 +296,15 @@ public class ElevatorSubsystem extends SubsystemBase {
                     if (isTopLimitSwitchPressed()) {
                         stopMotors();
                     } else {
-                        setMotorSpeeds(ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
+                        setMotorSpeeds(ElevatorConstants.CONTROL_SPEED);
                     }
                 },
-                (interrupted) -> {
+                interrupted -> {
                     stopMotors();
-                    elevatorPID.setGoal(getEncoderValue());
-                    elevatorPID.reset(getEncoderValue());
+                    if (!hardManualEnabled) {
+                        elevatorPID.setGoal(getEncoderValue());
+                        elevatorPID.reset(getEncoderValue());
+                    }
                 },
                 () -> false,
                 this
@@ -318,10 +316,10 @@ public class ElevatorSubsystem extends SubsystemBase {
                     if (isBottomLimitSwitchPressed()) {
                         stopMotors();
                     } else {
-                        setMotorSpeeds(-ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
+                        setMotorSpeeds(-ElevatorConstants.CONTROL_SPEED);
                     }
                 },
-                (interrupted) -> {
+                interrupted -> {
                     stopMotors();
                     if (!hardManualEnabled) {
                         elevatorPID.setGoal(getEncoderValue());

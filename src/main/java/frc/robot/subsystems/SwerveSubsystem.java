@@ -508,6 +508,26 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
+     * Command to drive the robot forward in robot-relative mode.
+     * @return A Command to drive the robot forward.
+     */
+    public Command driveForward() {
+        return run(() -> {
+            swerveDrive.drive(new Translation2d(1, 0), 0, false, false);
+        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
+    }
+
+    /**
+     * Command to drive the robot backward in robot-relative mode.
+     * @return A Command to drive the robot backward.
+     */
+    public Command driveBackward() {
+        return run(() -> {
+            swerveDrive.drive(new Translation2d(-1, 0), 0, false, false);
+        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
+    }
+
+    /**
      * Gets the swerve drive object.
      * @return {@link SwerveDrive}
      */
