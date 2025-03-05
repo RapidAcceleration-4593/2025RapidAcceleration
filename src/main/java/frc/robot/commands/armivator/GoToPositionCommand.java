@@ -17,7 +17,6 @@ public class GoToPositionCommand extends SequentialCommandGroup {
     ElevatorStates targetElevatorState;
     ArmStates targetArmState;
 
-
     public GoToPositionCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, ElevatorStates elevatorState, ArmStates armState) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
@@ -30,15 +29,15 @@ public class GoToPositionCommand extends SequentialCommandGroup {
                 Commands.either(
                     handleCollisionCommand(),
                     Commands.parallel(
-                        elevatorSubsystem.GoToStateCommand(elevatorState),
-                        armSubsystem.GoToStateCommand(armState)
+                        elevatorSubsystem.goToStateCommand(elevatorState),
+                        armSubsystem.goToStateCommand(armState)
                     ),
                     this::willCollide
                 ),
                 Commands.sequence(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                    armSubsystem.GoToStateCommand(armState),
-                    elevatorSubsystem.GoToStateCommand(elevatorState)
+                    elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
+                    armSubsystem.goToStateCommand(armState),
+                    elevatorSubsystem.goToStateCommand(elevatorState)
                 ),
                 () -> armSubsystem.isArmUp() != ArmEncoderStates.UNKNOWN
             )
@@ -102,25 +101,25 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         return Commands.either(
             Commands.either(
                 Commands.sequence(
-                    elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
+                    elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
                     Commands.parallel(
-                        elevatorSubsystem.GoToStateCommand(targetElevatorState),
-                        armSubsystem.GoToStateCommand(targetArmState)
+                        elevatorSubsystem.goToStateCommand(targetElevatorState),
+                        armSubsystem.goToStateCommand(targetArmState)
                     )
                 ),
                 Commands.sequence(
                     Commands.parallel(
-                        elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                        armSubsystem.GoToStateCommand(targetArmState)
+                        elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
+                        armSubsystem.goToStateCommand(targetArmState)
                     ),
-                    elevatorSubsystem.GoToStateCommand(targetElevatorState)
+                    elevatorSubsystem.goToStateCommand(targetElevatorState)
                 ),
                 this::isKahchunkToRaised
             ),
             Commands.sequence(
-                elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                armSubsystem.GoToStateCommand(targetArmState),
-                elevatorSubsystem.GoToStateCommand(targetElevatorState)
+                elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
+                armSubsystem.goToStateCommand(targetArmState),
+                elevatorSubsystem.goToStateCommand(targetElevatorState)
             ),
             this::parallelSupported
         );

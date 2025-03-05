@@ -9,8 +9,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants.ArmStates;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.subsystems.ArmSubsystem;
@@ -43,10 +41,10 @@ public class AutonUtils {
     /**
      * Command to reset the robot's odometry to initial pose, adjusted for the current
      * alliance color by flipping it if necessary.
-     * @param choreoPath The PathPlannerPath containing the trajectory to use for
-     *                   resetting the robot's odometry.
-     * @return           A command that, when run, resets the robot's odometry to the
-     *                   initial pose of given path.
+     * @param path  The PathPlannerPath containing the trajectory to use for
+     *              resetting the robot's odometry.
+     * @return      A command that, when run, resets the robot's odometry to the
+     *              initial pose of given path.
      */
     public Command resetOdometry(PathPlannerPath path) {
         return drivebase.runOnce(
@@ -72,7 +70,7 @@ public class AutonUtils {
      * @return A Functional Command to set the state of the elevator during autonomous.
      */
     public Command goToElevatorState(ElevatorStates state) {
-        return elevatorSubsystem.GoToStateCommand(state);
+        return elevatorSubsystem.goToStateCommand(state);
     }
 
     /**
@@ -81,7 +79,7 @@ public class AutonUtils {
      * @return A Functional Command to set the state of the arm during autonomous.
      */
     public Command goToArmState(ArmStates state) {
-        return armSubsystem.GoToStateCommand(state);
+        return armSubsystem.goToStateCommand(state);
     }
 
     /**
@@ -89,16 +87,7 @@ public class AutonUtils {
      * @return A lower setpoint for the arm mechanism.
      */
     public Command scoreCoralCommand() {
-        return Commands.race(
-            new FunctionalCommand(
-                () -> armSubsystem.placeCoralCommand(),
-                () -> armSubsystem.controlArmState(),
-                interrupted -> armSubsystem.stopMotor(),
-                () -> armSubsystem.atSetpoint(),
-                armSubsystem
-            ),
-            new WaitCommand(0.5) // Timeout after 0.5 seconds.
-        );
+        return armSubsystem.scoreCoralCommand();
     }
 
     public Command runSerializerCommand(double seconds) {

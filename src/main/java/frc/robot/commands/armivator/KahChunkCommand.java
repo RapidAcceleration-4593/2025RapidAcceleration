@@ -18,11 +18,11 @@ public class KahChunkCommand extends SequentialCommandGroup {
 
         addCommands(
             Commands.parallel(
-                elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP),
-                armSubsystem.GoToStateCommand(ArmStates.BOTTOM)
+                elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
+                armSubsystem.goToStateCommand(ArmStates.BOTTOM)
             ),
-            elevatorSubsystem.GoToStateCommand(ElevatorStates.BOTTOM),
-            elevatorSubsystem.GoToStateCommand(ElevatorStates.PICKUP)
+            elevatorSubsystem.goToStateCommand(ElevatorStates.BOTTOM),
+            elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP)
         );
     }
 }

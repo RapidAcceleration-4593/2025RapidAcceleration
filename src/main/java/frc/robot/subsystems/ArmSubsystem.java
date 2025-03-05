@@ -122,11 +122,9 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        double currentPosition = getEncoderValue();
-
-        if (getSetpoint() >= currentPosition) {
+        if (getSetpoint() >= getEncoderValue()) {
             stopMotor();
-            armPID.setSetpoint(currentPosition);
+            armPID.setSetpoint(getEncoderValue());
         } else {
             controlArm();
         }
@@ -140,13 +138,11 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        double setpoint = getSetpoint();
-        
         resetEncoder();
 
-        if (setpoint <= SETPOINTS[0]) {
-            armPID.setSetpoint(0);
+        if (getSetpoint() <= 0) {
             stopMotor();
+            armPID.setSetpoint(0);
         } else {
             controlArm();
         }
@@ -226,14 +222,24 @@ public class ArmSubsystem extends SubsystemBase {
 
     /** ----- Command Factory Methods ----- */
 
-    /** Rotates the arm mechanism down to score on a branch. */
-    public void placeCoralCommand() {
-        armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
-    }
+    /**
+     * Functional Command to rotate the arm down to score coral.
+     * @return A lower setpoint for the arm mechanism.
+     */
+    public Command scoreCoralCommand() {
+        return Commands.race(
+            new FunctionalCommand(
+                () -> {
+                    armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
+                },
+                () -> controlArmState(),
+                interrupted -> stopMotor(),
+                () -> atSetpoint(),
+                this
+            ),
+            new WaitCommand(0.5)
+        );
 
-    /** Rotates the arm mechanism up to remove algae. */
-    public void removeAlgaeCommand() {
-        armPID.setSetpoint(getSetpoint() + ArmConstants.PLACE_ROTATION_AMOUNT);
     }
 
     /**
@@ -241,19 +247,18 @@ public class ArmSubsystem extends SubsystemBase {
      * @param state The desired state of the arm.
      * @return A Command Race to set arm state with a timeout.
      */
-    public Command GoToStateCommand(ArmStates state) {
+    public Command goToStateCommand(ArmStates state) {
         return Commands.race(
             new FunctionalCommand(
-                () -> setArmState(state),    // Initialization
+                () -> setArmState(state),
                 () -> {
                     controlArmState();
-                    SmartDashboard.putString("A-State", state.toString());
-                },                           // Execute
-                interrupted -> stopMotor(),  // End
-                () -> atSetpoint(),          // IsFinished
+                },
+                interrupted -> stopMotor(),
+                () -> atSetpoint(),
                 this
             ),
-            new WaitCommand(1.75) // Timeout after 4 seconds.
+            new WaitCommand(1.75)
         );
     }
 
@@ -312,5 +317,8 @@ public class ArmSubsystem extends SubsystemBase {
             return ArmEncoderStates.UP;
         else
             return ArmEncoderStates.UNKNOWN;
+    }
+
+    public void toggleManualControl(boolean doManualControl) {
     }
 }

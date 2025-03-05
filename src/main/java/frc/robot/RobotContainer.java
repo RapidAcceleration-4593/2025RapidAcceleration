@@ -30,6 +30,7 @@ import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
+import frc.robot.commands.manual.ToggleManualControl;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -59,6 +60,8 @@ public class RobotContainer {
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
+
+    private boolean doManualControl = false;
 
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
@@ -121,13 +124,14 @@ public class RobotContainer {
         auxiliaryController.povDown().onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
 
         driverController.leftBumper().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
-        driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
-        driverController.povUp().onTrue(Commands.runOnce(armSubsystem::removeAlgaeCommand));
+        driverController.rightBumper().onTrue(armSubsystem.scoreCoralCommand());
 
         auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false)); // Serializer, Forward.
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
 
         // Manual Control
+        auxiliaryController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem, !doManualControl));
+
         driverController.y().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.UP));
         driverController.a().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.DOWN));
 

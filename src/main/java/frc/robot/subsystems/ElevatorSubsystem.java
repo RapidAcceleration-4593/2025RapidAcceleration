@@ -142,12 +142,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        double currentPosition = getEncoderValue();
-
-        if (getSetpoint() >= currentPosition) {
+        if (getSetpoint() >= getEncoderValue()) {
             stopMotors();
-            elevatorPID.setGoal(currentPosition);
-            elevatorPID.reset(currentPosition);
+            elevatorPID.setGoal(getEncoderValue());
+            elevatorPID.reset(getEncoderValue());
         } else {
             controlElevator();
         }
@@ -161,11 +159,9 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
-        double setpoint = getSetpoint();
-
         resetEncoder();
 
-        if (setpoint <= SETPOINTS[0]) {
+        if (getSetpoint() <= 0) {
             stopMotors();
             elevatorPID.setGoal(0);
             elevatorPID.reset(0);
@@ -250,19 +246,18 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @param state The desired state of the elevator.
      * @return A Command Race to set elevator state with a timeout.
      */
-    public Command GoToStateCommand(ElevatorStates state) {
+    public Command goToStateCommand(ElevatorStates state) {
         return Commands.race(
             new FunctionalCommand(
-                () -> setElevatorState(state),  // Initialization
+                () -> setElevatorState(state),
                 () -> {
                     controlElevatorState();
-                    SmartDashboard.putString("E-State", state.toString());
-                },                              // Execute
-                interrupted -> stopMotors(),    // End
-                () -> atSetpoint(),             // IsFinished
+                },
+                interrupted -> stopMotors(),
+                () -> atSetpoint(),
                 this
             ),
-            new WaitCommand(2) // Timeout after 2 seconds.
+            new WaitCommand(2)
         );
     }
 
@@ -318,5 +313,8 @@ public class ElevatorSubsystem extends SubsystemBase {
     public boolean isElevatorUp() {
         return (atSetpoint() && currentElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP
                (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 300);   // Above PICKUP
+    }
+
+    public void toggleManualControl(boolean doManualControl) {
     }
 }

@@ -86,18 +86,6 @@ public final class Constants {
         }
     }
 
-    public static final class IntakeConstants {
-        public static final SparkMax leftIntakeMotor = new SparkMax(3, MotorType.kBrushless);
-        public static final SparkMax rightIntakeMotor = new SparkMax(5, MotorType.kBrushless);
-    
-        public static final double CONTROL_SPEED = 1.0; // Speed (0 to 1).
-
-        public enum IntakeSides {
-            LEFT,
-            RIGHT
-        }
-    }
-
     public static final class SerializerConstants {
         public static final SparkMax serializerMotor = new SparkMax(8, MotorType.kBrushless);
 
@@ -111,7 +99,7 @@ public final class Constants {
         public static final boolean DRIVE_WITH_VISION = true;
 
         public static final class DashboardAlignment {
-            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0); // Including half-robot length.
+            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0);
             public static final double REEF_RADIUS = Units.inchesToMeters(32.75);
             public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
             public static final double ANGLE_INCREMENT = Math.toRadians(60.0);
