@@ -20,7 +20,6 @@ import frc.robot.Constants.AutonConstants.AutonPositions;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
 import frc.robot.Constants.ElevatorConstants.ElevatorStates;
 import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
-import frc.robot.Constants.IntakeConstants.IntakeSides;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.GoToPositionCommand;
 import frc.robot.commands.armivator.KahChunkCommand;
@@ -31,10 +30,8 @@ import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
-import frc.robot.commands.intakes.RunIntakeCommand;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
@@ -50,7 +47,6 @@ public class RobotContainer {
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
-    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
 
     // Util(s)
@@ -127,13 +123,6 @@ public class RobotContainer {
         driverController.leftBumper().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
         driverController.rightBumper().onTrue(Commands.runOnce(armSubsystem::placeCoralCommand));
         driverController.povUp().onTrue(Commands.runOnce(armSubsystem::removeAlgaeCommand));
-
-        // Intake / Serializer Commands
-        auxiliaryController.leftBumper().whileTrue(new RunIntakeCommand(intakeSubsystem, IntakeSides.LEFT, false)); // Left Intake, Forward.
-        auxiliaryController.leftTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, IntakeSides.LEFT, true)); // Left Intake, Reverse.
-
-        auxiliaryController.rightBumper().whileTrue(new RunIntakeCommand(intakeSubsystem, IntakeSides.RIGHT, false)); // Right Intake, Forward.
-        auxiliaryController.rightTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, IntakeSides.RIGHT, true)); // Right Intake, Reverse.
 
         auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false)); // Serializer, Forward.
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.

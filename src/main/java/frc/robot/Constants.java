@@ -21,7 +21,7 @@ public final class Constants {
     public static final double ROBOT_MASS = (110) * 0.453592; // 115 Pounds to Kilograms.
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
-    public static final double MAX_SPEED = Units.feetToMeters(12.0); // Maximum speed of robot in meters per second, used to limit acceleration.
+    public static final double MAX_SPEED = Units.feetToMeters(8.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
         public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0021, 0.0009, 0);
