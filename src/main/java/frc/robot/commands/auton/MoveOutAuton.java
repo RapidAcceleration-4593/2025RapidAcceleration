@@ -40,9 +40,9 @@ public class MoveOutAuton extends AutonCommand {
     @Override
     protected List<PathPlannerPath> getAutonPaths(AutonPositions position) {
         return switch (position) {
-            case LEFT -> List.of(utils.loadPath("LeftMoveOut-1").mirrorPath());
+            case LEFT -> List.of(utils.loadPath("SideMoveOut-1").mirrorPath());
             case CENTER -> List.of(utils.loadPath("CenterMoveOut-1"));
-            case RIGHT -> List.of(utils.loadPath("RightMoveOut-1"));
+            case RIGHT -> List.of(utils.loadPath("SideMoveOut-1"));
         };
     } 
 

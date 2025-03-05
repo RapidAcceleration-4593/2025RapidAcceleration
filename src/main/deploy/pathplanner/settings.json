@@ -5,12 +5,9 @@
   "pathFolders": [
     "CenterMoveOut",
     "CenterOneCoral",
-    "LeftMoveOut",
-    "LeftOneCoral",
-    "LeftTwoCoral",
-    "RightTwoCoral",
-    "RightMoveOut",
-    "RightOneCoral"
+    "SideMoveOut",
+    "SideOneCoral",
+    "SideTwoCoral"
   ],
   "autoFolders": [],
   "defaultMaxVel": 2.5,
