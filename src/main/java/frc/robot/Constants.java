@@ -15,6 +15,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import swervelib.math.Matter;
 
 public final class Constants {
@@ -90,6 +91,14 @@ public final class Constants {
         public static final SparkMax serializerMotor = new SparkMax(8, MotorType.kBrushless);
 
         public static final double CONTROL_SPEED = 0.35;
+    }
+
+    public static final class LEDConstants {
+        public static final Spark BlinkingLEDs = new Spark(5);
+    
+        public static final double RED_SOLID = 0.61;
+        public static final double GREEN_SOLID = 0.77;
+        public static final double BLUE_SOLID = 0.87;
     }
 
     public static final class AutonConstants {
