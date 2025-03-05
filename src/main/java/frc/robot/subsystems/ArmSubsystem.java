@@ -39,6 +39,13 @@ public class ArmSubsystem extends SubsystemBase {
     private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
+     * Returns if the elevator is solely in manual mode. PID is completely disabled and
+     * {@link #handleBottomLimitSwitchPressed()} and {@link #handleTopLimitSwitchPressed()}
+     * behave differently. Access throug {@link #isHardManualControlEnabled()}.
+     */
+    private boolean hardManualEnabled = false;
+
+    /**
      * Constructor for the SwingArmSubsystem class.
      * Initializes the motor and encoder configuration.
      */
@@ -91,11 +98,14 @@ public class ArmSubsystem extends SubsystemBase {
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotor();
-        } else if (isTopLimitSwitchPressed()) {
+        }
+        else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
-        } else if (isBottomLimitSwitchPressed()) {
+        }
+        else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
-        } else {
+        }
+        else if (!isHardManualControlEnabled()) {
             controlArm();
         }
     }
@@ -122,6 +132,14 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
+
+        if (isHardManualControlEnabled()) {
+            if (armMotor.get() > 0) {
+                setMotorSpeed(0);
+            }
+            return;
+        }
+
         if (getSetpoint() >= getEncoderValue()) {
             stopMotor();
             armPID.setSetpoint(getEncoderValue());
@@ -140,6 +158,13 @@ public class ArmSubsystem extends SubsystemBase {
     private void handleBottomLimitSwitchPressed() {
         resetEncoder();
 
+        if (isHardManualControlEnabled()) {
+            if (armMotor.get() < 0) {
+                setMotorSpeed(0);
+            }
+            return;
+        }
+                    
         if (getSetpoint() <= 0) {
             stopMotor();
             armPID.setSetpoint(0);
@@ -279,6 +304,7 @@ public class ArmSubsystem extends SubsystemBase {
                     }
                 },
                 (interrupted) -> {
+                    stopMotor();
                     armPID.setSetpoint(getEncoderValue());
                     armPID.reset();
                 },
@@ -319,6 +345,19 @@ public class ArmSubsystem extends SubsystemBase {
             return ArmEncoderStates.UNKNOWN;
     }
 
-    public void toggleManualControl(boolean doManualControl) {
+    /**
+     * Sets {@link #hardManualEnabled}. Setting to true completely disables PID control and changes limit switch behavior.
+     * @return Is hard manual control enabled.
+     */
+    public void setHardManualControl(boolean enable) {
+        hardManualEnabled = enable;
+    }
+
+    /**
+     * Gets {@link #hardManualEnabled}. When true it completely disables PID control and changes limit switch behavior.
+     * @return Is hard manual control enabled.
+     */
+    public boolean isHardManualControlEnabled() {
+        return hardManualEnabled;
     }
 }

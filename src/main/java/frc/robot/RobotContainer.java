@@ -61,8 +61,6 @@ public class RobotContainer {
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
 
-    private boolean doManualControl = false;
-
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
                                                                 () -> -MathUtil.applyDeadband(driverController.getLeftY(),
@@ -130,7 +128,7 @@ public class RobotContainer {
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
 
         // Manual Control
-        auxiliaryController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem, !doManualControl));
+        auxiliaryController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
 
         driverController.y().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.UP));
         driverController.a().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.DOWN));

@@ -45,6 +45,13 @@ public class ElevatorSubsystem extends SubsystemBase {
 
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
+    
+    /**
+     * Returns if the elevator is solely in manual mode. PID is completely disabled and
+     * {@link #handleBottomLimitSwitchPressed()} and {@link #handleTopLimitSwitchPressed()}
+     * behave differently. Access throug {@link #isHardManualControlEnabled()}.
+     */
+    private boolean hardManualEnabled = false;
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -109,13 +116,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void controlElevatorState() {
         updateValues();
 
-        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
+        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) { // Some sort of error
             stopMotors();
-        } else if (isTopLimitSwitchPressed()) {
+        }
+        else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
-        } else if (isBottomLimitSwitchPressed()) {
+        }
+        else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
-        } else {
+        }
+        else if (!isHardManualControlEnabled()) {
             controlElevator();
         }
     }
@@ -137,11 +147,19 @@ public class ElevatorSubsystem extends SubsystemBase {
     /**
      * Handles the behavior when the top limit switch is pressed.
      * <ul>
+     *  <li>If {@link #hardManualEnabled}, stops the motor if it is driving upward and returns.
      *  <li>Stops the motors and sets the current position as the new setpoint.</li>
      *  <li>Allows downward movement without interference.</li>
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
+        if (isHardManualControlEnabled()) {
+            if (leaderElevatorMotor.get() > 0) {
+                setMotorSpeeds(0);
+            }
+            return;
+        }
+
         if (getSetpoint() >= getEncoderValue()) {
             stopMotors();
             elevatorPID.setGoal(getEncoderValue());
@@ -154,12 +172,20 @@ public class ElevatorSubsystem extends SubsystemBase {
     /**
      * Handles the behavior when the bottom limit switch is pressed.
      * <ul>
+     *  <li>If {@link #hardManualEnabled}, stops the motor if it is driving downward and returns.
      *  <li>Resets the encoder, stops the motors, and sets the current position as the new setpoint.</li>
      *  <li>Allows upward movement without interference.</li>
      * </ul>
      */
     private void handleBottomLimitSwitchPressed() {
         resetEncoder();
+
+        if (isHardManualControlEnabled()) {
+            if (leaderElevatorMotor.get() < 0) {
+                setMotorSpeeds(0);
+            }
+            return;
+        }
 
         if (getSetpoint() <= 0) {
             stopMotors();
@@ -297,8 +323,10 @@ public class ElevatorSubsystem extends SubsystemBase {
                 },
                 (interrupted) -> {
                     stopMotors();
-                    elevatorPID.setGoal(getEncoderValue());
-                    elevatorPID.reset(getEncoderValue());
+                    if (!hardManualEnabled) {
+                        elevatorPID.setGoal(getEncoderValue());
+                        elevatorPID.reset(getEncoderValue());
+                    }
                 },
                 () -> false,
                 this
@@ -315,6 +343,19 @@ public class ElevatorSubsystem extends SubsystemBase {
                (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 300);   // Above PICKUP
     }
 
-    public void toggleManualControl(boolean doManualControl) {
+    /**
+     * Sets {@link #hardManualEnabled}. Setting to true completely disables PID control and changes limit switch behavior.
+     * @return Is hard manual control enabled.
+     */
+    public void setHardManualControl(boolean enable) {
+        hardManualEnabled = enable;
+    }
+
+    /**
+     * Gets {@link #hardManualEnabled}. When true it completely disables PID control and changes limit switch behavior.
+     * @return Is hard manual control enabled.
+     */
+    public boolean isHardManualControlEnabled() {
+        return hardManualEnabled;
     }
 }
