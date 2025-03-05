@@ -8,18 +8,16 @@ public class ToggleManualControl extends Command {
     
     private final ElevatorSubsystem elevatorSubsystem;
     private final ArmSubsystem armSubsystem;
-    private boolean doManualControl;
 
-    public ToggleManualControl(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, boolean doManualControl) {
+    public ToggleManualControl(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
-        this.doManualControl = doManualControl;
     }
 
     @Override
     public void initialize() {
-        elevatorSubsystem.toggleManualControl(doManualControl);
-        armSubsystem.toggleManualControl(doManualControl);
+        elevatorSubsystem.setHardManualControl(!elevatorSubsystem.isHardManualControlEnabled());
+        armSubsystem.setHardManualControl(!elevatorSubsystem.isHardManualControlEnabled());
     }
 
     @Override
