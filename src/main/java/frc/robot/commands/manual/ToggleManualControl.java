@@ -1,5 +1,6 @@
 package frc.robot.commands.manual;
 
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
@@ -18,6 +19,7 @@ public class ToggleManualControl extends Command {
     public void initialize() {
         elevatorSubsystem.setHardManualControl(!elevatorSubsystem.isHardManualControlEnabled());
         armSubsystem.setHardManualControl(!elevatorSubsystem.isHardManualControlEnabled());
+        SmartDashboard.putBoolean("ManualControl", elevatorSubsystem.isHardManualControlEnabled());
     }
 
     @Override
