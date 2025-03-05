@@ -70,9 +70,19 @@ public class TwoCoralAuton extends AutonCommand {
 
     private List<PathPlannerPath> getAutonPaths(AutonPositions position) {
         return switch (position) {
-            case LEFT -> List.of(utils.loadPath("LeftTwoCoral-1"), utils.loadPath("LeftTwoCoral-2"), utils.loadPath("LeftTwoCoral-3"), utils.loadPath("LeftTwoCoral-4"));
+            case LEFT -> List.of(
+                utils.loadPath("RightTwoCoral-1").mirrorPath(),
+                utils.loadPath("RightTwoCoral-2").mirrorPath(),
+                utils.loadPath("RightTwoCoral-3").mirrorPath(),
+                utils.loadPath("RightTwoCoral-4").mirrorPath()
+            );
             case CENTER -> Collections.emptyList();
-            case RIGHT -> List.of(utils.loadPath("RightTwoCoral-1"), utils.loadPath("RightTwoCoral-2"), utils.loadPath("RightTwoCoral-3"), utils.loadPath("RightTwoCoral-4"));
+            case RIGHT -> List.of(
+                utils.loadPath("RightTwoCoral-1"),
+                utils.loadPath("RightTwoCoral-2"),
+                utils.loadPath("RightTwoCoral-3"),
+                utils.loadPath("RightTwoCoral-4")
+            );
         };
     } 
 

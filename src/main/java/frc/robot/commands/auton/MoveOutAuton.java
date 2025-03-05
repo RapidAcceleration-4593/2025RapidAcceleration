@@ -39,7 +39,7 @@ public class MoveOutAuton extends AutonCommand {
 
     private PathPlannerPath getAutonPaths(AutonPositions position) {
         return switch (position) {
-            case LEFT -> utils.loadPath("LeftMoveOut-1");
+            case LEFT -> utils.loadPath("LeftMoveOut-1").mirrorPath();
             case CENTER -> utils.loadPath("CenterMoveOut-1");
             case RIGHT -> utils.loadPath("RightMoveOut-1");
         };

@@ -56,9 +56,18 @@ public class OneCoralAuton extends AutonCommand {
 
     private List<PathPlannerPath> getAutonPaths(AutonPositions position) {
         return switch (position) {
-            case LEFT -> List.of(utils.loadPath("LeftOneCoral-1"), utils.loadPath("LeftOneCoral-2"));
-            case CENTER -> List.of(utils.loadPath("CenterOneCoral-1"), utils.loadPath("CenterOneCoral-2"));
-            case RIGHT -> List.of(utils.loadPath("RightOneCoral-1"), utils.loadPath("RightOneCoral-2"));
+            case LEFT -> List.of(
+                utils.loadPath("RightOneCoral-1").mirrorPath(),
+                utils.loadPath("RightOneCoral-2").mirrorPath()
+            );
+            case CENTER -> List.of(
+                utils.loadPath("CenterOneCoral-1"),
+                utils.loadPath("CenterOneCoral-2")
+            );
+            case RIGHT -> List.of(
+                utils.loadPath("RightOneCoral-1"),
+                utils.loadPath("RightOneCoral-2")
+            );
         };
     } 
 
