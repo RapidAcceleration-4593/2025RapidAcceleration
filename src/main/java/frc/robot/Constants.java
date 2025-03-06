@@ -94,7 +94,7 @@ public final class Constants {
     }
 
     public static final class LEDConstants {
-        public static final Spark BlinkingLEDs = new Spark(5);
+        public static final Spark blinkingLEDs = new Spark(5);
     
         public static final double RED_SOLID = 0.61;
         public static final double GREEN_SOLID = 0.77;
