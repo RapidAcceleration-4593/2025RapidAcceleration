@@ -139,6 +139,8 @@ public class RobotContainer {
 
         driverController.x().whileTrue(armSubsystem.manualArmCommand(ArmDirections.UP));
         driverController.b().whileTrue(armSubsystem.manualArmCommand(ArmDirections.DOWN));
+
+        
     }
 
     /**

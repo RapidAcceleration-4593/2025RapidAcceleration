@@ -121,6 +121,11 @@ public final class Constants {
         public static final double WHEEL_LOCK_TIME = 10; // Seconds.
     }
 
+    public class ClimberConstants {
+        public static final SparkMax climberMotor = null; //TODO: get id for climber motor
+        public static final float CLIMBER_MOVE_SPEED = 1;
+    }
+
     public static class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int AUXILIARY_CONTROLLER_PORT = 1;
