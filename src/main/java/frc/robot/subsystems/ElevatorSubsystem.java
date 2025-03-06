@@ -91,6 +91,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     public void setElevatorState(ElevatorStates state) {
         elevatorPID.setGoal(getElevatorState(state));
+        SmartDashboard.putString("E-State", state.toString());
         currentElevatorState = state;
     }
 

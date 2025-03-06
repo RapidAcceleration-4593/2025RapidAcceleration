@@ -84,6 +84,7 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public void setArmState(ArmStates state) {
         armPID.setGoal(getArmState(state));
+        SmartDashboard.putString("A-State", state.toString());
     }
 
 

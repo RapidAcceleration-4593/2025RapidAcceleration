@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
@@ -22,6 +23,7 @@ import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.GoToPositionCommand;
+import frc.robot.commands.armivator.HandleDashboardSelection;
 import frc.robot.commands.armivator.KahChunkCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
@@ -98,6 +100,8 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
+
+        CommandScheduler.getInstance().schedule(new HandleDashboardSelection(elevatorSubsystem, armSubsystem));
     }
 
     private void configureBindings() {

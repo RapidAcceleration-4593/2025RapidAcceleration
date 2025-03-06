@@ -16,4 +16,9 @@ public class ControlElevatorState extends Command {
     public void execute() {
         elevatorSubsystem.controlElevatorState();
     }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

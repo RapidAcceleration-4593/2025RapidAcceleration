@@ -513,7 +513,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveForward() {
         return run(() -> {
-            swerveDrive.drive(new Translation2d(1, 0), 0, false, false);
+            swerveDrive.drive(new Translation2d(0.5, 0), 0, false, false);
         }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
     }
 
@@ -523,7 +523,7 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Command driveBackward() {
         return run(() -> {
-            swerveDrive.drive(new Translation2d(-1, 0), 0, false, false);
+            swerveDrive.drive(new Translation2d(-0.5, 0), 0, false, false);
         }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
     }
 

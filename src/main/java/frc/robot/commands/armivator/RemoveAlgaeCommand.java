@@ -11,7 +11,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 public class RemoveAlgaeCommand extends SequentialCommandGroup {
     
     public RemoveAlgaeCommand(SwerveSubsystem drivebase, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, boolean isHighAlgae) {
-
         addCommands(
             Commands.either(
                 new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.L2),
@@ -23,7 +22,7 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                     armSubsystem.scoreCoralCommand(),
                     Commands.waitSeconds(0.5)
                 ),
-                drivebase.driveToDistanceCommand(-.5, 1)
+                drivebase.driveBackward()
             )
         );
     }
