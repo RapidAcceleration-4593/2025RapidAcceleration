@@ -32,7 +32,7 @@ public class ClimberSubsystem extends SubsystemBase {
         climberMotor.set(speed);
     }
 
-    //TODO: determine if running the motor up makes the climber move up.
+    //TODO: determine if running the motor positively makes the climber move up.
     public Command moveClimberUpCommand() {
         return run(() -> setMotorSpeed(ClimberConstants.CLIMBER_MOVE_SPEED)).finallyDo((interrupted) -> setMotorSpeed(0));
     }
