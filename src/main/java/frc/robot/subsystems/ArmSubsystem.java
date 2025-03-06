@@ -7,7 +7,8 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -17,10 +18,9 @@ import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
-import frc.robot.Constants.ArmConstants.ArmEncoderStates;
+import frc.robot.Constants.ArmConstants.ArmPIDConstants;
+import frc.robot.Constants.RobotStates.Arm.ArmDirections;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -30,9 +30,12 @@ public class ArmSubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = ArmConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
     
-    private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
-                                                           ArmConstants.ARM_PID.kI,
-                                                           ArmConstants.ARM_PID.kD);
+    private final ProfiledPIDController armPID = new ProfiledPIDController(ArmPIDConstants.ARM_PID.kP,
+                                                                           ArmPIDConstants.ARM_PID.kI,
+                                                                           ArmPIDConstants.ARM_PID.kD,
+                                                                           new TrapezoidProfile.Constraints(
+                                                                                ArmPIDConstants.MAX_VELOCITY,
+                                                                                ArmPIDConstants.MAX_ACCELERATION));
 
     private final double[] SETPOINTS = {-20, 600, 900};
 
@@ -41,7 +44,7 @@ public class ArmSubsystem extends SubsystemBase {
     /**
      * Returns if the elevator is solely in manual mode. PID is completely disabled and
      * {@link #handleBottomLimitSwitchPressed()} and {@link #handleTopLimitSwitchPressed()}
-     * behave differently. Access throug {@link #isHardManualControlEnabled()}.
+     * behave differently. Access through {@link #isHardManualControlEnabled()}.
      */
     private boolean hardManualEnabled = false;
 
@@ -54,7 +57,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        armPID.setTolerance(ArmConstants.PID_TOLERANCE);
+        armPID.setTolerance(ArmPIDConstants.TOLERANCE);
+        armPID.reset(0);
     }
 
 
@@ -79,7 +83,8 @@ public class ArmSubsystem extends SubsystemBase {
      * @param state The desired arm position.
      */
     public void setArmState(ArmStates state) {
-        armPID.setSetpoint(getArmState(state));
+        armPID.setGoal(getArmState(state));
+        SmartDashboard.putString("A-State", state.toString());
     }
 
 
@@ -98,26 +103,23 @@ public class ArmSubsystem extends SubsystemBase {
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotor();
-        }
-        else if (isTopLimitSwitchPressed()) {
+        } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
-        }
-        else if (isBottomLimitSwitchPressed()) {
+        } else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
-        }
-        else if (!isHardManualControlEnabled()) {
+        } else if (!isHardManualControlEnabled()) {
             controlArm();
         }
     }
 
     /** Controls the Arm System using a PID Controller. */
     private void controlArm() {
-        double pidOutput = armPID.calculate(getEncoderValue());
+        double output = armPID.calculate(getEncoderValue());
 
         if (atSetpoint()) {
             stopMotor();
         } else {
-            setMotorSpeed(pidOutput);
+            setMotorSpeed(output);
         }
     }
 
@@ -132,17 +134,17 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-
         if (isHardManualControlEnabled()) {
             if (armMotor.get() > 0) {
-                setMotorSpeed(0);
+                stopMotor();
             }
             return;
         }
 
         if (getSetpoint() >= getEncoderValue()) {
             stopMotor();
-            armPID.setSetpoint(getEncoderValue());
+            armPID.setGoal(getEncoderValue());
+            armPID.reset(getEncoderValue());
         } else {
             controlArm();
         }
@@ -160,14 +162,15 @@ public class ArmSubsystem extends SubsystemBase {
 
         if (isHardManualControlEnabled()) {
             if (armMotor.get() < 0) {
-                setMotorSpeed(0);
+                stopMotor();
             }
             return;
         }
                     
         if (getSetpoint() <= 0) {
             stopMotor();
-            armPID.setSetpoint(0);
+            armPID.setGoal(0);
+            armPID.reset(0);
         } else {
             controlArm();
         }
@@ -223,7 +226,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return The current numerical setpoint value.
      */
     private double getSetpoint() {
-        return armPID.getSetpoint();
+        return armPID.getGoal().position;
     }
 
     /**
@@ -231,7 +234,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return If the arm is at the setpoint, accounting for tolerance.
      */
     public boolean atSetpoint() {
-        return armPID.atSetpoint();
+        return armPID.atGoal();
     }
 
     /**
@@ -254,9 +257,7 @@ public class ArmSubsystem extends SubsystemBase {
     public Command scoreCoralCommand() {
         return Commands.race(
             new FunctionalCommand(
-                () -> {
-                    armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
-                },
+                () -> armPID.setGoal(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT),
                 () -> controlArmState(),
                 interrupted -> stopMotor(),
                 () -> atSetpoint(),
@@ -276,14 +277,12 @@ public class ArmSubsystem extends SubsystemBase {
         return Commands.race(
             new FunctionalCommand(
                 () -> setArmState(state),
-                () -> {
-                    controlArmState();
-                },
+                () -> controlArmState(),
                 interrupted -> stopMotor(),
                 () -> atSetpoint(),
                 this
             ),
-            new WaitCommand(1.75)
+            new WaitCommand(0.8)
         );
     }
 
@@ -300,13 +299,15 @@ public class ArmSubsystem extends SubsystemBase {
                     if (isTopLimitSwitchPressed()) {
                         stopMotor();
                     } else {
-                        setMotorSpeed(ARM_MANUAL_CONTROL.MOTOR_SPEED);
+                        setMotorSpeed(ArmConstants.CONTROL_SPEED);
                     }
                 },
-                (interrupted) -> {
+                interrupted -> {
                     stopMotor();
-                    armPID.setSetpoint(getEncoderValue());
-                    armPID.reset();
+                    if (!hardManualEnabled) {
+                        armPID.setGoal(getEncoderValue());
+                        armPID.reset(getEncoderValue());
+                    }
                 },
                 () -> false,
                 this
@@ -318,16 +319,21 @@ public class ArmSubsystem extends SubsystemBase {
                     if (isBottomLimitSwitchPressed()) {
                         stopMotor();
                     } else {
-                        setMotorSpeed(-ARM_MANUAL_CONTROL.MOTOR_SPEED);
+                        setMotorSpeed(-ArmConstants.CONTROL_SPEED);
                     }
                 },
-                (interrupted) -> {
-                    armPID.setSetpoint(getEncoderValue());
-                    armPID.reset();
+                interrupted -> {
+                    stopMotor();
+                    if (!hardManualEnabled) {
+                        armPID.setGoal(getEncoderValue());
+                        armPID.reset(getEncoderValue());
+                    }
                 },
                 () -> false,
                 this
             );
+
+            default -> Commands.none();
         };
     }
 
@@ -336,13 +342,13 @@ public class ArmSubsystem extends SubsystemBase {
      * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
      * @return Is the elevator at or above the INTAKE position.
      */
-    public ArmEncoderStates isArmUp() {
+    public ArmDirections isArmUp() {
         if (getEncoderValue() <= 30)
-            return ArmEncoderStates.DOWN;
+            return ArmDirections.DOWN;
         else if (getEncoderValue() >= 300)
-            return ArmEncoderStates.UP;
+            return ArmDirections.UP;
         else
-            return ArmEncoderStates.UNKNOWN;
+            return ArmDirections.UNKNOWN;
     }
 
     /**

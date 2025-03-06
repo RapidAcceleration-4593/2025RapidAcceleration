@@ -9,8 +9,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.commands.armivator.GoToPositionCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SerializerSubsystem;
@@ -80,6 +81,10 @@ public class AutonUtils {
      */
     public Command goToArmState(ArmStates state) {
         return armSubsystem.goToStateCommand(state);
+    }
+
+    public Command goToArmivatorState(ArmStates armState, ElevatorStates elevatorStates) {
+        return new GoToPositionCommand(elevatorSubsystem, armSubsystem, elevatorStates, armState);
     }
 
     /**

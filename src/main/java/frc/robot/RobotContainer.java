@@ -14,12 +14,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
-import frc.robot.Constants.AutonConstants.AutonPositions;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
-import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
+import frc.robot.Constants.RobotStates.Arm.ArmDirections;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.GoToPositionCommand;
 import frc.robot.commands.armivator.KahChunkCommand;
@@ -61,6 +61,8 @@ public class RobotContainer {
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
 
+    private int dashboardStateValue;
+
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
                                                                 () -> -MathUtil.applyDeadband(driverController.getLeftY(),
@@ -100,7 +102,21 @@ public class RobotContainer {
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
     }
 
+    private void handleDashboardState() {
+        dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
+        
+        switch (dashboardStateValue) {
+            case 1: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM);
+            case 2: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2);
+            case 3: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP);
+            case 4: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP);
+            default: new Error("Invalid Dashboard Selection!");
+        }
+    }
+
     private void configureBindings() {
+        driverController.povUp().onTrue(Commands.runOnce(() -> handleDashboardState()));
+        
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()
@@ -147,16 +163,16 @@ public class RobotContainer {
         return switch(selectedAutonomous) {
             case "Do Nothing" -> new NoneAuton();
 
-            case "Left, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.LEFT);
-            case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.LEFT);
-            case "Left, 2-Coral" -> new TwoCoralAuton(autonUtils, AutonPositions.LEFT);
+            case "Left, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.LEFT);
+            case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.LEFT);
+            case "Left, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.LEFT);
 
-            case "Center, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.CENTER);
-            case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.CENTER);
+            case "Center, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.CENTER);
+            case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.CENTER);
 
-            case "Right, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.RIGHT);
-            case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.RIGHT);
-            case "Right, 2-Coral" -> new TwoCoralAuton(autonUtils, AutonPositions.RIGHT);
+            case "Right, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.RIGHT);
+            case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.RIGHT);
+            case "Right, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.RIGHT);
             
             default -> new NoneAuton();
         };

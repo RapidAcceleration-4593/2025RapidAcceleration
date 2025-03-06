@@ -12,9 +12,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.AutonConstants.AutonPositions;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.Robot;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
@@ -24,7 +24,7 @@ public class TwoCoralAuton extends AutonCommand {
 
     private final List<PathPlannerPath> paths;
 
-    public TwoCoralAuton(AutonUtils utils, AutonPositions position) {
+    public TwoCoralAuton(AutonUtils utils, StartingPosition position) {
         this.utils = utils;
 
         paths = getAutonPaths(position);
@@ -35,41 +35,34 @@ public class TwoCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                utils.goToElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
-                    utils.goToElevatorState(ElevatorStates.TOP),
-                    utils.goToArmState(ArmStates.TOP),
+                    utils.goToArmivatorState(ArmStates.TOP, ElevatorStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
                 utils.scoreCoralCommand(),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(1)),
-                    utils.goToElevatorState(ElevatorStates.PICKUP),
-                    utils.goToArmState(ArmStates.BOTTOM)
+                    utils.goToArmivatorState(ArmStates.BOTTOM, ElevatorStates.PICKUP)
                 ),
-                utils.runSerializerCommand(1.5),
-                utils.goToElevatorState(ElevatorStates.BOTTOM),
-                utils.goToElevatorState(ElevatorStates.PICKUP),
+                utils.runSerializerCommand(1.5), // TODO use new serializer sensor
                 Commands.parallel(
-                    utils.goToElevatorState(ElevatorStates.TOP),
-                    utils.goToArmState(ArmStates.TOP),
                     Commands.sequence(
-                        Commands.waitSeconds(0.25),
-                        AutoBuilder.followPath(paths.get(2))
-                    )
+                        utils.goToElevatorState(ElevatorStates.BOTTOM),
+                        utils.goToArmivatorState(ArmStates.TOP, ElevatorStates.TOP)
+                    ),
+                    AutoBuilder.followPath(paths.get(2))
                 ),
                 utils.scoreCoralCommand(),
                 Commands.parallel(
-                    AutoBuilder.followPath(paths.get(3)),
-                    utils.goToElevatorState(ElevatorStates.PICKUP),
-                    utils.goToArmState(ArmStates.BOTTOM)
+                    utils.goToArmivatorState(ArmStates.BOTTOM, ElevatorStates.PICKUP),
+                    AutoBuilder.followPath(paths.get(3))
                 )
             )
         );
     }
 
     @Override
-    protected List<PathPlannerPath> getAutonPaths(AutonPositions position) {
+    protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return switch (position) {
             case LEFT -> List.of(
                 utils.loadPath("SideTwoCoral-1").mirrorPath(),

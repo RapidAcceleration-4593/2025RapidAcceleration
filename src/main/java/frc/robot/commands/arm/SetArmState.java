@@ -1,7 +1,7 @@
 package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ArmConstants.ArmStates;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.subsystems.ArmSubsystem;
 
 public class SetArmState extends Command {

@@ -11,9 +11,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.AutonConstants.AutonPositions;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.Robot;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
@@ -23,7 +23,7 @@ public class OneCoralAuton extends AutonCommand {
 
     private final List<PathPlannerPath> paths;
 
-    public OneCoralAuton(AutonUtils utils, AutonPositions position) {
+    public OneCoralAuton(AutonUtils utils, StartingPosition position) {
         this.utils = utils;
 
         paths = getAutonPaths(position);
@@ -34,28 +34,21 @@ public class OneCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                utils.goToElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
-                    utils.goToElevatorState(ElevatorStates.TOP),
-                    utils.goToArmState(ArmStates.TOP),
-                    Commands.sequence(
-                        Commands.waitSeconds(0.5),
-                        AutoBuilder.followPath(paths.get(0))
-                    )
+                    utils.goToArmivatorState(ArmStates.TOP, ElevatorStates.TOP),
+                    AutoBuilder.followPath(paths.get(0))
                 ),
                 utils.scoreCoralCommand(),
-                AutoBuilder.followPath(paths.get(1)),
                 Commands.parallel(
-                    utils.goToElevatorState(ElevatorStates.PICKUP),
-                    utils.goToArmState(ArmStates.BOTTOM)
-                ),
-                utils.goToElevatorState(ElevatorStates.BOTTOM)
+                    AutoBuilder.followPath(paths.get(1)),
+                    utils.goToArmivatorState(ArmStates.BOTTOM, ElevatorStates.PICKUP)
+                )
             )
         );
     }
 
     @Override
-    protected List<PathPlannerPath> getAutonPaths(AutonPositions position) {
+    protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return switch (position) {
             case LEFT -> List.of(
                 utils.loadPath("SideOneCoral-1").mirrorPath(),
