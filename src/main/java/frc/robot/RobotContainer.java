@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
@@ -23,7 +22,6 @@ import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.GoToPositionCommand;
-import frc.robot.commands.armivator.HandleDashboardSelection;
 import frc.robot.commands.armivator.KahChunkCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
@@ -63,6 +61,8 @@ public class RobotContainer {
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
 
+    private int dashboardStateValue;
+
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
                                                                 () -> -MathUtil.applyDeadband(driverController.getLeftY(),
@@ -100,11 +100,23 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
+    }
 
-        CommandScheduler.getInstance().schedule(new HandleDashboardSelection(elevatorSubsystem, armSubsystem));
+    private void handleDashboardState() {
+        dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
+        
+        switch (dashboardStateValue) {
+            case 1: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM);
+            case 2: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2);
+            case 3: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP);
+            case 4: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP);
+            default: new Error("Invalid Dashboard Selection!");
+        }
     }
 
     private void configureBindings() {
+        driverController.povUp().onTrue(Commands.runOnce(() -> handleDashboardState()));
+        
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         driverController.leftTrigger()

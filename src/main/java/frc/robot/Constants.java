@@ -25,14 +25,14 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final class ElevatorPIDConstants {
-            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0, 0, 0); // Previously: 0.0021, 0, 0
+            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.00058, 0, 0);
             public static final int TOLERANCE = 30;
 
-            public static final double MAX_VELOCITY = 0;
-            public static final double MAX_ACCELERATION = 0;
+            public static final double MAX_VELOCITY = 23000;
+            public static final double MAX_ACCELERATION = 120000;
         }
 
-        public static final double CONTROL_SPEED = 1.0;
+        public static final double CONTROL_SPEED = 0.6;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
         public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
@@ -44,15 +44,15 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
-            public static final PIDConstants ARM_PID = new PIDConstants(0, 0, 0); // Previously: 0.01, 0, 0
+            public static final PIDConstants ARM_PID = new PIDConstants(0.01, 0.03, 0); // Previously: 0.01, 0, 0
             public static final int TOLERANCE = 15;
 
-            public static final double MAX_VELOCITY = 0;
-            public static final double MAX_ACCELERATION = 0;
+            public static final double MAX_VELOCITY = 1300; // Previously: 1600
+            public static final double MAX_ACCELERATION = 5000; // Previously: 9500
         }
 
-        public static final int PLACE_ROTATION_AMOUNT = 225;
-        public static final double CONTROL_SPEED = 1.0;
+        public static final int PLACE_ROTATION_AMOUNT = 180;
+        public static final double CONTROL_SPEED = 0.8;
 
         public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
