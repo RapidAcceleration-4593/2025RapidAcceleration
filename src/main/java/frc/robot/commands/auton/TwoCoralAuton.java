@@ -35,34 +35,27 @@ public class TwoCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.sequence(
-                utils.goToElevatorState(ElevatorStates.PICKUP),
                 Commands.parallel(
-                    utils.goToElevatorState(ElevatorStates.TOP),
-                    utils.goToArmState(ArmStates.TOP),
+                    utils.goToArmivatorState(ArmStates.TOP, ElevatorStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
                 utils.scoreCoralCommand(),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(1)),
-                    utils.goToElevatorState(ElevatorStates.PICKUP),
-                    utils.goToArmState(ArmStates.BOTTOM)
+                    utils.goToArmivatorState(ArmStates.BOTTOM, ElevatorStates.PICKUP)
                 ),
-                utils.runSerializerCommand(1.5),
-                utils.goToElevatorState(ElevatorStates.BOTTOM),
-                utils.goToElevatorState(ElevatorStates.PICKUP),
+                utils.runSerializerCommand(1.5), // TODO use new serializer sensor
                 Commands.parallel(
-                    utils.goToElevatorState(ElevatorStates.TOP),
-                    utils.goToArmState(ArmStates.TOP),
                     Commands.sequence(
-                        Commands.waitSeconds(0.25),
-                        AutoBuilder.followPath(paths.get(2))
-                    )
+                        utils.goToElevatorState(ElevatorStates.BOTTOM),
+                        utils.goToArmivatorState(ArmStates.TOP, ElevatorStates.TOP)
+                    ),
+                    AutoBuilder.followPath(paths.get(2))
                 ),
                 utils.scoreCoralCommand(),
                 Commands.parallel(
-                    AutoBuilder.followPath(paths.get(3)),
-                    utils.goToElevatorState(ElevatorStates.PICKUP),
-                    utils.goToArmState(ArmStates.BOTTOM)
+                    utils.goToArmivatorState(ArmStates.BOTTOM, ElevatorStates.PICKUP),
+                    AutoBuilder.followPath(paths.get(3))
                 )
             )
         );
