@@ -37,7 +37,7 @@ public class ArmSubsystem extends SubsystemBase {
                                                                                 ArmPIDConstants.MAX_VELOCITY,
                                                                                 ArmPIDConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-20, 600, 900};
+    private final double[] SETPOINTS = {-20, 600, 900}; // TODO: Adjust Setpoint Values.
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 

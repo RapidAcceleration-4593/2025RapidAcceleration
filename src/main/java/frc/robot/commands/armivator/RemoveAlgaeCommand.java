@@ -18,10 +18,7 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                 () -> isHighAlgae
             ),
             Commands.parallel(
-                Commands.race(
-                    armSubsystem.scoreCoralCommand(),
-                    Commands.waitSeconds(0.5)
-                ),
+                armSubsystem.scoreCoralCommand(),
                 drivebase.driveBackward()
             )
         );

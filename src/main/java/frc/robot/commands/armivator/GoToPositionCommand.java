@@ -11,11 +11,11 @@ import frc.robot.subsystems.ElevatorSubsystem;
 
 public class GoToPositionCommand extends SequentialCommandGroup {
 
-    ElevatorSubsystem elevatorSubsystem;
-    ArmSubsystem armSubsystem;
+    private final ElevatorSubsystem elevatorSubsystem;
+    private final ArmSubsystem armSubsystem;
 
-    ElevatorStates targetElevatorState;
-    ArmStates targetArmState;
+    private final ElevatorStates targetElevatorState;
+    private final ArmStates targetArmState;
 
     public GoToPositionCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, ElevatorStates elevatorState, ArmStates armState) {
         this.elevatorSubsystem = elevatorSubsystem;
@@ -45,11 +45,6 @@ public class GoToPositionCommand extends SequentialCommandGroup {
     }
 
     private boolean willCollide() {
-        // var isArmUpResult = armSubsystem.isArmUp(); // Arm may be uncertain if it is up.
-        // if (isArmUpResult == ArmEncoderStates.UNKNOWN)
-        //     return true;
-
-        // boolean armUp = isArmUpResult == ArmEncoderStates.UP;
         boolean armUp = armSubsystem.isArmUp() == ArmDirections.UP;
         boolean elevatorUp = elevatorSubsystem.isElevatorUp();
 
