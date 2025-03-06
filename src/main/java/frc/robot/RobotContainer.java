@@ -137,10 +137,6 @@ public class RobotContainer {
         auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
-        // Manual Control.
-        auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false)); // Serializer, Forward.
-        auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
-
         // Climber Control
         driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
         driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
