@@ -9,13 +9,7 @@ import frc.robot.subsystems.ElevatorSubsystem;
 
 public class KahChunkCommand extends SequentialCommandGroup {
     
-    ElevatorSubsystem elevatorSubsystem;
-    ArmSubsystem armSubsystem;
-
     public KahChunkCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
-        this.elevatorSubsystem = elevatorSubsystem;
-        this.armSubsystem = armSubsystem;
-
         addCommands(
             Commands.parallel(
                 elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),

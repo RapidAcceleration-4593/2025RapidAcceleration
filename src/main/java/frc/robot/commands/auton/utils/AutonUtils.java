@@ -83,8 +83,8 @@ public class AutonUtils {
         return armSubsystem.goToStateCommand(state);
     }
 
-    public Command goToArmivatorState(ArmStates armState, ElevatorStates elevatorStates) {
-        return new GoToPositionCommand(elevatorSubsystem, armSubsystem, elevatorStates, armState);
+    public Command goToArmivatorState(ElevatorStates elevatorState, ArmStates armState) {
+        return new GoToPositionCommand(elevatorSubsystem, armSubsystem, elevatorState, armState);
     }
 
     /**

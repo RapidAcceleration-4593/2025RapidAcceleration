@@ -13,7 +13,7 @@ public class SerializerSubsystem extends SubsystemBase {
     
     private final SparkMax serializerMotor = SerializerConstants.serializerMotor;
 
-    private SparkMaxConfig config = new SparkMaxConfig();
+    private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
      * Constructor for the SerializerSubsystem class.
