@@ -67,6 +67,12 @@ public final class Constants {
         public static final double CONTROL_SPEED = 0.35;
     }
 
+    public class ClimberConstants {
+        public static final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless); //TODO: Assign SparkMax ID.
+        
+        public static final double CONTROL_SPEED = 1.0;
+    }
+
     public static final class AutonConstants {
         public static final PIDConstants TRANSLATION_PID = new PIDConstants(0.7, 0, 0);
         public static final PIDConstants ANGLE_PID = new PIDConstants(0.4, 0, 0.01);
@@ -119,11 +125,6 @@ public final class Constants {
 
     public static final class DrivebaseConstants {
         public static final double WHEEL_LOCK_TIME = 10; // Seconds.
-    }
-
-    public class ClimberConstants {
-        public static final SparkMax climberMotor = null; //TODO: get id for climber motor
-        public static final float CLIMBER_MOVE_SPEED = 1;
     }
 
     public static class OperatorConstants {

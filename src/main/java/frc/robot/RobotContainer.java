@@ -28,12 +28,14 @@ import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
+import frc.robot.commands.climber.RunClimberCommand;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.manual.ToggleManualControl;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import frc.robot.subsystems.SerializerSubsystem;
@@ -49,6 +51,7 @@ public class RobotContainer {
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
+    public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
@@ -143,6 +146,10 @@ public class RobotContainer {
         auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false)); // Serializer, Forward.
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
 
+        // Climber Control
+        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
+        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
+
         // Manual Control
         auxiliaryController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
 
@@ -151,8 +158,6 @@ public class RobotContainer {
 
         driverController.x().whileTrue(armSubsystem.manualArmCommand(ArmDirections.UP));
         driverController.b().whileTrue(armSubsystem.manualArmCommand(ArmDirections.DOWN));
-
-        
     }
 
     /**

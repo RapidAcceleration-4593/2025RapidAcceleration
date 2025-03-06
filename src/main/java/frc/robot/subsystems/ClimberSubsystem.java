@@ -6,38 +6,38 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
-    SparkMax climberMotor = ClimberConstants.climberMotor;
 
-    private final SparkMaxConfig climbMotorConfig = new SparkMaxConfig();
+    private final SparkMax climberMotor = ClimberConstants.climberMotor;
+
+    private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
-     * Creates a new ClimberSubsystem and configures its motors.
+     * Constructor for the ClimberSubsystem class.
+     * Configures the motor settings and sets the idle mode to brake.
      */
     public ClimberSubsystem() {
-        climbMotorConfig.idleMode(IdleMode.kBrake);
-        climberMotor.configure(climbMotorConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        config.idleMode(IdleMode.kBrake);
+
+        climberMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
+    
+
+    /** ----- Factory Command Methods ----- */
 
     /**
-     * Sets the motor speed.
-     * @param speed
+     * Runs the climber motor at a pre-defined speed.
+     * @param inverted Whether the climber should spin reveresely.
      */
-    public void setMotorSpeed(float speed) {
-        climberMotor.set(speed);
+    public void runClimber(boolean inverted) {
+        climberMotor.set(inverted ? -ClimberConstants.CONTROL_SPEED : ClimberConstants.CONTROL_SPEED);
     }
 
-    //TODO: determine if running the motor positively makes the climber move up.
-    public Command moveClimberUpCommand() {
-        return run(() -> setMotorSpeed(ClimberConstants.CLIMBER_MOVE_SPEED)).finallyDo((interrupted) -> setMotorSpeed(0));
-    }
-
-    public Command moveClimberDownCommand() {
-        return run(() -> setMotorSpeed(-ClimberConstants.CLIMBER_MOVE_SPEED)).finallyDo((interupted) -> setMotorSpeed(0));
+    /** Stops the climber motor, putting it in brake mode. */
+    public void stopClimber() {
+        climberMotor.stopMotor();
     }
 }
