@@ -257,9 +257,7 @@ public class ArmSubsystem extends SubsystemBase {
     public Command scoreCoralCommand() {
         return Commands.race(
             new FunctionalCommand(
-                () -> {
-                    armPID.setGoal(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
-                },
+                () -> armPID.setGoal(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT),
                 () -> controlArmState(),
                 interrupted -> stopMotor(),
                 () -> atSetpoint(),
@@ -284,7 +282,7 @@ public class ArmSubsystem extends SubsystemBase {
                 () -> atSetpoint(),
                 this
             ),
-            new WaitCommand(1.75)
+            new WaitCommand(0.8)
         );
     }
 

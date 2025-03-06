@@ -280,7 +280,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                 () -> atSetpoint(),
                 this
             ),
-            new WaitCommand(2)
+            new WaitCommand(1.25)
         );
     }
 
