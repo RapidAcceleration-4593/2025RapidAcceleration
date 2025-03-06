@@ -105,23 +105,10 @@ public class RobotContainer {
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
     }
 
-    private void handleDashboardState() {
-        dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
-        
-        switch (dashboardStateValue) {
-            case 1: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM);
-            case 2: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2);
-            case 3: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP);
-            case 4: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP);
-            default: new Error("Invalid Dashboard Selection!");
-        }
-    }
-
     private void configureBindings() {
-        driverController.povUp().onTrue(Commands.runOnce(() -> handleDashboardState()));
-        
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
+        // Autonomous Drive Control.
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = drivebase.driveToPose(
@@ -135,14 +122,22 @@ public class RobotContainer {
                 }
             }));
 
+        // Armivator Control.
+        driverController.rightTrigger().onTrue(Commands.runOnce(() -> handleDashboardState()));
+
+        driverController.leftBumper().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
+        driverController.rightBumper().onTrue(armSubsystem.scoreCoralCommand());
+
         auxiliaryController.povUp().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
         auxiliaryController.povLeft().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
         auxiliaryController.povDown().onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
 
-        driverController.leftBumper().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
-        driverController.rightBumper().onTrue(armSubsystem.scoreCoralCommand());
+        // Serializer Control.
+        auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
+        auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
+        // Manual Control.
         auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false)); // Serializer, Forward.
         auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
 
@@ -158,6 +153,18 @@ public class RobotContainer {
 
         driverController.x().whileTrue(armSubsystem.manualArmCommand(ArmDirections.UP));
         driverController.b().whileTrue(armSubsystem.manualArmCommand(ArmDirections.DOWN));
+    }
+
+    /** Handles the state of the armivator based on the value from the dashboard. */
+    private void handleDashboardState() {
+        dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
+        switch (dashboardStateValue) {
+            case 1: new KahChunkCommand(elevatorSubsystem, armSubsystem);
+            case 2: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2);
+            case 3: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP);
+            case 4: new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP);
+            default: new Error("Invalid Dashboard Selection!");
+        }
     }
 
     /**

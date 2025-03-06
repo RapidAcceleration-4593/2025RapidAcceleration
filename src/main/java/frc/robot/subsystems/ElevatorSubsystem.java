@@ -39,12 +39,12 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorPIDConstants.MAX_VELOCITY, 
                                                                                     ElevatorPIDConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-300, 2750, 12550};
-
-    private ElevatorStates currentElevatorState = ElevatorStates.BOTTOM;
+    private final double[] SETPOINTS = {-300, 2750, 12550}; // TODO: Adjust Setpoint Values.
 
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
+
+    private ElevatorStates currentElevatorState = ElevatorStates.BOTTOM;
     
     /**
      * Returns if the elevator is solely in manual mode. PID is completely disabled and
@@ -355,6 +355,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return Is hard manual control enabled.
      */
     public boolean isHardManualControlEnabled() {
+        SmartDashboard.putBoolean("ManualControl", hardManualEnabled);
         return hardManualEnabled;
     }
 }

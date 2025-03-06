@@ -25,7 +25,7 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final class ElevatorPIDConstants {
-            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.00058, 0, 0);
+            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.00058, 0, 0); // TODO: Tune PID.
             public static final int TOLERANCE = 30;
 
             public static final double MAX_VELOCITY = 23000;
@@ -44,7 +44,7 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
-            public static final PIDConstants ARM_PID = new PIDConstants(0.01, 0.03, 0); // Previously: 0.01, 0, 0
+            public static final PIDConstants ARM_PID = new PIDConstants(0.01, 0.03, 0); // TODO: Tune PID.
             public static final int TOLERANCE = 15;
 
             public static final double MAX_VELOCITY = 1300; // Previously: 1600
@@ -117,9 +117,6 @@ public final class Constants {
     }
 
     public static final class FieldConstants {
-        public static final double FIELD_LENGTH = Units.inchesToMeters(690.875);
-        public static final double FIELD_WIDTH = Units.inchesToMeters(317);
-
         public static final Pose2d REEF_POSE = new Pose2d(new Translation2d(4.4895, 4.0259), new Rotation2d(0));
     }
 
