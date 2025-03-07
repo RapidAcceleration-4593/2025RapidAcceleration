@@ -186,7 +186,7 @@ public class SwerveSubsystem extends SubsystemBase {
     public Command driveToPose(Pose2d pose) {
         // Create the constraints to use while pathfinding
         PathConstraints constraints = new PathConstraints(
-            swerveDrive.getMaximumChassisVelocity() / 2, 1.5,
+            swerveDrive.getMaximumChassisVelocity() / 1.75, 2.0,
             swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands.
@@ -463,6 +463,26 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     /**
+     * Command to drive the robot forward in robot-relative mode.
+     * @return A Command to drive the robot forward.
+     */
+    public Command driveForward() {
+        return run(() -> {
+            swerveDrive.drive(new Translation2d(0.75, 0), 0, false, false);
+        }).withTimeout(1.0);
+    }
+
+    /**
+     * Command to drive the robot backward in robot-relative mode.
+     * @return A Command to drive the robot backward.
+     */
+    public Command driveBackward() {
+        return run(() -> {
+            swerveDrive.drive(new Translation2d(-0.75, 0), 0, false, false);
+        }).withTimeout(1.0);
+    }
+
+    /**
      * Gets the current field-relative velocity (x, y and omega) of the robot.
      * @return A ChassisSpeeds object of the current field-relative velocity.
      */
@@ -505,26 +525,6 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Rotation2d getPitch() {
         return swerveDrive.getPitch();
-    }
-
-    /**
-     * Command to drive the robot forward in robot-relative mode.
-     * @return A Command to drive the robot forward.
-     */
-    public Command driveForward() {
-        return run(() -> {
-            swerveDrive.drive(new Translation2d(0.5, 0), 0, false, false);
-        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
-    }
-
-    /**
-     * Command to drive the robot backward in robot-relative mode.
-     * @return A Command to drive the robot backward.
-     */
-    public Command driveBackward() {
-        return run(() -> {
-            swerveDrive.drive(new Translation2d(-0.5, 0), 0, false, false);
-        }).finallyDo(() -> swerveDrive.drive(new Translation2d(0, 0), 0, false, false));
     }
 
     /**

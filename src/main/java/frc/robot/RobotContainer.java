@@ -21,8 +21,10 @@ import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
+import frc.robot.commands.arm.ScoreCoralCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.KahChunkCommand;
+import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
@@ -30,6 +32,8 @@ import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
+import frc.robot.commands.manual.ManualArmCommand;
+import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleManualControl;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -123,7 +127,9 @@ public class RobotContainer {
         driverController.rightTrigger().onTrue(Commands.runOnce(() -> handleDashboardState()));
 
         driverController.leftBumper().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
-        driverController.rightBumper().onTrue(armSubsystem.scoreCoralCommand());
+        driverController.rightBumper().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
+
+        driverController.y().onTrue(new RemoveAlgaeCommand(drivebase, elevatorSubsystem, armSubsystem, true));
 
         auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
@@ -131,27 +137,39 @@ public class RobotContainer {
         auxiliaryController.povDown().onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
 
         // Serializer Control.
-        auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
-        auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
+        auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
+        auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
         // Manual Control.
-        auxiliaryController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
+        driverController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
 
-        driverController.y().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.UP));
-        driverController.a().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.DOWN));
+        auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.UP));
+        auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.DOWN));
 
-        driverController.x().whileTrue(armSubsystem.manualArmCommand(ArmDirections.UP));
-        driverController.b().whileTrue(armSubsystem.manualArmCommand(ArmDirections.DOWN));
+        auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.UP));
+        auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.DOWN));
     }
 
     /** Handles the state of the armivator based on the value from the dashboard. */
     private void handleDashboardState() {
         dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
         switch (dashboardStateValue) {
-            case 1: new KahChunkCommand(elevatorSubsystem, armSubsystem);
-            case 2: new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2);
-            case 3: new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP);
-            case 4: new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP);
+            case 1: 
+                new KahChunkCommand(elevatorSubsystem, armSubsystem).schedule();
+                System.out.println("Kah Chunking...");
+                break;
+            case 2:
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2).schedule();
+                System.out.println("Going to L2...");
+                break;
+            case 3:
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP).schedule();
+                System.out.println("Going to L3...");
+                break;
+            case 4:
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP).schedule();
+                System.out.println("Going to L4...");
+                break;
             default: new Error("Invalid Dashboard Selection!");
         }
     }

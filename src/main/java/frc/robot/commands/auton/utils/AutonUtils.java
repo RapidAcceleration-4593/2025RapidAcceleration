@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.commands.arm.ScoreCoralCommand;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.elevator.SetElevatorState;
@@ -99,8 +100,9 @@ public class AutonUtils {
      * Functional Command to rotate the arm down in Autonomous.
      * @return A lower setpoint for the arm mechanism.
      */
-    public Command scoreCoralCommand() {
-        return armSubsystem.scoreCoralCommand();
+    public Command scoreCoralCommand(double timeout) {
+        return new ScoreCoralCommand(armSubsystem).withTimeout(timeout);
+
     }
 
     /**

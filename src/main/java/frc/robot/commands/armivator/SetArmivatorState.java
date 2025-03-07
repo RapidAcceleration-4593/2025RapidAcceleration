@@ -13,11 +13,11 @@ import frc.robot.subsystems.ElevatorSubsystem;
 
 public class SetArmivatorState extends SequentialCommandGroup {
 
-    private final ElevatorSubsystem elevatorSubsystem;
-    private final ArmSubsystem armSubsystem;
+    ElevatorSubsystem elevatorSubsystem;
+    ArmSubsystem armSubsystem;
 
-    private final ElevatorStates targetElevatorState;
-    private final ArmStates targetArmState;
+    ElevatorStates targetElevatorState;
+    ArmStates targetArmState;
 
     public SetArmivatorState(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, ElevatorStates elevatorState, ArmStates armState) {
         this.elevatorSubsystem = elevatorSubsystem;
