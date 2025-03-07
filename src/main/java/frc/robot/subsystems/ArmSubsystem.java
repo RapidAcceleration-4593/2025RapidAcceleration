@@ -234,9 +234,9 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Is the elevator at or above the INTAKE position.
      */
     public ArmDirections isArmUp() {
-        if ((atSetpoint() && currentArmState == ArmStates.BOTTOM) || getEncoderValue() <= 30)
+        if (getEncoderValue() <= 30)
             return ArmDirections.DOWN;
-        else if ((atSetpoint() && currentArmState != ArmStates.BOTTOM) || getEncoderValue() >= 300)
+        else if (getEncoderValue() >= 300)
             return ArmDirections.UP;
         else
             return ArmDirections.UNKNOWN;

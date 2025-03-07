@@ -154,21 +154,17 @@ public class RobotContainer {
     private void handleDashboardState() {
         dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
         switch (dashboardStateValue) {
-            case 1: 
+            case 1:
                 new KahChunkCommand(elevatorSubsystem, armSubsystem).schedule();
-                System.out.println("Kah Chunking...");
                 break;
             case 2:
                 new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2).schedule();
-                System.out.println("Going to L2...");
                 break;
             case 3:
                 new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP).schedule();
-                System.out.println("Going to L3...");
                 break;
             case 4:
                 new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP).schedule();
-                System.out.println("Going to L4...");
                 break;
             default: new Error("Invalid Dashboard Selection!");
         }
