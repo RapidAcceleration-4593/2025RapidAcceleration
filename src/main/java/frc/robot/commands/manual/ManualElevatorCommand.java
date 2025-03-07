@@ -1,9 +1,7 @@
 package frc.robot.commands.manual;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.subsystems.ElevatorSubsystem;
 
