@@ -16,17 +16,12 @@ public class ToggleManualControl extends Command {
 
     @Override
     public void initialize() {
-        boolean newElevatorToggleState = !elevatorSubsystem.isManualControlEnabled();
-        boolean newArmToggleState = !armSubsystem.isManualControlEnabled();
+        elevatorSubsystem.setManualControl(!elevatorSubsystem.isManualControlEnabled());
+        armSubsystem.setManualControl(!elevatorSubsystem.isManualControlEnabled());
 
-        elevatorSubsystem.setManualControl(newElevatorToggleState);
-        armSubsystem.setManualControl(newArmToggleState);
-
-        if (newElevatorToggleState || newArmToggleState) {
-            double currentPosition = elevatorSubsystem.getEncoderValue();
-            elevatorSubsystem.resetSetpoint(currentPosition);
-            armSubsystem.resetSetpoint(currentPosition);
-        }
+        elevatorSubsystem.resetSetpoint(elevatorSubsystem.getEncoderValue());
+        
+        armSubsystem.resetSetpoint(armSubsystem.getEncoderValue());
     }
 
     @Override

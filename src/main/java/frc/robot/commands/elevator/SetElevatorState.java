@@ -17,7 +17,7 @@ public class SetElevatorState extends Command {
 
     @Override
     public void initialize() {
-        elevatorSubsystem.setElevatorState(elevatorState);
+        elevatorSubsystem.setTargetElevatorState(elevatorState);
     }
 
     @Override

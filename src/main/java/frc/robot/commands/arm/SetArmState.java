@@ -17,7 +17,7 @@ public class SetArmState extends Command {
 
     @Override
     public void initialize() {
-        armSubsystem.setArmState(armState);
+        armSubsystem.setTargetArmState(armState);
     }
 
     @Override

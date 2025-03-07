@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPIDConstants;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
@@ -43,7 +44,7 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private boolean manualControlEnabled = false;
 
-    private ArmStates currentArmState = ArmStates.BOTTOM;
+    private ArmStates targetArmState = ArmStates.BOTTOM;
 
     /**
      * Constructor for the SwingArmSubsystem class.
@@ -79,17 +80,17 @@ public class ArmSubsystem extends SubsystemBase {
      * Sets the setpoint of the arm to the target state.
      * @param state The desired arm position.
      */
-    public void setArmState(ArmStates state) {
+    public void setTargetArmState(ArmStates state) {
         armPID.setGoal(getArmState(state));
-        currentArmState = state;
+        targetArmState = state;
     }
 
     /**
      * Gets the arm state based on the previously set goal.
      * @return The current arm state.
      */
-    public ArmStates getCurrentArmState() {
-        return currentArmState;
+    public ArmStates getTargetArmState() {
+        return targetArmState;
     }
 
 
@@ -231,12 +232,17 @@ public class ArmSubsystem extends SubsystemBase {
 
     /**
      * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
+     * Returns {@link ArmDirections#UNKNOWN} if it is unsure whether the arm is up or not.
      * @return Is the elevator at or above the INTAKE position.
      */
     public ArmDirections isArmUp() {
-        if ((atSetpoint() && currentArmState == ArmStates.BOTTOM) || getEncoderValue() <= 30)
+        if (Robot.isSimulation()) {
+            return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
+        }
+
+        if (getEncoderValue() <= 30)
             return ArmDirections.DOWN;
-        else if ((atSetpoint() && currentArmState != ArmStates.BOTTOM) || getEncoderValue() >= 300)
+        else if (getEncoderValue() >= 300)
             return ArmDirections.UP;
         else
             return ArmDirections.UNKNOWN;
@@ -284,7 +290,7 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("A-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("A-Encoder", getEncoderValue());
         SmartDashboard.putNumber("A-Setpoint", getSetpoint());
-        SmartDashboard.putString("A-State", currentArmState.toString());
+        SmartDashboard.putString("A-State", targetArmState.toString());
 
     }
 }

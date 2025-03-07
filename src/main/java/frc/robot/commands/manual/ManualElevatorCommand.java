@@ -1,7 +1,9 @@
 package frc.robot.commands.manual;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ElevatorConstants;
+import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.subsystems.ElevatorSubsystem;
 
@@ -21,14 +23,17 @@ public class ManualElevatorCommand extends Command {
         if (!elevatorSubsystem.isManualControlEnabled())
             return;
 
-        if (elevatorSubsystem.isTopLimitSwitchPressed() || elevatorSubsystem.isBottomLimitSwitchPressed()) {
+        double speed = (direction == ElevatorDirections.UP)
+        ? ElevatorConstants.CONTROL_SPEED
+        : -ElevatorConstants.CONTROL_SPEED;
+
+        //TODO: Add resetEncoder when bottom LS is hit.
+
+        if ((elevatorSubsystem.isTopLimitSwitchPressed() && speed > 0) ||
+            (elevatorSubsystem.isBottomLimitSwitchPressed() && speed < 0)) {
             elevatorSubsystem.stopMotors();
             return;
         }
-
-        double speed = (direction == ElevatorDirections.UP)
-            ? ElevatorConstants.CONTROL_SPEED
-            : -ElevatorConstants.CONTROL_SPEED;
         elevatorSubsystem.setMotorSpeeds(speed);
     }
 

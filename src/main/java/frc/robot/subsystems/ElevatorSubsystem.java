@@ -10,9 +10,11 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
@@ -45,7 +47,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private boolean manualControlEnabled = false;
 
-    private ElevatorStates currentElevatorState = ElevatorStates.BOTTOM;
+    private ElevatorStates targetElevatorState = ElevatorStates.BOTTOM;
 
 
     /**
@@ -84,17 +86,17 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Sets the target elevator position based on the given state.
      * @param state Desired elevator state.
      */
-    public void setElevatorState(ElevatorStates state) {
+    public void setTargetElevatorState(ElevatorStates state) {
         elevatorPID.setGoal(getElevatorState(state));
-        currentElevatorState = state;
+        targetElevatorState = state;
     }
 
     /**
      * Gets the elevator state based on the previously set goal.
      * @return The current elevator state.
      */
-    public ElevatorStates getCurrentElevatorState() {
-        return currentElevatorState;
+    public ElevatorStates getTargetElevatorState() {
+        return targetElevatorState;
     }
 
 
@@ -176,7 +178,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
 
-    /** ----- Encoder and Limit Switch Abstraction ----- */
+    /** ----- Motor, Encoder and Limit Switch Abstraction ----- */
 
     /**
      * Checks if the top limit switch is pressed.
@@ -216,7 +218,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /** Resets the elevator encoder. */
-    private void resetEncoder() {
+    void resetEncoder() {
         elevatorEncoder.reset();
     }
 
@@ -237,16 +239,20 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Whether the elevator is at or above the PICKUP position. Used to coordinate elevator/arm movements.
+     * Whether the elevator is at or above the PICKUP position. Use to coordinate elevator/arm movements.
      * @return If the elevator at or above the PICKUP position.
      */
     public boolean isElevatorUp() {
-        return (atSetpoint() && currentElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP
-               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 300);   // Above PICKUP
+        if (Robot.isSimulation()) {
+            return targetElevatorState != ElevatorStates.BOTTOM;
+        }
+
+        return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||    // At PICKUP
+               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + ElevatorPIDConstants.TOLERANCE); // Above PICKUP. TODO: Tyler check this.
     }
 
 
-    /** ----- Factory Command Methods ----- */
+    /** ----- Misc ----- */
 
     /**
      * Sets the setpoint for the elevator PID controller, without resetting.
@@ -287,6 +293,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putBoolean("E-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("E-Encoder", getEncoderValue());
         SmartDashboard.putNumber("E-Setpoint", getSetpoint());
-        SmartDashboard.putString("E-State", currentElevatorState.toString());
+        SmartDashboard.putString("E-State", targetElevatorState.toString());
     }
 }
