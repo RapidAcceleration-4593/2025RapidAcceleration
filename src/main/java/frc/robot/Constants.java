@@ -28,8 +28,8 @@ public final class Constants {
             public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.00058, 0, 0); // TODO: Tune PID.
             public static final int TOLERANCE = 30;
 
-            public static final double MAX_VELOCITY = 23000;
-            public static final double MAX_ACCELERATION = 120000;
+            public static final double MAX_VELOCITY = 23000; // Previously: 23000
+            public static final double MAX_ACCELERATION = 120000; // Previously: 120000
         }
 
         public static final double CONTROL_SPEED = 0.6;

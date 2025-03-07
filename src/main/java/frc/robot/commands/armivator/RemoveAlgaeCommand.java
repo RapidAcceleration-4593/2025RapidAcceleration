@@ -13,8 +13,8 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
     public RemoveAlgaeCommand(SwerveSubsystem drivebase, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, boolean isHighAlgae) {
         addCommands(
             Commands.either(
-                new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.L2),
-                new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP),
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.L2),
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP),
                 () -> isHighAlgae
             ),
             Commands.parallel(

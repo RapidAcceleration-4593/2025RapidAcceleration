@@ -21,7 +21,17 @@ public class SetArmState extends Command {
     }
 
     @Override
+    public void execute() {
+        armSubsystem.controlArmState();
+    }
+
+    @Override
     public boolean isFinished() {
-        return true;
+        return armSubsystem.atSetpoint();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        armSubsystem.stopMotor();
     }
 }

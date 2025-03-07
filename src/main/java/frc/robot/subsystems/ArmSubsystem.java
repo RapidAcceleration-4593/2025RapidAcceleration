@@ -269,24 +269,6 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /**
-     * Command to set and control the state of the arm mechanism.
-     * @param state The desired state of the arm.
-     * @return A Command Race to set arm state with a timeout.
-     */
-    public Command goToStateCommand(ArmStates state) {
-        return Commands.race(
-            new FunctionalCommand(
-                () -> setArmState(state),
-                () -> controlArmState(),
-                interrupted -> stopMotor(),
-                () -> atSetpoint(),
-                this
-            ),
-            new WaitCommand(0.8)
-        );
-    }
-
-    /**
      * Command to control the arm manually during PID control.
      * @param direction The direction to manually move the arm.
      * @return A Functional Command to control the arm manually.

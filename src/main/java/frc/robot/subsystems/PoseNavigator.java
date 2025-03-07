@@ -27,8 +27,6 @@ public class PoseNavigator extends SubsystemBase {
     /** Target Dashboard Pose, updated periodically through SmartDashboard. */
     private int targetDashboardPose;
 
-    /** Match Time reflected by FMS. */
-    private int matchTime = -1;
 
     /**
      * Constructor for the PoseNavigator class.
@@ -46,14 +44,10 @@ public class PoseNavigator extends SubsystemBase {
      * This method is called by the Notifier.
      */
     private void updateDashboard() {
-        int newTargetPose = (int) SmartDashboard.getNumber("TargetDashboardPose", 0);
-        if (newTargetPose != targetDashboardPose) targetDashboardPose = newTargetPose;
+        targetDashboardPose = (int) SmartDashboard.getNumber("TargetDashboardPose", 1);
 
-        int DSMatchTime = (int) DriverStation.getMatchTime();
-        if (DSMatchTime != matchTime) {
-            SmartDashboard.putNumber("MatchTime", DSMatchTime);
-            matchTime = DSMatchTime;
-        }
+        SmartDashboard.putNumber("MatchTime", (int) DriverStation.getMatchTime());
+        SmartDashboard.putBoolean("ManualControl", autonUtils.elevatorSubsystem.isHardManualControlEnabled());
     }
 
     /**

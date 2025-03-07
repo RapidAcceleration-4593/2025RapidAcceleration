@@ -13,10 +13,8 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
@@ -265,25 +263,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("E-Setpoint", getSetpoint());
     }
 
-
-    /**
-     * Command to set and control the state of the elevator mechanism.
-     * @param state The desired state of the elevator.
-     * @return A Command Race to set elevator state with a timeout.
-     */
-    public Command goToStateCommand(ElevatorStates state) {
-        return Commands.race(
-            new FunctionalCommand(
-                () -> setElevatorState(state),
-                () -> controlElevatorState(),
-                interrupted -> stopMotors(),
-                () -> atSetpoint(),
-                this
-            ),
-            new WaitCommand(1.25)
-        );
-    }
-
     /**
      * Command to control the elevator manually during PID control.
      * @param direction The direction to manually move the elevator.
@@ -355,7 +334,6 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return Is hard manual control enabled.
      */
     public boolean isHardManualControlEnabled() {
-        SmartDashboard.putBoolean("ManualControl", hardManualEnabled);
         return hardManualEnabled;
     }
 }

@@ -36,7 +36,7 @@ public class TwoCoralAuton extends AutonCommand {
         addCommands(
             Commands.sequence(
                 Commands.parallel(
-                    utils.goToArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
+                    utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
                 utils.scoreCoralCommand(),
@@ -44,13 +44,13 @@ public class TwoCoralAuton extends AutonCommand {
                     AutoBuilder.followPath(paths.get(1)),
                     Commands.sequence(
                         Commands.waitSeconds(0.75),
-                        utils.goToArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
+                        utils.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                     )
                 ),
-                utils.runSerializerCommand(1.5), // TODO use new serializer sensor
-                utils.goToElevatorState(ElevatorStates.BOTTOM),
+                utils.runSerializerCommand(1.5), // TODO: Implement serializer sensor.
+                utils.setElevatorState(ElevatorStates.BOTTOM, 0.8),
                 Commands.parallel(
-                    utils.goToArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
+                    utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(2))
                 ),
                 utils.scoreCoralCommand(),
@@ -58,7 +58,7 @@ public class TwoCoralAuton extends AutonCommand {
                     AutoBuilder.followPath(paths.get(3)),
                     Commands.sequence(
                         Commands.waitSeconds(0.75),
-                        utils.goToArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
+                        utils.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                     )
                 )
             )
