@@ -1,6 +1,7 @@
 package frc.robot.subsystems;
 
 import edu.wpi.first.wpilibj.motorcontrol.Spark;
+import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.LEDConstants;
 
@@ -24,18 +25,23 @@ public class LEDSubsystem extends SubsystemBase {
         this.drivebase = drivebase;
     }
 
-    // I know using periodic is a terrible idea, but so is having direct references to subsystems. We are in the spagetti zone.
-    @Override
-    public void periodic() {
-        // The order of the conditions is the order of priority
-        // If hard manual control
-        // blinkingLEDs.set(LEDConstants.RED_SOLID)
-        // else if (serializer load)
-        // blink green
-        // else if autodrive
-        // blink blue
-        // else
-        // turn off
+    private void displayStatus() {
 
+        if (serializerSubsystem.isCoralLoaded()) {
+            blinkingLEDs.set(LEDConstants.GREEN_SOLID);
+        }
+        else if (drivebase.isAutoDriving()) {
+            blinkingLEDs.set(LEDConstants.BLUE_SOLID);
+        }
+        else if (elevatorSubsystem.isManualControlEnabled() || armSubsystem.isManualControlEnabled()) {
+            blinkingLEDs.set(LEDConstants.RED_SOLID);
+        }
+        else {
+            blinkingLEDs.set(0);
+        }
+    }
+
+    public Command displayStatusCommand () {
+        return run(this::displayStatus);
     }
 }
