@@ -42,7 +42,7 @@ public class SerializerSubsystem extends SubsystemBase {
     public void controlSerializerState() {
         updateValues();
 
-        if (getSerializerSensor()) {
+        if (isCoralLoaded()) {
             if (!hasTriggered) {
                 new KahChunkCommand(elevatorSubsystem, armSubsystem).schedule();
                 stopSerializer();
@@ -57,7 +57,11 @@ public class SerializerSubsystem extends SubsystemBase {
 
     /** ----- Sensor Abstraction ----- */
 
-    private boolean getSerializerSensor() {
+    /**
+     * Is there a coral ready in the serializer?
+     * @return If the coral sensor is triggered.
+     */
+    public boolean isCoralLoaded() {
         return !serializerSensor.get();
     }
 
@@ -79,6 +83,6 @@ public class SerializerSubsystem extends SubsystemBase {
 
     /** Updates values to SmartDashboard/ShuffleBoard. */
     private void updateValues() {
-        SmartDashboard.putBoolean("S-Sensor", getSerializerSensor());
+        SmartDashboard.putBoolean("S-Sensor", isCoralLoaded());
     }
 }
