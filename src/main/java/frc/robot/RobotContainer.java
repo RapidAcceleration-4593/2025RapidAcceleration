@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
@@ -36,7 +37,6 @@ import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleManualControl;
-import frc.robot.commands.serializer.ControlSerializerState;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -55,7 +55,7 @@ public class RobotContainer {
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
-    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem(elevatorSubsystem, armSubsystem);
+    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
@@ -65,6 +65,8 @@ public class RobotContainer {
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
+
+    private final Trigger coralLoadedTrigger = new Trigger(serializerSubsystem::isCoralLoaded);
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
@@ -108,7 +110,6 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
-        serializerSubsystem.setDefaultCommand(new ControlSerializerState(serializerSubsystem));
     }
 
     private void configureBindings() {
@@ -144,6 +145,9 @@ public class RobotContainer {
         // Serializer Control.
         auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
         auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
+
+        coralLoadedTrigger.onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
+        coralLoadedTrigger.whileFalse(serializerSubsystem.runSerializerCommand());
 
         // Climber Control
         driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));

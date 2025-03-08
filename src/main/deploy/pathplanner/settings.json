@@ -1,10 +1,11 @@
 {
-  "robotWidth": 0.864,
-  "robotLength": 0.914,
+  "robotWidth": 0.8636,
+  "robotLength": 0.8636,
   "holonomicMode": true,
   "pathFolders": [
     "CenterMoveOut",
     "CenterOneCoral",
+    "SideThreeCoral",
     "SideMoveOut",
     "SideOneCoral",
     "SideTwoCoral"
@@ -35,7 +36,6 @@
   "bumperOffsetX": 0.0,
   "bumperOffsetY": 0.0,
   "robotFeatures": [
-    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":0.52},\"size\":{\"width\":0.1651,\"length\":0.914},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}",
-    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.0,\"y\":-0.52},\"size\":{\"width\":0.1651,\"length\":0.914},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.4574,\"y\":0.0},\"size\":{\"width\":0.8636,\"length\":0.0508},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
   ]
 }
