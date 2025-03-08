@@ -20,7 +20,6 @@ public class ToggleManualControl extends Command {
         armSubsystem.setManualControl(!elevatorSubsystem.isManualControlEnabled());
 
         elevatorSubsystem.resetSetpoint(elevatorSubsystem.getEncoderValue());
-        
         armSubsystem.resetSetpoint(armSubsystem.getEncoderValue());
     }
 

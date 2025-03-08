@@ -21,17 +21,18 @@ public class ManualArmCommand extends Command {
         if (!armSubsystem.isManualControlEnabled())
             return;
 
-        double speed = (direction == ArmDirections.UP)
-        ? ArmConstants.CONTROL_SPEED
-        : -ArmConstants.CONTROL_SPEED;
-        
-        //TODO: Add resetEncoder when bottom LS is hit.
-
-        if ((armSubsystem.isTopLimitSwitchPressed() && speed > 0) ||
-            (armSubsystem.isBottomLimitSwitchPressed() && speed < 0)) {
+        if (isLimitSwitchPressed()) {
             armSubsystem.stopMotor();
             return;
         }
+
+        if (armSubsystem.isBottomLimitSwitchPressed())
+            armSubsystem.resetEncoder();
+
+        double speed = (direction == ArmDirections.UP)
+            ? ArmConstants.CONTROL_SPEED
+            : -ArmConstants.CONTROL_SPEED;
+
         armSubsystem.setMotorSpeed(speed);
     }
 
@@ -43,5 +44,11 @@ public class ManualArmCommand extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+
+    private boolean isLimitSwitchPressed() {
+        return (direction == ArmDirections.UP)
+            ? armSubsystem.isTopLimitSwitchPressed()
+            : armSubsystem.isBottomLimitSwitchPressed();
     }
 }

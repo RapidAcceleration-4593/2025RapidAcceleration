@@ -177,7 +177,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
 
-    /** ----- Motor, Encoder and Limit Switch Abstraction ----- */
+    /** ----- Motor, Encoder, and Limit Switch Abstraction ----- */
 
     /**
      * Checks if the top limit switch is pressed.
@@ -217,7 +217,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /** Resets the elevator encoder. */
-    void resetEncoder() {
+    public void resetEncoder() {
         elevatorEncoder.reset();
     }
 
@@ -242,16 +242,15 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return If the elevator at or above the PICKUP position.
      */
     public boolean isElevatorUp() {
-        if (Robot.isSimulation()) {
+        if (Robot.isSimulation())
             return targetElevatorState != ElevatorStates.BOTTOM;
-        }
 
         return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||    // At PICKUP
                (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + ElevatorPIDConstants.TOLERANCE); // Above PICKUP. TODO: Tyler check this.
     }
 
 
-    /** ----- Misc ----- */
+    /** ----- Miscellaneous Methods ----- */
 
     /**
      * Sets the setpoint for the elevator PID controller, without resetting.

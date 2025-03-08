@@ -170,7 +170,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
 
-    /** ----- Encoder and Limit Switch Abstraction ----- */
+    /** ----- Motor, Encoder, and Limit Switch Abstraction ----- */
 
     /**
      * Checks if the top limit switch is pressed.
@@ -210,7 +210,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /** Resets the arm encoder. */
-    private void resetEncoder() {
+    public void resetEncoder() {
         armEncoder.reset();
     }
 
@@ -236,9 +236,8 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Is the elevator at or above the INTAKE position.
      */
     public ArmDirections isArmUp() {
-        if (Robot.isSimulation()) {
+        if (Robot.isSimulation())
             return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
-        }
 
         if (getEncoderValue() <= 30)
             return ArmDirections.DOWN;
@@ -249,7 +248,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
 
-    /** ----- Command Factory Methods ----- */
+    /** ----- Miscellaneous Methods ----- */
 
     /**
      * Sets the setpoint for the arm PID Controller, without resetting.

@@ -21,17 +21,18 @@ public class ManualElevatorCommand extends Command {
         if (!elevatorSubsystem.isManualControlEnabled())
             return;
 
-        double speed = (direction == ElevatorDirections.UP)
-        ? ElevatorConstants.CONTROL_SPEED
-        : -ElevatorConstants.CONTROL_SPEED;
-
-        //TODO: Add resetEncoder when bottom LS is hit.
-
-        if ((elevatorSubsystem.isTopLimitSwitchPressed() && speed > 0) ||
-            (elevatorSubsystem.isBottomLimitSwitchPressed() && speed < 0)) {
+        if (isLimitSwitchPressed()) {
             elevatorSubsystem.stopMotors();
             return;
         }
+
+        if (elevatorSubsystem.isBottomLimitSwitchPressed())
+            elevatorSubsystem.resetEncoder();
+
+        double speed = (direction == ElevatorDirections.UP)
+            ? ElevatorConstants.CONTROL_SPEED
+            : -ElevatorConstants.CONTROL_SPEED;
+
         elevatorSubsystem.setMotorSpeeds(speed);
     }
 
@@ -43,5 +44,11 @@ public class ManualElevatorCommand extends Command {
     @Override
     public boolean isFinished() {
         return false;
+    }
+
+    private boolean isLimitSwitchPressed() {
+        return (direction == ElevatorDirections.UP)
+            ? elevatorSubsystem.isTopLimitSwitchPressed()
+            : elevatorSubsystem.isBottomLimitSwitchPressed();
     }
 }
