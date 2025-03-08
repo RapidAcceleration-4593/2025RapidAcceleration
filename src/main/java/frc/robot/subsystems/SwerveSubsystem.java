@@ -51,6 +51,9 @@ public class SwerveSubsystem extends SubsystemBase {
     /** PhotonVision class to keep an accurate odometry. */
     private VisionUtils visionUtils;
 
+    /** Is the robot currently pathfinding to a pose. */
+    private boolean isAutoDriving = false;
+
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
      * @param directory Directory of swerve drive config files.
@@ -194,7 +197,9 @@ public class SwerveSubsystem extends SubsystemBase {
             pose,
             constraints,
             edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec.
-        );
+        )
+        .beforeStarting(() -> isAutoDriving = true) // Set auto driving status variable.
+        .finallyDo(() -> isAutoDriving = false);
     }
 
     /**
@@ -395,6 +400,10 @@ public class SwerveSubsystem extends SubsystemBase {
     public boolean isRedAlliance() {
         var alliance = DriverStation.getAlliance();
         return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
+    }
+
+    public boolean isAutoDriving() {
+        return isAutoDriving;
     }
 
     /**

@@ -42,6 +42,7 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import frc.robot.subsystems.SerializerSubsystem;
 import swervelib.SwerveInputStream;
@@ -57,6 +58,7 @@ public class RobotContainer {
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem(elevatorSubsystem, armSubsystem);
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+    public final LEDSubsystem ledSubsystem = new LEDSubsystem(elevatorSubsystem, armSubsystem, serializerSubsystem, drivebase);
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
@@ -109,6 +111,7 @@ public class RobotContainer {
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
         serializerSubsystem.setDefaultCommand(new ControlSerializerState(serializerSubsystem));
+        ledSubsystem.setDefaultCommand(ledSubsystem.displayStatusCommand());
     }
 
     private void configureBindings() {
