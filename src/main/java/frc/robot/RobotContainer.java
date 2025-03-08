@@ -59,7 +59,7 @@ public class RobotContainer {
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-    public final LEDSubsystem ledSubsystem = new LEDSubsystem(elevatorSubsystem, armSubsystem, serializerSubsystem, drivebase);
+    public final LEDSubsystem LEDSubsystem = new LEDSubsystem(elevatorSubsystem, armSubsystem, serializerSubsystem, drivebase);
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
@@ -111,8 +111,7 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
-        ledSubsystem.setDefaultCommand(ledSubsystem.displayStatusCommand());
-        serializerSubsystem.setDefaultCommand(serializerSubsystem.runSerializerCommand());
+        LEDSubsystem.setDefaultCommand(LEDSubsystem.displayStatusCommand());
     }
 
     private void configureBindings() {
@@ -135,7 +134,8 @@ public class RobotContainer {
         // Armivator Control.
         driverController.rightTrigger().onTrue(Commands.runOnce(() -> handleDashboardState()));
 
-        driverController.leftBumper().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
+        // driverController.leftBumper().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
+        driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
         driverController.rightBumper().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
 
         driverController.y().onTrue(new RemoveAlgaeCommand(drivebase, elevatorSubsystem, armSubsystem, true));
@@ -148,7 +148,6 @@ public class RobotContainer {
         // Serializer Control.
         auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
         auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
-        auxiliaryController.leftBumper().onTrue(new PickupCoralCommand(serializerSubsystem, elevatorSubsystem, armSubsystem));
 
         // Climber Control
         driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));

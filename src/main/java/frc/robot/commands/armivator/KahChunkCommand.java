@@ -15,7 +15,7 @@ public class KahChunkCommand extends SequentialCommandGroup {
         addCommands(
             Commands.parallel(
                 new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
-                new SetArmState(armSubsystem, ArmStates.BOTTOM).withTimeout(0.8)
+                new SetArmState(armSubsystem, ArmStates.BOTTOM).withTimeout(1.5)
             ),
             new SetElevatorState(elevatorSubsystem, ElevatorStates.BOTTOM).withTimeout(0.8),
             new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(0.8)

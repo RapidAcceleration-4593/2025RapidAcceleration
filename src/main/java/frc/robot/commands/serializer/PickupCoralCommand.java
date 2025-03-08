@@ -12,8 +12,8 @@ import frc.robot.subsystems.SerializerSubsystem;
 
 public class PickupCoralCommand extends SequentialCommandGroup {
     
-    public PickupCoralCommand(SerializerSubsystem serializerSubsystem, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
-        addRequirements(serializerSubsystem, elevatorSubsystem, armSubsystem);
+    public PickupCoralCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SerializerSubsystem serializerSubsystem) {
+        addRequirements(elevatorSubsystem, armSubsystem, serializerSubsystem);
 
         addCommands(
             Commands.parallel(
