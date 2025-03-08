@@ -17,11 +17,21 @@ public class SetElevatorState extends Command {
 
     @Override
     public void initialize() {
-        elevatorSubsystem.setElevatorState(elevatorState);
+        elevatorSubsystem.setTargetElevatorState(elevatorState);
+    }
+
+    @Override
+    public void execute() {
+        elevatorSubsystem.controlElevatorState();
     }
 
     @Override
     public boolean isFinished() {
-        return true;
+        return elevatorSubsystem.atSetpoint();
+    }
+
+    @Override
+    public void end(boolean interrupted) {
+        elevatorSubsystem.stopMotors();
     }
 }

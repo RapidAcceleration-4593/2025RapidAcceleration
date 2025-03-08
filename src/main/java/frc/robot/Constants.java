@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.motorcontrol.Spark;
 import swervelib.math.Matter;
 
 public final class Constants {
-    public static final double ROBOT_MASS = (110) * 0.453592; // 115 Pounds to Kilograms.
+    public static final double ROBOT_MASS = (110) * 0.453592; // 110 Pounds to Kilograms.
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
     public static final double MAX_SPEED = Units.feetToMeters(8.0); // Maximum speed of robot in meters per second, used to limit acceleration.
@@ -29,14 +29,17 @@ public final class Constants {
             public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.00058, 0, 0); // TODO: Tune PID.
             public static final int TOLERANCE = 30;
 
-            public static final double MAX_VELOCITY = 23000;
-            public static final double MAX_ACCELERATION = 120000;
+            public static final double MAX_VELOCITY = 23000; // Previously: 23000
+            public static final double MAX_ACCELERATION = 120000; // Previously: 120000
         }
+
+        /** The time it takes for the elevator to go from the bottom to the top, in seconds.  */
+        public static final double MAX_TRAVEL_TIME = 1.25;
 
         public static final double CONTROL_SPEED = 0.6;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
-        public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
+        public static final SparkMax rightElevatorMotor = new SparkMax(3, MotorType.kBrushless);
 
         public static final Encoder elevatorEncoder = new Encoder(8, 9);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);
@@ -52,10 +55,13 @@ public final class Constants {
             public static final double MAX_ACCELERATION = 5000; // Previously: 9500
         }
 
+        /** The time it takes for the elevator to go from the bottom to the top, in seconds. */
+        public static final double MAX_TRAVEL_TIME = 1.25;
+
         public static final int PLACE_ROTATION_AMOUNT = 180;
         public static final double CONTROL_SPEED = 0.8;
 
-        public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
+        public static final SparkMax armMotor = new SparkMax(5, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
 
         public static final DigitalInput topLimitSwitch = new DigitalInput(2);
@@ -63,9 +69,17 @@ public final class Constants {
     }
 
     public static final class SerializerConstants {
-        public static final SparkMax serializerMotor = new SparkMax(8, MotorType.kBrushless);
+        public static final SparkMax serializerMotor = new SparkMax(6, MotorType.kBrushless);
+        public static final DigitalInput serializerSensor = new DigitalInput(4);
 
-        public static final double CONTROL_SPEED = 0.35;
+        public static final double CONTROL_SPEED = 0.3;
+    }
+
+    public class ClimberConstants {
+        public static final SparkMax leftClimberMotor = new SparkMax(2, MotorType.kBrushless); //TODO: Assign SparkMax ID.
+        public static final SparkMax rightClimberMotor = new SparkMax(4, MotorType.kBrushless); //TODO: Assign SparkMax ID.
+        
+        public static final double CONTROL_SPEED = 1.0;
     }
 
     public static final class LEDConstants {
@@ -87,7 +101,6 @@ public final class Constants {
             public static final double REEF_RADIUS = Units.inchesToMeters(32.75);
             public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
             public static final double ANGLE_INCREMENT = Math.toRadians(60.0);
-
         }
     }
 

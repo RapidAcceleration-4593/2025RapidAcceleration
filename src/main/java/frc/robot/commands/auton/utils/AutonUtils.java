@@ -11,7 +11,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
-import frc.robot.commands.armivator.GoToPositionCommand;
+import frc.robot.commands.arm.ScoreCoralCommand;
+import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.armivator.SetArmivatorState;
+import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SerializerSubsystem;
@@ -70,8 +73,8 @@ public class AutonUtils {
      * @param state The selected state of the elevator.
      * @return A Functional Command to set the state of the elevator during autonomous.
      */
-    public Command goToElevatorState(ElevatorStates state) {
-        return elevatorSubsystem.goToStateCommand(state);
+    public Command setElevatorState(ElevatorStates state, double timeout) {
+        return new SetElevatorState(elevatorSubsystem, state).withTimeout(timeout);
     }
 
     /**
@@ -79,22 +82,34 @@ public class AutonUtils {
      * @param state The selected state of the arm.
      * @return A Functional Command to set the state of the arm during autonomous.
      */
-    public Command goToArmState(ArmStates state) {
-        return armSubsystem.goToStateCommand(state);
+    public Command setArmState(ArmStates state, double timeout) {
+        return new SetArmState(armSubsystem, state).withTimeout(timeout);
     }
 
-    public Command goToArmivatorState(ElevatorStates elevatorState, ArmStates armState) {
-        return new GoToPositionCommand(elevatorSubsystem, armSubsystem, elevatorState, armState);
+    /**
+     * Functional Command to set elevator and arm state while running PID Control.
+     * @param elevatorState The selected state of the elevator.
+     * @param armState The selected state of the arm.
+     * @return A Functional Command to set the state of the elevator and arm during autonomous.
+     */
+    public Command setArmivatorState(ElevatorStates elevatorState, ArmStates armState) {
+        return new SetArmivatorState(elevatorSubsystem, armSubsystem, elevatorState, armState);
     }
 
     /**
      * Functional Command to rotate the arm down in Autonomous.
      * @return A lower setpoint for the arm mechanism.
      */
-    public Command scoreCoralCommand() {
-        return armSubsystem.scoreCoralCommand();
+    public Command scoreCoralCommand(double timeout) {
+        return new ScoreCoralCommand(armSubsystem).withTimeout(timeout);
+
     }
 
+    /**
+     * Functional Command to run the serializer for a set amount of time.
+     * @param seconds The amount of time to run the serializer.
+     * @return A Functional Command to run the serializer for a set amount of time.
+     */
     public Command runSerializerCommand(double seconds) {
         return Commands.sequence(
             Commands.race(

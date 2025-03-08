@@ -16,8 +16,11 @@ public class ToggleManualControl extends Command {
 
     @Override
     public void initialize() {
-        elevatorSubsystem.setHardManualControl(!elevatorSubsystem.isHardManualControlEnabled());
-        armSubsystem.setHardManualControl(!armSubsystem.isHardManualControlEnabled());
+        elevatorSubsystem.setManualControl(!elevatorSubsystem.isManualControlEnabled());
+        armSubsystem.setManualControl(!elevatorSubsystem.isManualControlEnabled());
+
+        elevatorSubsystem.resetSetpoint(elevatorSubsystem.getEncoderValue());
+        armSubsystem.resetSetpoint(armSubsystem.getEncoderValue());
     }
 
     @Override
