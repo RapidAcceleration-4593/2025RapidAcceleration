@@ -21,13 +21,13 @@ public class ManualElevatorCommand extends Command {
         if (!elevatorSubsystem.isManualControlEnabled())
             return;
 
+        if (elevatorSubsystem.isBottomLimitSwitchPressed())
+            elevatorSubsystem.resetEncoder();
+
         if (isLimitSwitchPressed()) {
             elevatorSubsystem.stopMotors();
             return;
         }
-
-        if (elevatorSubsystem.isBottomLimitSwitchPressed())
-            elevatorSubsystem.resetEncoder();
 
         double speed = (direction == ElevatorDirections.UP)
             ? ElevatorConstants.CONTROL_SPEED
