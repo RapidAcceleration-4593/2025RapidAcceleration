@@ -1,23 +1,21 @@
 package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class SetArmState extends Command {
+public class ScoreCoralCommand extends Command {
     
     private final ArmSubsystem armSubsystem;
-    private final ArmStates armState;
 
-    public SetArmState(ArmSubsystem subsystem, ArmStates state) {
+    public ScoreCoralCommand(ArmSubsystem subsystem) {
         this.armSubsystem = subsystem;
-        this.armState = state;
         addRequirements(subsystem);
     }
 
     @Override
     public void initialize() {
-        armSubsystem.setTargetArmState(armState);
+        armSubsystem.setSetpoint(armSubsystem.getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
     }
 
     @Override

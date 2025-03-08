@@ -6,18 +6,20 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
-public class GoToPositionCommand extends SequentialCommandGroup {
+public class SetArmivatorState extends SequentialCommandGroup {
 
-    private final ElevatorSubsystem elevatorSubsystem;
-    private final ArmSubsystem armSubsystem;
+    ElevatorSubsystem elevatorSubsystem;
+    ArmSubsystem armSubsystem;
 
-    private final ElevatorStates targetElevatorState;
-    private final ArmStates targetArmState;
+    ElevatorStates targetElevatorState;
+    ArmStates targetArmState;
 
-    public GoToPositionCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, ElevatorStates elevatorState, ArmStates armState) {
+    public SetArmivatorState(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, ElevatorStates elevatorState, ArmStates armState) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
 
@@ -29,15 +31,15 @@ public class GoToPositionCommand extends SequentialCommandGroup {
                 Commands.either(
                     handleCollisionCommand(),
                     Commands.parallel(
-                        elevatorSubsystem.goToStateCommand(elevatorState),
-                        armSubsystem.goToStateCommand(armState)
+                        new SetElevatorState(elevatorSubsystem, elevatorState).withTimeout(1.25),
+                        new SetArmState(armSubsystem, armState).withTimeout(0.8)
                     ),
                     this::willCollide
                 ),
                 Commands.sequence(
-                    elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
-                    armSubsystem.goToStateCommand(armState),
-                    elevatorSubsystem.goToStateCommand(elevatorState)
+                    new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
+                    new SetArmState(armSubsystem, armState).withTimeout(0.8),
+                    new SetElevatorState(elevatorSubsystem, elevatorState).withTimeout(1.25)
                 ),
                 () -> armSubsystem.isArmUp() != ArmDirections.UNKNOWN
             )
@@ -96,25 +98,25 @@ public class GoToPositionCommand extends SequentialCommandGroup {
         return Commands.either(
             Commands.either(
                 Commands.sequence(
-                    elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
+                    new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
                     Commands.parallel(
-                        elevatorSubsystem.goToStateCommand(targetElevatorState),
-                        armSubsystem.goToStateCommand(targetArmState)
+                        new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(1.25),
+                        new SetArmState(armSubsystem, targetArmState).withTimeout(0.8)
                     )
                 ),
                 Commands.sequence(
                     Commands.parallel(
-                        elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
-                        armSubsystem.goToStateCommand(targetArmState)
+                        new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
+                        new SetArmState(armSubsystem, targetArmState).withTimeout(0.8)
                     ),
-                    elevatorSubsystem.goToStateCommand(targetElevatorState)
+                    new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(1.25)
                 ),
                 this::isKahchunkToRaised
             ),
             Commands.sequence(
-                elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
-                armSubsystem.goToStateCommand(targetArmState),
-                elevatorSubsystem.goToStateCommand(targetElevatorState)
+                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
+                new SetArmState(armSubsystem, targetArmState).withTimeout(0.8),
+                new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(1.25)
             ),
             this::parallelSupported
         );
