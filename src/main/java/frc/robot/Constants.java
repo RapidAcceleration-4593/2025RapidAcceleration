@@ -35,7 +35,7 @@ public final class Constants {
         public static final double CONTROL_SPEED = 0.6;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
-        public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
+        public static final SparkMax rightElevatorMotor = new SparkMax(3, MotorType.kBrushless);
 
         public static final Encoder elevatorEncoder = new Encoder(8, 9);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);
@@ -54,7 +54,7 @@ public final class Constants {
         public static final int PLACE_ROTATION_AMOUNT = 180;
         public static final double CONTROL_SPEED = 0.8;
 
-        public static final SparkMax armMotor = new SparkMax(7, MotorType.kBrushless);
+        public static final SparkMax armMotor = new SparkMax(5, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
 
         public static final DigitalInput topLimitSwitch = new DigitalInput(2);
@@ -62,14 +62,15 @@ public final class Constants {
     }
 
     public static final class SerializerConstants {
-        public static final SparkMax serializerMotor = new SparkMax(8, MotorType.kBrushless);
+        public static final SparkMax serializerMotor = new SparkMax(6, MotorType.kBrushless);
+        public static final DigitalInput serializerSensor = new DigitalInput(4);
 
         public static final double CONTROL_SPEED = 0.35;
     }
 
     public class ClimberConstants {
-        public static final SparkMax leftClimberMotor = new SparkMax(0, MotorType.kBrushless); //TODO: Assign SparkMax ID.
-        public static final SparkMax rightClimberMotor = new SparkMax(0, MotorType.kBrushless); //TODO: Assign SparkMax ID.
+        public static final SparkMax leftClimberMotor = new SparkMax(2, MotorType.kBrushless); //TODO: Assign SparkMax ID.
+        public static final SparkMax rightClimberMotor = new SparkMax(4, MotorType.kBrushless); //TODO: Assign SparkMax ID.
         
         public static final double CONTROL_SPEED = 1.0;
     }

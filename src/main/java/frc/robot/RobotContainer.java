@@ -36,6 +36,7 @@ import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleManualControl;
+import frc.robot.commands.serializer.ControlSerializerState;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -54,7 +55,7 @@ public class RobotContainer {
     public final SwerveSubsystem drivebase = new SwerveSubsystem(new File(Filesystem.getDeployDirectory(), "swerve"));
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
-    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
+    public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem(elevatorSubsystem, armSubsystem);
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
@@ -107,6 +108,7 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
+        serializerSubsystem.setDefaultCommand(new ControlSerializerState(serializerSubsystem));
     }
 
     private void configureBindings() {

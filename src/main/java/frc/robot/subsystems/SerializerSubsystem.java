@@ -6,12 +6,21 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
+import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.SerializerConstants;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.commands.elevator.SetElevatorState;
 
 public class SerializerSubsystem extends SubsystemBase {
+
+    private final ElevatorSubsystem elevatorSubsystem;
+    private final ArmSubsystem armSubsystem;
     
     private final SparkMax serializerMotor = SerializerConstants.serializerMotor;
+
+    private final DigitalInput serializerSensor = SerializerConstants.serializerSensor;
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -19,10 +28,34 @@ public class SerializerSubsystem extends SubsystemBase {
      * Constructor for the SerializerSubsystem class.
      * Configures the motor settings.
      */
-    public SerializerSubsystem() {
+    public SerializerSubsystem(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+        this.elevatorSubsystem = elevatorSubsystem;
+        this.armSubsystem = armSubsystem;
+
         config.idleMode(IdleMode.kBrake);
 
         serializerMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
+
+
+    /** ----- Serializer State System ----- */
+
+    public void controlSerializerState() {
+        updateValues();
+
+        if (getSerializerSensor()) {
+            new SetElevatorState(elevatorSubsystem, ElevatorStates.BOTTOM).schedule();
+            stopSerializer();
+        } else {
+            runSerializer(false);
+        }
+    }
+
+
+    /** ----- Sensor Abstraction ----- */
+
+    private boolean getSerializerSensor() {
+        return !serializerSensor.get();
     }
 
 
@@ -39,5 +72,10 @@ public class SerializerSubsystem extends SubsystemBase {
     /** Stops the serializer belt motor. */
     public void stopSerializer() {
         serializerMotor.stopMotor();
+    }
+
+    /** Updates values to SmartDashboard/ShuffleBoard. */
+    private void updateValues() {
+        SmartDashboard.putBoolean("S-Sensor", getSerializerSensor());
     }
 }
