@@ -11,18 +11,22 @@ import frc.robot.Constants.ClimberConstants;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-    private final SparkMax climberMotor = ClimberConstants.climberMotor;
+    private final SparkMax leaderClimberMotor = ClimberConstants.leftClimberMotor;
+    private final SparkMax followerClimberMotor = ClimberConstants.rightClimberMotor;
 
-    private final SparkMaxConfig config = new SparkMaxConfig();
+    private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
+    private final SparkMaxConfig followerConfig = new SparkMaxConfig();
 
     /**
      * Constructor for the ClimberSubsystem class.
      * Configures the motor settings and sets the idle mode to brake.
      */
     public ClimberSubsystem() {
-        config.idleMode(IdleMode.kBrake);
+        leaderConfig.idleMode(IdleMode.kBrake);
+        followerConfig.idleMode(IdleMode.kBrake).follow(leaderClimberMotor, true);
 
-        climberMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        leaderClimberMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerClimberMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
     
 
@@ -33,11 +37,11 @@ public class ClimberSubsystem extends SubsystemBase {
      * @param inverted Whether the climber should spin reveresely.
      */
     public void runClimber(boolean inverted) {
-        climberMotor.set(inverted ? -ClimberConstants.CONTROL_SPEED : ClimberConstants.CONTROL_SPEED);
+        leaderClimberMotor.set(inverted ? -ClimberConstants.CONTROL_SPEED : ClimberConstants.CONTROL_SPEED);
     }
 
     /** Stops the climber motor, putting it in brake mode. */
     public void stopClimber() {
-        climberMotor.stopMotor();
+        leaderClimberMotor.stopMotor();
     }
 }

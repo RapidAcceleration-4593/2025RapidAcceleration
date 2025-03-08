@@ -68,7 +68,8 @@ public final class Constants {
     }
 
     public class ClimberConstants {
-        public static final SparkMax climberMotor = new SparkMax(0, MotorType.kBrushless); //TODO: Assign SparkMax ID.
+        public static final SparkMax leftClimberMotor = new SparkMax(0, MotorType.kBrushless); //TODO: Assign SparkMax ID.
+        public static final SparkMax rightClimberMotor = new SparkMax(0, MotorType.kBrushless); //TODO: Assign SparkMax ID.
         
         public static final double CONTROL_SPEED = 1.0;
     }
@@ -84,7 +85,6 @@ public final class Constants {
             public static final double REEF_RADIUS = Units.inchesToMeters(32.75);
             public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
             public static final double ANGLE_INCREMENT = Math.toRadians(60.0);
-
         }
     }
 
