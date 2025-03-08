@@ -29,6 +29,7 @@ import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
+import frc.robot.commands.auton.ThreeCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.climber.RunClimberCommand;
@@ -66,7 +67,7 @@ public class RobotContainer {
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
 
-    private final Trigger coralLoadedTrigger = new Trigger(serializerSubsystem::isCoralLoaded);
+    private Trigger coralLoadedTrigger = new Trigger(serializerSubsystem::isCoralLoaded);
 
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
@@ -146,7 +147,7 @@ public class RobotContainer {
         auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
         auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
-        coralLoadedTrigger.onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
+        coralLoadedTrigger.onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem)).debounce(2.0);
         coralLoadedTrigger.whileFalse(serializerSubsystem.runSerializerCommand());
 
         // Climber Control
@@ -196,6 +197,7 @@ public class RobotContainer {
             case "Left, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.LEFT);
             case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.LEFT);
             case "Left, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.LEFT);
+            case "Left, 3-Coral" -> new ThreeCoralAuton(autonUtils, StartingPosition.LEFT);
 
             case "Center, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.CENTER);
             case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.CENTER);
@@ -203,6 +205,7 @@ public class RobotContainer {
             case "Right, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.RIGHT);
             case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.RIGHT);
             case "Right, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.RIGHT);
+            case "Right, 3-Coral" -> new ThreeCoralAuton(autonUtils, StartingPosition.RIGHT);
             
             default -> new NoneAuton();
         };

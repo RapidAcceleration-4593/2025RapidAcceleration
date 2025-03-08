@@ -58,6 +58,20 @@ public class ThreeCoralAuton extends AutonCommand {
                     AutoBuilder.followPath(paths.get(3)),
                     Commands.sequence(
                         Commands.waitSeconds(0.75),
+                        utils.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
+                    )
+                ),
+                utils.runSerializerCommand(1.5), // TODO: Implement serializer sensor.
+                utils.setElevatorState(ElevatorStates.BOTTOM, 0.8),
+                Commands.parallel(
+                    utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
+                    AutoBuilder.followPath(paths.get(4))
+                ),
+                utils.scoreCoralCommand(0.3),
+                Commands.parallel(
+                    AutoBuilder.followPath(paths.get(5)),
+                    Commands.sequence(
+                        Commands.waitSeconds(0.75),
                         utils.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                     )
                 )
@@ -73,7 +87,9 @@ public class ThreeCoralAuton extends AutonCommand {
                 utils.loadPath("SideThreeCoral-2").mirrorPath(),
                 utils.loadPath("SideThreeCoral-3").mirrorPath(),
                 utils.loadPath("SideThreeCoral-4").mirrorPath(),
-                utils.loadPath("SideThreeCoral-5").mirrorPath()
+                utils.loadPath("SideThreeCoral-5").mirrorPath(),
+                utils.loadPath("SideThreeCoral-6").mirrorPath()
+
             );
             case CENTER -> Collections.emptyList();
             case RIGHT -> List.of(
@@ -81,7 +97,9 @@ public class ThreeCoralAuton extends AutonCommand {
                 utils.loadPath("SideThreeCoral-2"),
                 utils.loadPath("SideThreeCoral-3"),
                 utils.loadPath("SideThreeCoral-4"),
-                utils.loadPath("SideThreeCoral-5")
+                utils.loadPath("SideThreeCoral-5"),
+                utils.loadPath("SideThreeCoral-6")
+
             );
         };
     } 
