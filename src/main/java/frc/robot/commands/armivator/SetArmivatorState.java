@@ -2,6 +2,8 @@ package frc.robot.commands.armivator;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
@@ -33,30 +35,30 @@ public class SetArmivatorState extends Command {
         
         // Register commands (this way they only have to be created once)
         pureSequentialSequence = Commands.sequence(
-            new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
-            new SetArmState(armSubsystem, targetArmState).withTimeout(0.8),
-            new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(1.25)
+            new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(ElevatorConstants.MAX_TRAVEL_TIME),
+            new SetArmState(armSubsystem, targetArmState).withTimeout(ArmConstants.MAX_TRAVEL_TIME),
+            new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(ElevatorConstants.MAX_TRAVEL_TIME)
         );
 
         topToBottomSequence = Commands.sequence(
             Commands.parallel(
-                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
-                new SetArmState(armSubsystem, targetArmState).withTimeout(0.8)
+                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(ElevatorConstants.MAX_TRAVEL_TIME),
+                new SetArmState(armSubsystem, targetArmState).withTimeout(ArmConstants.MAX_TRAVEL_TIME)
             ),
-            new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(1.25)
+            new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(ElevatorConstants.MAX_TRAVEL_TIME)
         );
 
         bottomToTopSequence = Commands.sequence(
-            new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
+            new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(ElevatorConstants.MAX_TRAVEL_TIME),
             Commands.parallel(
-                new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(1.25),
-                new SetArmState(armSubsystem, targetArmState).withTimeout(0.8)
+                new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(ElevatorConstants.MAX_TRAVEL_TIME),
+                new SetArmState(armSubsystem, targetArmState).withTimeout(ArmConstants.MAX_TRAVEL_TIME)
             )
         );
 
         pureParallelSequence = Commands.parallel(
-            new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(1.25),
-            new SetArmState(armSubsystem, targetArmState).withTimeout(0.8)
+            new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(ElevatorConstants.MAX_TRAVEL_TIME),
+            new SetArmState(armSubsystem, targetArmState).withTimeout(ArmConstants.MAX_TRAVEL_TIME)
         );
 
         addRequirements(elevatorSubsystem, armSubsystem);

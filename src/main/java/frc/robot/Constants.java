@@ -32,6 +32,11 @@ public final class Constants {
             public static final double MAX_ACCELERATION = 120000; // Previously: 120000
         }
 
+        /**
+         * The time it takes for the elevator to go from the bottom to the top, in seconds.
+         */
+        public static final double MAX_TRAVEL_TIME = 1.25;
+
         public static final double CONTROL_SPEED = 0.6;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
@@ -50,6 +55,11 @@ public final class Constants {
             public static final double MAX_VELOCITY = 1300; // Previously: 1600
             public static final double MAX_ACCELERATION = 5000; // Previously: 9500
         }
+
+        /**
+         * The time it takes for the elevator to go from the bottom to the top, in seconds.
+         */
+        public static final double MAX_TRAVEL_TIME = 1.25;
 
         public static final int PLACE_ROTATION_AMOUNT = 180;
         public static final double CONTROL_SPEED = 0.8;
