@@ -19,16 +19,13 @@ import frc.robot.commands.auton.utils.AutonUtils;
 public class PoseNavigator extends SubsystemBase {
 
     /** AutonUtils Class Object. */
-    private AutonUtils autonUtils;
+    private final AutonUtils autonUtils;
 
     /** Notifier for Custom Dashboard. */
-    private Notifier dashboardNotifier;
+    private final Notifier dashboardNotifier;
 
     /** Target Dashboard Pose, updated periodically through SmartDashboard. */
     private int targetDashboardPose;
-
-    /** Match Time reflected by FMS. */
-    private int matchTime = -1;
 
     /**
      * Constructor for the PoseNavigator class.
@@ -46,14 +43,10 @@ public class PoseNavigator extends SubsystemBase {
      * This method is called by the Notifier.
      */
     private void updateDashboard() {
-        int newTargetPose = (int) SmartDashboard.getNumber("TargetDashboardPose", 0);
-        if (newTargetPose != targetDashboardPose) targetDashboardPose = newTargetPose;
+        targetDashboardPose = (int) SmartDashboard.getNumber("TargetDashboardPose", 1);
 
-        int DSMatchTime = (int) DriverStation.getMatchTime();
-        if (DSMatchTime != matchTime) {
-            SmartDashboard.putNumber("MatchTime", DSMatchTime);
-            matchTime = DSMatchTime;
-        }
+        SmartDashboard.putNumber("MatchTime", (int) DriverStation.getMatchTime());
+        SmartDashboard.putBoolean("ManualControl", autonUtils.elevatorSubsystem.isManualControlEnabled());
     }
 
     /**
@@ -63,9 +56,7 @@ public class PoseNavigator extends SubsystemBase {
      * @return The selected target {@link Pose2d} based on the current target dashboard pose.
      */
     public Pose2d selectTargetPose(double distanceFromReef, boolean isRedAlliance) {
-        if (targetDashboardPose > 24) {
-            return selectChutePose(targetDashboardPose);
-        }
+        if (targetDashboardPose > 24) return selectChutePose(targetDashboardPose);
         return calculateReefPose(distanceFromReef, targetDashboardPose, isRedAlliance);
     }
 

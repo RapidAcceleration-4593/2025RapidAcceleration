@@ -13,27 +13,35 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
-import frc.robot.Constants.AutonConstants.AutonPositions;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
-import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
+import frc.robot.Constants.RobotStates.Arm.ArmDirections;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
-import frc.robot.commands.armivator.GoToPositionCommand;
+import frc.robot.commands.arm.ScoreCoralCommand;
+import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.KahChunkCommand;
+import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
+import frc.robot.commands.auton.ThreeCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
+import frc.robot.commands.climber.RunClimberCommand;
 import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
+import frc.robot.commands.manual.ManualArmCommand;
+import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleManualControl;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import frc.robot.subsystems.SerializerSubsystem;
@@ -49,6 +57,7 @@ public class RobotContainer {
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
+    public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
@@ -58,8 +67,12 @@ public class RobotContainer {
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
 
+    private Trigger coralLoadedTrigger = new Trigger(serializerSubsystem::isCoralLoaded);
+
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
+
+    private int dashboardStateValue;
 
     /** Swerve Drive Command with full field-centric mode and heading correction. */
     FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
@@ -103,6 +116,7 @@ public class RobotContainer {
     private void configureBindings() {
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
+        // Autonomous Drive Control.
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = drivebase.driveToPose(
@@ -116,25 +130,58 @@ public class RobotContainer {
                 }
             }));
 
-        auxiliaryController.povUp().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
-        auxiliaryController.povRight().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
-        auxiliaryController.povLeft().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
+        // Armivator Control.
+        driverController.rightTrigger().onTrue(Commands.runOnce(() -> handleDashboardState()));
+
+        driverController.leftBumper().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
+        driverController.rightBumper().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
+
+        driverController.y().onTrue(new RemoveAlgaeCommand(drivebase, elevatorSubsystem, armSubsystem, true));
+
+        auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
+        auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
+        auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
         auxiliaryController.povDown().onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
 
-        driverController.leftBumper().onTrue(new GoToPositionCommand(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
-        driverController.rightBumper().onTrue(armSubsystem.scoreCoralCommand());
+        // Serializer Control.
+        auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
+        auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
-        auxiliaryController.x().whileTrue(new RunSerializerCommand(serializerSubsystem, false)); // Serializer, Forward.
-        auxiliaryController.b().whileTrue(new RunSerializerCommand(serializerSubsystem, true)); // Serializer, Reverse.
+        coralLoadedTrigger.onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem)).debounce(2.0);
+        coralLoadedTrigger.whileFalse(serializerSubsystem.runSerializerCommand());
+
+        // Climber Control
+        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
+        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
 
         // Manual Control
-        auxiliaryController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
+        driverController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
 
-        driverController.y().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.UP));
-        driverController.a().whileTrue(elevatorSubsystem.manualElevatorCommand(ElevatorDirections.DOWN));
+        auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.UP));
+        auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.DOWN));
 
-        driverController.x().whileTrue(armSubsystem.manualArmCommand(ArmDirections.UP));
-        driverController.b().whileTrue(armSubsystem.manualArmCommand(ArmDirections.DOWN));
+        auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.UP));
+        auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.DOWN));
+    }
+
+    /** Handles the state of the armivator based on the value from the dashboard. */
+    private void handleDashboardState() {
+        dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
+        switch (dashboardStateValue) {
+            case 1:
+                new KahChunkCommand(elevatorSubsystem, armSubsystem).schedule();
+                break;
+            case 2:
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2).schedule();
+                break;
+            case 3:
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP).schedule();
+                break;
+            case 4:
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP).schedule();
+                break;
+            default: new Error("Invalid Dashboard Selection!");
+        }
     }
 
     /**
@@ -147,16 +194,18 @@ public class RobotContainer {
         return switch(selectedAutonomous) {
             case "Do Nothing" -> new NoneAuton();
 
-            case "Left, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.LEFT);
-            case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.LEFT);
-            case "Left, 2-Coral" -> new TwoCoralAuton(autonUtils, AutonPositions.LEFT);
+            case "Left, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.LEFT);
+            case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.LEFT);
+            case "Left, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.LEFT);
+            case "Left, 3-Coral" -> new ThreeCoralAuton(autonUtils, StartingPosition.LEFT);
 
-            case "Center, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.CENTER);
-            case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.CENTER);
+            case "Center, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.CENTER);
+            case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.CENTER);
 
-            case "Right, Move Out" -> new MoveOutAuton(autonUtils, AutonPositions.RIGHT);
-            case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, AutonPositions.RIGHT);
-            case "Right, 2-Coral" -> new TwoCoralAuton(autonUtils, AutonPositions.RIGHT);
+            case "Right, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.RIGHT);
+            case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.RIGHT);
+            case "Right, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.RIGHT);
+            case "Right, 3-Coral" -> new ThreeCoralAuton(autonUtils, StartingPosition.RIGHT);
             
             default -> new NoneAuton();
         };

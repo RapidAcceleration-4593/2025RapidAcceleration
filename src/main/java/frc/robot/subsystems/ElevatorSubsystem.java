@@ -12,15 +12,11 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL;
-import frc.robot.Constants.ElevatorConstants.ELEVATOR_MANUAL_CONTROL.ElevatorDirections;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -30,28 +26,28 @@ public class ElevatorSubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ElevatorConstants.bottomLimitSwitch;
 
-    public final Encoder elevatorEncoder = ElevatorConstants.elevatorEncoder;
+    private final Encoder elevatorEncoder = ElevatorConstants.elevatorEncoder;
 
-    private final ProfiledPIDController elevatorPID = new ProfiledPIDController(ElevatorConstants.ELEVATOR_PID.kP,
-                                                                                ElevatorConstants.ELEVATOR_PID.kI,
-                                                                                ElevatorConstants.ELEVATOR_PID.kD,
+    private final ProfiledPIDController elevatorPID = new ProfiledPIDController(ElevatorPIDConstants.ELEVATOR_PID.kP,
+                                                                                ElevatorPIDConstants.ELEVATOR_PID.kI,
+                                                                                ElevatorPIDConstants.ELEVATOR_PID.kD,
                                                                                 new TrapezoidProfile.Constraints(
-                                                                                    ElevatorConstants.MAX_VELOCITY, 
-                                                                                    ElevatorConstants.MAX_ACCELERATION));
+                                                                                    ElevatorPIDConstants.MAX_VELOCITY, 
+                                                                                    ElevatorPIDConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-300, 2750, 12550};
-
-    private ElevatorStates currentElevatorState = ElevatorStates.BOTTOM;
+    private final double[] SETPOINTS = {-300, 2750, 12550}; // TODO: Adjust Setpoint Values. Previously: {-300, 2750, 12550}.
 
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
-    
+
     /**
-     * Returns if the elevator is solely in manual mode. PID is completely disabled and
-     * {@link #handleBottomLimitSwitchPressed()} and {@link #handleTopLimitSwitchPressed()}
-     * behave differently. Access throug {@link #isHardManualControlEnabled()}.
+     * Returns if the elevator is solely in manual mode.
+     * PID is completely disabled. Access only through {@link #isManualControlEnabled()}.
      */
-    private boolean hardManualEnabled = false;
+    private boolean manualControlEnabled = false;
+
+    private ElevatorStates targetElevatorState = ElevatorStates.BOTTOM;
+
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -64,7 +60,7 @@ public class ElevatorSubsystem extends SubsystemBase {
         leaderElevatorMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerElevatorMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-        elevatorPID.setTolerance(ElevatorConstants.PID_TOLERANCE);
+        elevatorPID.setTolerance(ElevatorPIDConstants.TOLERANCE);
         elevatorPID.reset(0);
     }
 
@@ -81,7 +77,7 @@ public class ElevatorSubsystem extends SubsystemBase {
             case BOTTOM -> SETPOINTS[0];
             case PICKUP -> SETPOINTS[1];
             case TOP -> SETPOINTS[2];
-            default -> -1;
+            default -> throw new Error("Passed in an ElevatorState that does not have an associated setpoint!");
         };
     }
 
@@ -89,17 +85,17 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Sets the target elevator position based on the given state.
      * @param state Desired elevator state.
      */
-    public void setElevatorState(ElevatorStates state) {
+    public void setTargetElevatorState(ElevatorStates state) {
         elevatorPID.setGoal(getElevatorState(state));
-        currentElevatorState = state;
+        targetElevatorState = state;
     }
 
     /**
      * Gets the elevator state based on the previously set goal.
      * @return The current elevator state.
      */
-    public ElevatorStates getCurrentElevatorState() {
-        return currentElevatorState;
+    public ElevatorStates getTargetElevatorState() {
+        return targetElevatorState;
     }
 
 
@@ -116,16 +112,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void controlElevatorState() {
         updateValues();
 
-        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) { // Some sort of error
+        if (isManualControlEnabled())
+            return;
+
+        if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotors();
-        }
-        else if (isTopLimitSwitchPressed()) {
+        } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
-        }
-        else if (isBottomLimitSwitchPressed()) {
+        } else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
-        }
-        else if (!isHardManualControlEnabled()) {
+        } else {
             controlElevator();
         }
     }
@@ -153,17 +149,9 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-        if (isHardManualControlEnabled()) {
-            if (leaderElevatorMotor.get() > 0) {
-                setMotorSpeeds(0);
-            }
-            return;
-        }
-
         if (getSetpoint() >= getEncoderValue()) {
             stopMotors();
-            elevatorPID.setGoal(getEncoderValue());
-            elevatorPID.reset(getEncoderValue());
+            resetSetpoint(getEncoderValue());
         } else {
             controlElevator();
         }
@@ -180,24 +168,16 @@ public class ElevatorSubsystem extends SubsystemBase {
     private void handleBottomLimitSwitchPressed() {
         resetEncoder();
 
-        if (isHardManualControlEnabled()) {
-            if (leaderElevatorMotor.get() < 0) {
-                setMotorSpeeds(0);
-            }
-            return;
-        }
-
         if (getSetpoint() <= 0) {
             stopMotors();
-            elevatorPID.setGoal(0);
-            elevatorPID.reset(0);
+            resetSetpoint(0);
         } else {
             controlElevator();
         }
     }
 
 
-    /** ----- Encoder and Limit Switch Abstraction ----- */
+    /** ----- Motor, Encoder, and Limit Switch Abstraction ----- */
 
     /**
      * Checks if the top limit switch is pressed.
@@ -232,12 +212,12 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Retrieves the current encoder value of the elevator.
      * @return The current encoder value of the elevator.
      */
-    private double getEncoderValue() {
+    public double getEncoderValue() {
         return -elevatorEncoder.get();
     }
 
     /** Resets the elevator encoder. */
-    private void resetEncoder() {
+    public void resetEncoder() {
         elevatorEncoder.reset();
     }
 
@@ -258,104 +238,59 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /**
-     * Updates values to SmartDashboard/ShuffleBoard.
+     * Whether the elevator is at or above the PICKUP position. Use to coordinate elevator/arm movements.
+     * @return If the elevator at or above the PICKUP position.
      */
+    public boolean isElevatorUp() {
+        if (Robot.isSimulation())
+            return targetElevatorState != ElevatorStates.BOTTOM;
+
+        return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||    // At PICKUP
+               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + ElevatorPIDConstants.TOLERANCE); // Above PICKUP. TODO: Tyler check this.
+    }
+
+
+    /** ----- Miscellaneous Methods ----- */
+
+    /**
+     * Sets the setpoint for the elevator PID controller, without resetting.
+     * @param setpoint New setpoint value.
+     */
+    public void setSetpoint(double setpoint) {
+        elevatorPID.setGoal(setpoint);
+    }
+
+    /**
+     * Resets the setpoint for the elevator PID controller.
+     * @param setpoint New setpoint value.
+     */
+    public void resetSetpoint(double setpoint) {
+        elevatorPID.setGoal(setpoint);
+        elevatorPID.reset(setpoint);
+    }
+
+    /**
+     * Sets {@link #manualControlEnabled}. Setting to true completely disables PID control and changes limit switch behavior.
+     * @return Is hard manual control enabled.
+     */
+    public void setManualControl(boolean enabled) {
+        manualControlEnabled = enabled;
+    }
+
+    /**
+     * Gets {@link #manualControlEnabled}. When true it completely disables PID control and changes limit switch behavior.
+     * @return Whether hard manual control enabled.
+     */
+    public boolean isManualControlEnabled() {
+        return manualControlEnabled;
+    }
+
+    /** Updates values to SmartDashboard/ShuffleBoard. */
     private void updateValues() {
         SmartDashboard.putBoolean("E-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("E-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("E-Encoder", getEncoderValue());
         SmartDashboard.putNumber("E-Setpoint", getSetpoint());
-    }
-
-    /**
-     * Command to set and control the state of the elevator mechanism.
-     * @param state The desired state of the elevator.
-     * @return A Command Race to set elevator state with a timeout.
-     */
-    public Command goToStateCommand(ElevatorStates state) {
-        return Commands.race(
-            new FunctionalCommand(
-                () -> setElevatorState(state),
-                () -> {
-                    controlElevatorState();
-                },
-                interrupted -> stopMotors(),
-                () -> atSetpoint(),
-                this
-            ),
-            new WaitCommand(2)
-        );
-    }
-
-    /**
-     * Command to control the elevator manually during PID control.
-     * @param direction The direction to manually move the elevator.
-     * @return A Functional Command to control the elevator manually.
-     */
-    public Command manualElevatorCommand(ElevatorDirections direction) {
-        return switch (direction) {
-            case UP -> new FunctionalCommand(
-                ()-> {},
-                () -> {
-                    if (isTopLimitSwitchPressed()) {
-                        stopMotors();
-                    } else {
-                        setMotorSpeeds(ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
-                    }
-                },
-                (interrupted) -> {
-                    stopMotors();
-                    elevatorPID.setGoal(getEncoderValue());
-                    elevatorPID.reset(getEncoderValue());
-                },
-                () -> false,
-                this
-            );
-
-            case DOWN -> new FunctionalCommand(
-                ()-> {},
-                () -> {
-                    if (isBottomLimitSwitchPressed()) {
-                        stopMotors();
-                    } else {
-                        setMotorSpeeds(-ELEVATOR_MANUAL_CONTROL.MOTOR_SPEED);
-                    }
-                },
-                (interrupted) -> {
-                    stopMotors();
-                    if (!hardManualEnabled) {
-                        elevatorPID.setGoal(getEncoderValue());
-                        elevatorPID.reset(getEncoderValue());
-                    }
-                },
-                () -> false,
-                this
-            );
-        };
-    }
-
-    /**
-     * Whether the elevator is at or above the PICKUP position. Used to coordinate elevator/arm movements.
-     * @return If the elevator at or above the PICKUP position.
-     */
-    public boolean isElevatorUp() {
-        return (atSetpoint() && currentElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP
-               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + 300);   // Above PICKUP
-    }
-
-    /**
-     * Sets {@link #hardManualEnabled}. Setting to true completely disables PID control and changes limit switch behavior.
-     * @return Is hard manual control enabled.
-     */
-    public void setHardManualControl(boolean enable) {
-        hardManualEnabled = enable;
-    }
-
-    /**
-     * Gets {@link #hardManualEnabled}. When true it completely disables PID control and changes limit switch behavior.
-     * @return Is hard manual control enabled.
-     */
-    public boolean isHardManualControlEnabled() {
-        return hardManualEnabled;
+        SmartDashboard.putString("E-State", targetElevatorState.toString());
     }
 }

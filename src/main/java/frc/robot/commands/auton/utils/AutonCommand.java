@@ -6,7 +6,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.AutonConstants.AutonPositions;
+import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 
 public abstract class AutonCommand extends SequentialCommandGroup {
     public abstract List<Pose2d> getAllPathPoses();
@@ -17,5 +17,5 @@ public abstract class AutonCommand extends SequentialCommandGroup {
      * @param position The starting position of the robot.
      * @return The auton path that the robot should drive.
      */
-    protected abstract List<PathPlannerPath> getAutonPaths(AutonPositions position);
+    protected abstract List<PathPlannerPath> getAutonPaths(StartingPosition position);
 }

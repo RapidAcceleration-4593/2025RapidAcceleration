@@ -2,27 +2,23 @@ package frc.robot.commands.armivator;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ElevatorConstants.ElevatorStates;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class KahChunkCommand extends SequentialCommandGroup {
     
-    ElevatorSubsystem elevatorSubsystem;
-    ArmSubsystem armSubsystem;
-
     public KahChunkCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
-        this.elevatorSubsystem = elevatorSubsystem;
-        this.armSubsystem = armSubsystem;
-
         addCommands(
             Commands.parallel(
-                elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP),
-                armSubsystem.goToStateCommand(ArmStates.BOTTOM)
+                new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(1.25),
+                new SetArmState(armSubsystem, ArmStates.BOTTOM).withTimeout(0.8)
             ),
-            elevatorSubsystem.goToStateCommand(ElevatorStates.BOTTOM),
-            elevatorSubsystem.goToStateCommand(ElevatorStates.PICKUP)
+            new SetElevatorState(elevatorSubsystem, ElevatorStates.BOTTOM).withTimeout(0.8),
+            new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(0.8)
         );
     }
 }

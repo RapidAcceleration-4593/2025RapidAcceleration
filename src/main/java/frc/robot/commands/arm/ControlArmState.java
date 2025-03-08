@@ -16,4 +16,9 @@ public class ControlArmState extends Command {
     public void execute() {
         armSubsystem.controlArmState();
     }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

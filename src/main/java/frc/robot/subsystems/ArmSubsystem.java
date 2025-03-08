@@ -7,20 +7,17 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.FunctionalCommand;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
+import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL;
-import frc.robot.Constants.ArmConstants.ArmStates;
-import frc.robot.Constants.ArmConstants.ARM_MANUAL_CONTROL.ArmDirections;
-import frc.robot.Constants.ArmConstants.ArmEncoderStates;
+import frc.robot.Constants.ArmConstants.ArmPIDConstants;
+import frc.robot.Constants.RobotStates.Arm.ArmDirections;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -30,20 +27,24 @@ public class ArmSubsystem extends SubsystemBase {
     private final DigitalInput topLimitSwitch = ArmConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
     
-    private final PIDController armPID = new PIDController(ArmConstants.ARM_PID.kP,
-                                                           ArmConstants.ARM_PID.kI,
-                                                           ArmConstants.ARM_PID.kD);
+    private final ProfiledPIDController armPID = new ProfiledPIDController(ArmPIDConstants.ARM_PID.kP,
+                                                                           ArmPIDConstants.ARM_PID.kI,
+                                                                           ArmPIDConstants.ARM_PID.kD,
+                                                                           new TrapezoidProfile.Constraints(
+                                                                                ArmPIDConstants.MAX_VELOCITY,
+                                                                                ArmPIDConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-20, 600, 900};
+    private final double[] SETPOINTS = {-20, 600, 900}; // TODO: Adjust Setpoint Values. Previously: {-20, 600, 900}.
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
-     * Returns if the elevator is solely in manual mode. PID is completely disabled and
-     * {@link #handleBottomLimitSwitchPressed()} and {@link #handleTopLimitSwitchPressed()}
-     * behave differently. Access throug {@link #isHardManualControlEnabled()}.
+     * Returns if the elevator is solely in manual mode.
+     * PID is completely disabled. Access only through {@link #isManualControlEnabled()}.
      */
-    private boolean hardManualEnabled = false;
+    private boolean manualControlEnabled = false;
+
+    private ArmStates targetArmState = ArmStates.BOTTOM;
 
     /**
      * Constructor for the SwingArmSubsystem class.
@@ -54,7 +55,8 @@ public class ArmSubsystem extends SubsystemBase {
 
         armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        armPID.setTolerance(ArmConstants.PID_TOLERANCE);
+        armPID.setTolerance(ArmPIDConstants.TOLERANCE);
+        armPID.reset(0);
     }
 
 
@@ -78,8 +80,17 @@ public class ArmSubsystem extends SubsystemBase {
      * Sets the setpoint of the arm to the target state.
      * @param state The desired arm position.
      */
-    public void setArmState(ArmStates state) {
-        armPID.setSetpoint(getArmState(state));
+    public void setTargetArmState(ArmStates state) {
+        armPID.setGoal(getArmState(state));
+        targetArmState = state;
+    }
+
+    /**
+     * Gets the arm state based on the previously set goal.
+     * @return The current arm state.
+     */
+    public ArmStates getTargetArmState() {
+        return targetArmState;
     }
 
 
@@ -96,28 +107,28 @@ public class ArmSubsystem extends SubsystemBase {
     public void controlArmState() {
         updateValues();
 
+        if (isManualControlEnabled())
+            return;
+
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotor();
-        }
-        else if (isTopLimitSwitchPressed()) {
+        } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
-        }
-        else if (isBottomLimitSwitchPressed()) {
+        } else if (isBottomLimitSwitchPressed()) {
             handleBottomLimitSwitchPressed();
-        }
-        else if (!isHardManualControlEnabled()) {
+        } else {
             controlArm();
         }
     }
 
     /** Controls the Arm System using a PID Controller. */
     private void controlArm() {
-        double pidOutput = armPID.calculate(getEncoderValue());
+        double output = armPID.calculate(getEncoderValue());
 
         if (atSetpoint()) {
             stopMotor();
         } else {
-            setMotorSpeed(pidOutput);
+            setMotorSpeed(output);
         }
     }
 
@@ -132,17 +143,9 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     private void handleTopLimitSwitchPressed() {
-
-        if (isHardManualControlEnabled()) {
-            if (armMotor.get() > 0) {
-                setMotorSpeed(0);
-            }
-            return;
-        }
-
         if (getSetpoint() >= getEncoderValue()) {
             stopMotor();
-            armPID.setSetpoint(getEncoderValue());
+            resetSetpoint(getEncoderValue());
         } else {
             controlArm();
         }
@@ -157,24 +160,17 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private void handleBottomLimitSwitchPressed() {
         resetEncoder();
-
-        if (isHardManualControlEnabled()) {
-            if (armMotor.get() < 0) {
-                setMotorSpeed(0);
-            }
-            return;
-        }
                     
         if (getSetpoint() <= 0) {
             stopMotor();
-            armPID.setSetpoint(0);
+            resetSetpoint(0);
         } else {
             controlArm();
         }
     }
 
 
-    /** ----- Encoder and Limit Switch Abstraction ----- */
+    /** ----- Motor, Encoder, and Limit Switch Abstraction ----- */
 
     /**
      * Checks if the top limit switch is pressed.
@@ -214,7 +210,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /** Resets the arm encoder. */
-    private void resetEncoder() {
+    public void resetEncoder() {
         armEncoder.reset();
     }
 
@@ -222,8 +218,8 @@ public class ArmSubsystem extends SubsystemBase {
      * Gets the setpoint for the Arm PID Controller.
      * @return The current numerical setpoint value.
      */
-    private double getSetpoint() {
-        return armPID.getSetpoint();
+    public double getSetpoint() {
+        return armPID.getGoal().position;
     }
 
     /**
@@ -231,133 +227,69 @@ public class ArmSubsystem extends SubsystemBase {
      * @return If the arm is at the setpoint, accounting for tolerance.
      */
     public boolean atSetpoint() {
-        return armPID.atSetpoint();
+        return armPID.atGoal();
     }
 
     /**
-     * Updates values to SmartDashboard/ShuffleBoard.
+     * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
+     * Returns {@link ArmDirections#UNKNOWN} if it is unsure whether the arm is up or not.
+     * @return Is the elevator at or above the INTAKE position.
      */
+    public ArmDirections isArmUp() {
+        if (Robot.isSimulation())
+            return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
+
+        if (getEncoderValue() <= 30)
+            return ArmDirections.DOWN;
+        else if (getEncoderValue() >= 300)
+            return ArmDirections.UP;
+        else
+            return ArmDirections.UNKNOWN;
+    }
+
+
+    /** ----- Miscellaneous Methods ----- */
+
+    /**
+     * Sets the setpoint for the arm PID Controller, without resetting.
+     * @param setpoint New setpoint value.
+     */
+    public void setSetpoint(double setpoint) {
+        armPID.setGoal(setpoint);
+    }
+
+    /**
+     * Resets the setpoint for the arm PID controller.
+     * @param setpoint New setpoint value.
+     */
+    public void resetSetpoint(double setpoint) {
+        armPID.setGoal(setpoint);
+        armPID.reset(setpoint);
+    }
+
+    /**
+     * Sets {@link #manualControlEnabled}. Setting to true completely disables PID control and changes limit switch behavior.
+     * @return Is hard manual control enabled.
+     */
+    public void setManualControl(boolean value) {
+        manualControlEnabled = value;
+    }
+
+    /**
+     * Gets {@link #manualControlEnabled}. When true it completely disables PID control and changes limit switch behavior.
+     * @return Whether hard manual control enabled.
+     */
+    public boolean isManualControlEnabled() {
+        return manualControlEnabled;
+    }
+
+    /** Updates values to SmartDashboard/ShuffleBoard. */
     private void updateValues() {
         SmartDashboard.putBoolean("A-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("A-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("A-Encoder", getEncoderValue());
         SmartDashboard.putNumber("A-Setpoint", getSetpoint());
-    }
+        SmartDashboard.putString("A-State", targetArmState.toString());
 
-
-    /** ----- Command Factory Methods ----- */
-
-    /**
-     * Functional Command to rotate the arm down to score coral.
-     * @return A lower setpoint for the arm mechanism.
-     */
-    public Command scoreCoralCommand() {
-        return Commands.race(
-            new FunctionalCommand(
-                () -> {
-                    armPID.setSetpoint(getSetpoint() - ArmConstants.PLACE_ROTATION_AMOUNT);
-                },
-                () -> controlArmState(),
-                interrupted -> stopMotor(),
-                () -> atSetpoint(),
-                this
-            ),
-            new WaitCommand(0.5)
-        );
-
-    }
-
-    /**
-     * Command to set and control the state of the arm mechanism.
-     * @param state The desired state of the arm.
-     * @return A Command Race to set arm state with a timeout.
-     */
-    public Command goToStateCommand(ArmStates state) {
-        return Commands.race(
-            new FunctionalCommand(
-                () -> setArmState(state),
-                () -> {
-                    controlArmState();
-                },
-                interrupted -> stopMotor(),
-                () -> atSetpoint(),
-                this
-            ),
-            new WaitCommand(1.75)
-        );
-    }
-
-    /**
-     * Command to control the arm manually during PID control.
-     * @param direction The direction to manually move the arm.
-     * @return A Functional Command to control the arm manually.
-     */
-    public Command manualArmCommand(ArmDirections direction) {
-        return switch (direction) {
-            case UP -> new FunctionalCommand(
-                () -> {},
-                () -> {
-                    if (isTopLimitSwitchPressed()) {
-                        stopMotor();
-                    } else {
-                        setMotorSpeed(ARM_MANUAL_CONTROL.MOTOR_SPEED);
-                    }
-                },
-                (interrupted) -> {
-                    stopMotor();
-                    armPID.setSetpoint(getEncoderValue());
-                    armPID.reset();
-                },
-                () -> false,
-                this
-            );
-
-            case DOWN -> new FunctionalCommand(
-                () -> {},
-                () -> {
-                    if (isBottomLimitSwitchPressed()) {
-                        stopMotor();
-                    } else {
-                        setMotorSpeed(-ARM_MANUAL_CONTROL.MOTOR_SPEED);
-                    }
-                },
-                (interrupted) -> {
-                    armPID.setSetpoint(getEncoderValue());
-                    armPID.reset();
-                },
-                () -> false,
-                this
-            );
-        };
-    }
-
-
-    /**
-     * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
-     * @return Is the elevator at or above the INTAKE position.
-     */
-    public ArmEncoderStates isArmUp() {
-        if (getEncoderValue() <= 30)
-            return ArmEncoderStates.DOWN;
-        else if (getEncoderValue() >= 300)
-            return ArmEncoderStates.UP;
-        else
-            return ArmEncoderStates.UNKNOWN;
-    }
-
-    /**
-     * Sets {@link #hardManualEnabled}. Setting to true completely disables PID control and changes limit switch behavior.
-     * @return Is hard manual control enabled.
-     */
-    public void setHardManualControl(boolean enable) {
-        hardManualEnabled = enable;
-    }
-
-    /**
-     * Gets {@link #hardManualEnabled}. When true it completely disables PID control and changes limit switch behavior.
-     * @return Is hard manual control enabled.
-     */
-    public boolean isHardManualControlEnabled() {
-        return hardManualEnabled;
     }
 }
