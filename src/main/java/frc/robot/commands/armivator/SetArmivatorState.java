@@ -13,6 +13,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class SetArmivatorState extends Command {
+
     private final ElevatorSubsystem elevatorSubsystem;
     private final ArmSubsystem armSubsystem;
 

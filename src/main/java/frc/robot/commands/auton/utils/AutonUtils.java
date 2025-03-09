@@ -8,7 +8,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ScoreCoralCommand;
@@ -107,17 +106,11 @@ public class AutonUtils {
 
     /**
      * Functional Command to run the serializer for a set amount of time.
-     * @param seconds The amount of time to run the serializer.
+     * @param timeout The amount of time to run the serializer.
      * @return A Functional Command to run the serializer for a set amount of time.
      */
-    public Command runSerializerCommand(double seconds) {
-        return Commands.sequence(
-            Commands.race(
-                Commands.run(() -> serializerSubsystem.runSerializer(false), serializerSubsystem),
-                Commands.waitSeconds(seconds)
-            ),
-            Commands.runOnce(() -> serializerSubsystem.stopSerializer())
-        );
+    public Command runSerializerCommand(double timeout) {
+        return serializerSubsystem.runSerializerCommand().withTimeout(timeout);
     }
 
     /**

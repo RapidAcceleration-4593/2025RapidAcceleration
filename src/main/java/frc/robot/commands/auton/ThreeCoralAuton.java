@@ -47,7 +47,7 @@ public class ThreeCoralAuton extends AutonCommand {
                         utils.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                     )
                 ),
-                utils.runSerializerCommand(1.5), // TODO: Implement serializer sensor.
+                utils.runSerializerCommand(1.5),
                 utils.setElevatorState(ElevatorStates.BOTTOM, 0.8),
                 Commands.parallel(
                     utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
@@ -61,7 +61,7 @@ public class ThreeCoralAuton extends AutonCommand {
                         utils.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                     )
                 ),
-                utils.runSerializerCommand(1.5), // TODO: Implement serializer sensor.
+                utils.runSerializerCommand(1.5),
                 utils.setElevatorState(ElevatorStates.BOTTOM, 0.8),
                 Commands.parallel(
                     utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),

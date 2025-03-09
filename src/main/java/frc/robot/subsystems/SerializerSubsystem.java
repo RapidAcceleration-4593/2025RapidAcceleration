@@ -55,7 +55,13 @@ public class SerializerSubsystem extends SubsystemBase {
         serializerMotor.stopMotor();
     }
 
+    /**
+     * Runs the serializer belt motor until the coral sensor is triggered.
+     * @return A command that runs the serializer.
+     */
     public Command runSerializerCommand() {
-        return run(() -> runSerializer(false)).finallyDo(this::stopSerializer);
+        return run(() -> runSerializer(false))
+            .finallyDo(this::stopSerializer)
+            .until(this::isCoralLoaded);
     }
 }

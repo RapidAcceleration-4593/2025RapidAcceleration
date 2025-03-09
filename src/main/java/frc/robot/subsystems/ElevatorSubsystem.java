@@ -245,8 +245,8 @@ public class ElevatorSubsystem extends SubsystemBase {
         if (Robot.isSimulation())
             return targetElevatorState != ElevatorStates.BOTTOM;
 
-        return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||    // At PICKUP
-               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + ElevatorPIDConstants.TOLERANCE); // Above PICKUP. TODO: Tyler check this.
+        return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||   // At PICKUP.
+               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + ElevatorPIDConstants.TOLERANCE);   // Above PICKUP.
     }
 
 

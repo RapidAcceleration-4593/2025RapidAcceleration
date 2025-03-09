@@ -17,8 +17,7 @@ public class PickupCoralCommand extends SequentialCommandGroup {
 
         addCommands(
             Commands.parallel(
-                serializerSubsystem.runSerializerCommand()
-                    .until(serializerSubsystem::isCoralLoaded),
+                serializerSubsystem.runSerializerCommand(),
                 new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM)
             ),
             new KahChunkCommand(elevatorSubsystem, armSubsystem)

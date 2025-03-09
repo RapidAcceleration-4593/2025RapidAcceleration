@@ -6,7 +6,6 @@ package frc.robot;
 
 import java.io.File;
 
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -32,7 +31,6 @@ import frc.robot.commands.auton.ThreeCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.climber.RunClimberCommand;
-import frc.robot.commands.drivebase.FieldCentricDrive;
 import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
@@ -43,7 +41,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.LEDSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import frc.robot.subsystems.SerializerSubsystem;
 import swervelib.SwerveInputStream;
@@ -59,7 +56,6 @@ public class RobotContainer {
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
-    public final LEDSubsystem LEDSubsystem = new LEDSubsystem(elevatorSubsystem, armSubsystem, serializerSubsystem, drivebase);
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
@@ -73,19 +69,6 @@ public class RobotContainer {
     private Command driveToPoseCommand = Commands.none();
 
     private int dashboardStateValue;
-
-    /** Swerve Drive Command with full field-centric mode and heading correction. */
-    FieldCentricDrive fieldCentricDrive = new FieldCentricDrive(drivebase,
-                                                                () -> -MathUtil.applyDeadband(driverController.getLeftY(),
-                                                                                                OperatorConstants.DEADBAND),
-                                                                () -> -MathUtil.applyDeadband(driverController.getLeftX(),
-                                                                                                OperatorConstants.DEADBAND),
-                                                                () -> MathUtil.applyDeadband(driverController.getRightX(),
-                                                                                                OperatorConstants.DEADBAND),
-                                                                driverController.getHID()::getYButtonPressed,
-                                                                driverController.getHID()::getAButtonPressed,
-                                                                driverController.getHID()::getXButtonPressed,
-                                                                driverController.getHID()::getBButtonPressed);
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
@@ -111,7 +94,6 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
-        LEDSubsystem.setDefaultCommand(LEDSubsystem.displayStatusCommand());
     }
 
     private void configureBindings() {
@@ -134,7 +116,6 @@ public class RobotContainer {
         // Armivator Control.
         driverController.rightTrigger().onTrue(Commands.runOnce(() -> handleDashboardState()));
 
-        // driverController.leftBumper().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.PICKUP, ArmStates.BOTTOM));
         driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
         driverController.rightBumper().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
 
@@ -168,7 +149,7 @@ public class RobotContainer {
         dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
         switch (dashboardStateValue) {
             case 1:
-                new KahChunkCommand(elevatorSubsystem, armSubsystem).schedule();
+                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM).schedule();
                 break;
             case 2:
                 new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2).schedule();
