@@ -35,10 +35,7 @@ public class PoseNavigator extends SubsystemBase {
     private int targetDashboardPose;
 
     /** AprilTag field layout. */
-    private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField();
-
-    /** Whether the closest tag ID to the robot pose contains a high algae. */
-    public boolean isHighAlgae;
+    private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
     /**
      * Constructor for the PoseNavigator class.
@@ -125,6 +122,10 @@ public class PoseNavigator extends SubsystemBase {
         return drivebase.isRedAlliance() ? FlippingUtil.flipFieldPose(finalPose) : finalPose;
     }
 
+    /**
+     * Retrieves the closest AprilTag on the reef to the current pose.
+     * @return The closest AprilTag ID.
+     */
     private int getClosestReefTag() {
         int closestAprilTagId = -1;
         double minDistance = Double.MAX_VALUE;
@@ -150,6 +151,10 @@ public class PoseNavigator extends SubsystemBase {
         return closestAprilTagId;
     }
 
+    /**
+     * Calculates the closest pose to drive to based on the closest AprilTag on the reef.
+     * @return The closest AprilTag Pose Offset.
+     */
     public Pose2d calculateClosestReefPose() {
         Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(getClosestReefTag());
         if (tagPoseOptional.isEmpty()) return null;

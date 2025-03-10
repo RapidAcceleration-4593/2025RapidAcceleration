@@ -12,7 +12,6 @@ import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import frc.robot.commands.arm.ScoreCoralCommand;
 
-
 public class RemoveAlgaeCommand extends SequentialCommandGroup {
     
     public RemoveAlgaeCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SwerveSubsystem drivebase, PoseNavigator poseNavigator) {
@@ -28,7 +27,7 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
             ),
             Commands.parallel(
                 new ScoreCoralCommand(armSubsystem).withTimeout(0.3),
-                drivebase.driveBackward(0.75).withTimeout(1.0)
+                drivebase.driveToDistance(-0.75).withTimeout(1.0)
             )
         );
     }

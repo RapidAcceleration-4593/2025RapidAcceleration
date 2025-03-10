@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
 import java.awt.Desktop;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -46,14 +47,8 @@ public class VisionUtils {
     /** AprilTag Field Layout of the year. */
     public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    /** Ambiguity defined as a value between (0,1). Used in {@link VisionUtils#filterPose}. */
-    private final double maximumAmbiguity = 0.25;
-
     /** PhotonVision Simulation. */
     private VisionSystemSim visionSim;
-
-    /** Count of times that the odom thinks we're more than 10meters away from the april tag. */
-    private double longDistangePoseEstimationCount = 0;
 
     /** Current pose from the pose estimator using wheel odometry. */
     private Supplier<Pose2d> currentPose;
@@ -78,7 +73,7 @@ public class VisionUtils {
                 camera.addToVisionSim(visionSim);
             }
 
-            openSimCameraViews();
+            // openSimCameraViews();
         }
     }
 
@@ -151,45 +146,6 @@ public class VisionUtils {
         return poseEst;
     }
 
-
-    /**
-     * Filter pose via the ambiguity and find best estimate between all of the camera's throwing out distances more than
-     * 10m for a short amount of time. 
-     * @param pose Estimated robot pose.
-     * @return Could be empty if there isn't a good reading.
-     */
-    @SuppressWarnings("unused")
-    @Deprecated(since = "2024", forRemoval = true)
-    private Optional<EstimatedRobotPose> filterPose(Optional<EstimatedRobotPose> pose) {
-        if (pose.isPresent()) {
-            double bestTargetAmbiguity = 1; // 1 is maximum ambiguity.
-            for (PhotonTrackedTarget target : pose.get().targetsUsed) {
-                double ambiguity = target.getPoseAmbiguity();
-                if (ambiguity != -1 && ambiguity < bestTargetAmbiguity) {
-                    bestTargetAmbiguity = ambiguity;
-                }
-            }
-            // Ambiguity is to high; dont use estimate.
-            if (bestTargetAmbiguity > maximumAmbiguity) {
-                return Optional.empty();
-            }
-
-            // Estimated pose is very far from recorded robot pose.
-            if (PhotonUtils.getDistanceToPose(currentPose.get(), pose.get().estimatedPose.toPose2d()) > 1) {
-                longDistangePoseEstimationCount++;
-
-                // If it calculates that the robot is 10 meters away, more than 10 times in a row, its probably right.
-                if (longDistangePoseEstimationCount < 10) {
-                    return Optional.empty();
-                }
-            } else {
-                longDistangePoseEstimationCount = 0;
-            }
-            return pose;
-        }
-        return Optional.empty();
-    }
-
     /**
      * Get distance of the robot from the AprilTag pose.
      * @param id AprilTag ID.
@@ -229,11 +185,12 @@ public class VisionUtils {
     }
 
     /** Open up the PhotonVision camera streams on the localhost, assumes running PhotonVision on localhost. */
+    @SuppressWarnings("unused")
     private void openSimCameraViews() {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
-                // Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
-                // Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
+                Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
+                Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
             } catch (Exception e) {
                 e.printStackTrace();
             }

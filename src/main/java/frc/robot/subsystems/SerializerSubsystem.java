@@ -18,7 +18,6 @@ public class SerializerSubsystem extends SubsystemBase {
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
-
     /**
      * Constructor for the SerializerSubsystem class.
      * Configures the motor settings.

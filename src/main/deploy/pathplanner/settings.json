@@ -1,6 +1,6 @@
 {
   "robotWidth": 0.8636,
-  "robotLength": 0.8636,
+  "robotLength": 0.914,
   "holonomicMode": true,
   "pathFolders": [
     "CenterMoveOut",
@@ -11,8 +11,8 @@
     "SideTwoCoral"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 2.5,
-  "defaultMaxAccel": 2.0,
+  "defaultMaxVel": 3.0,
+  "defaultMaxAccel": 2.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
   "defaultNominalVoltage": 12.0,
@@ -33,9 +33,7 @@
   "blModuleY": 0.268,
   "brModuleX": -0.268,
   "brModuleY": -0.268,
-  "bumperOffsetX": 0.0,
+  "bumperOffsetX": 0.0508,
   "bumperOffsetY": 0.0,
-  "robotFeatures": [
-    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":0.4574,\"y\":0.0},\"size\":{\"width\":0.8636,\"length\":0.0508},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
-  ]
+  "robotFeatures": []
 }

@@ -21,12 +21,12 @@ public final class Constants {
     public static final double ROBOT_MASS = (110) * 0.453592; // 110 Pounds to Kilograms.
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
-    public static final double MAX_SPEED = Units.feetToMeters(8.0); // Maximum speed of robot in meters per second, used to limit acceleration.
+    public static final double MAX_SPEED = Units.feetToMeters(10.0); // Maximum speed of robot in meters per second, used to limit acceleration.
 
     public static final class ElevatorConstants {
         public static final class ElevatorPIDConstants {
             public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0005, 0, 0); // TODO: Tune PID. Previously: 0.00055, 0, 0.
-            public static final int TOLERANCE = 30;
+            public static final int TOLERANCE = 30; // TODO: Adjust Tolerance.
 
             public static final double MAX_VELOCITY = 23000; // Previously: 23000
             public static final double MAX_ACCELERATION = 120000; // Previously: 120000
@@ -47,7 +47,7 @@ public final class Constants {
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
             public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0, 0); // TODO: Tune PID. Previously: 0.008, 0, 0.
-            public static final int TOLERANCE = 15;
+            public static final int TOLERANCE = 15; // TODO: Adjust Tolerance.
 
             public static final double MAX_VELOCITY = 1600; // Previously: 1600.
             public static final double MAX_ACCELERATION = 5000; // Previously: 9500.

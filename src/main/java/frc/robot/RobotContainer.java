@@ -113,12 +113,12 @@ public class RobotContainer {
             }));
 
         // Armivator Control.
-        driverController.rightTrigger().onTrue(Commands.runOnce(() -> handleDashboardState()));
+        driverController.rightTrigger().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
-        driverController.rightBumper().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
+        driverController.rightBumper().onTrue(Commands.runOnce(() -> handleDashboardState()));
 
-        driverController.y().onTrue(new RemoveAlgaeCommand(elevatorSubsystem, armSubsystem, drivebase, poseNavigator));
+        driverController.x().onTrue(new RemoveAlgaeCommand(elevatorSubsystem, armSubsystem, drivebase, poseNavigator));
 
         auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
@@ -129,12 +129,12 @@ public class RobotContainer {
         auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
         auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
-        // Climber Control
+        // Climber Control.
         driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
         driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
 
-        // Manual Control
-        driverController.a().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
+        // Manual Control.
+        auxiliaryController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
 
         auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.UP));
         auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.DOWN));
