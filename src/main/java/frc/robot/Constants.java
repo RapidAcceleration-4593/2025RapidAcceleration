@@ -71,7 +71,7 @@ public final class Constants {
         public static final double CONTROL_SPEED = 0.3;
     }
 
-    public class ClimberConstants {
+    public static final class ClimberConstants {
         public static final SparkMax leftClimberMotor = new SparkMax(2, MotorType.kBrushless);
         public static final SparkMax rightClimberMotor = new SparkMax(4, MotorType.kBrushless);
         
@@ -85,7 +85,7 @@ public final class Constants {
         public static final boolean DRIVE_WITH_VISION = true;
 
         public static final class DashboardAlignment {
-            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(19.0);
+            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(20.0);
             public static final double REEF_RADIUS = Units.inchesToMeters(32.75);
             public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
             public static final double ANGLE_INCREMENT = Math.toRadians(60.0);

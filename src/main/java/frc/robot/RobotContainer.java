@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.AutonConstants.DashboardAlignment;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
@@ -59,7 +58,7 @@ public class RobotContainer {
 
     // Util(s)
     public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
-    public final PoseNavigator poseNavigator = new PoseNavigator(autonUtils);
+    public final PoseNavigator poseNavigator = new PoseNavigator(drivebase, autonUtils);
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
@@ -103,7 +102,7 @@ public class RobotContainer {
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose(DashboardAlignment.DISTANCE_FROM_REEF, drivebase.isRedAlliance())
+                    poseNavigator.selectTargetPose()
                 );
                 driveToPoseCommand.schedule();
             }))
@@ -119,7 +118,7 @@ public class RobotContainer {
         driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
         driverController.rightBumper().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
 
-        driverController.y().onTrue(new RemoveAlgaeCommand(drivebase, elevatorSubsystem, armSubsystem, true));
+        driverController.y().onTrue(new RemoveAlgaeCommand(elevatorSubsystem, armSubsystem, drivebase, poseNavigator));
 
         auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));

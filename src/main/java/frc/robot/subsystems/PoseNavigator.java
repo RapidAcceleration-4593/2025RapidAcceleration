@@ -2,10 +2,14 @@ package frc.robot.subsystems;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import com.pathplanner.lib.util.FlippingUtil;
 
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -18,6 +22,9 @@ import frc.robot.commands.auton.utils.AutonUtils;
 
 public class PoseNavigator extends SubsystemBase {
 
+    /** SwerveSubsystem Class Object. */
+    private final SwerveSubsystem drivebase;
+
     /** AutonUtils Class Object. */
     private final AutonUtils autonUtils;
 
@@ -27,11 +34,18 @@ public class PoseNavigator extends SubsystemBase {
     /** Target Dashboard Pose, updated periodically through SmartDashboard. */
     private int targetDashboardPose;
 
+    /** AprilTag field layout. */
+    private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFields.k2025ReefscapeAndyMark.loadAprilTagLayoutField();
+
+    /** Whether the closest tag ID to the robot pose contains a high algae. */
+    public boolean isHighAlgae;
+
     /**
      * Constructor for the PoseNavigator class.
      * Initializes the notifier that updates the SmartDashboard periodically.
      */
-    public PoseNavigator(AutonUtils autonUtils) {
+    public PoseNavigator(SwerveSubsystem drivebase, AutonUtils autonUtils) {
+        this.drivebase = drivebase;
         this.autonUtils = autonUtils;
 
         dashboardNotifier = new Notifier(this::updateDashboard);
@@ -55,9 +69,9 @@ public class PoseNavigator extends SubsystemBase {
      * @param isRedAlliance Whether the robot is on the red alliance.
      * @return The selected target {@link Pose2d} based on the current target dashboard pose.
      */
-    public Pose2d selectTargetPose(double distanceFromReef, boolean isRedAlliance) {
+    public Pose2d selectTargetPose() {
         if (targetDashboardPose > 24) return selectChutePose(targetDashboardPose);
-        return calculateReefPose(distanceFromReef, targetDashboardPose, isRedAlliance);
+        return calculateReefPose(targetDashboardPose);
     }
 
     /**
@@ -67,7 +81,7 @@ public class PoseNavigator extends SubsystemBase {
      * @param isRedAlliance Whether the robot is on the red alliance.
      * @return A {@link Pose2d} of the target ID.
      */
-    public Pose2d calculateReefPose(double distanceFromReef, int targetID, boolean isRedAlliance) {
+    public Pose2d calculateReefPose(int targetID) {
         List<Pose2d> poses = new ArrayList<>();
 
         // Loop through each side of the Reef.
@@ -91,8 +105,8 @@ public class PoseNavigator extends SubsystemBase {
             double[] branch2 = {midX + DashboardAlignment.BRANCH_OFFSET * sideDirX, midY + DashboardAlignment.BRANCH_OFFSET * sideDirY};
 
             // Offset outward from branches to calculate poses.
-            poses.add(createPose(branch1, sideAngle, distanceFromReef, headingAngle));
-            poses.add(createPose(branch2, sideAngle, distanceFromReef, headingAngle));
+            poses.add(createPose(branch1, sideAngle, DashboardAlignment.DISTANCE_FROM_REEF, headingAngle));
+            poses.add(createPose(branch2, sideAngle, DashboardAlignment.DISTANCE_FROM_REEF, headingAngle));
         }
 
         // Convert target branch to zero-based index.
@@ -108,7 +122,46 @@ public class PoseNavigator extends SubsystemBase {
 
         // Return final transformed pose, flipping if on red alliance.
         Pose2d finalPose = new Pose2d(new Translation2d(transformedX, transformedY), transformedHeading);
-        return isRedAlliance ? FlippingUtil.flipFieldPose(finalPose) : finalPose;
+        return drivebase.isRedAlliance() ? FlippingUtil.flipFieldPose(finalPose) : finalPose;
+    }
+
+    private int getClosestReefTag() {
+        int closestAprilTagId = -1;
+        double minDistance = Double.MAX_VALUE;
+        boolean isRedAlliance = drivebase.isRedAlliance();
+
+        // Determine which tags to search based on alliance.
+        int startTag = isRedAlliance ? 6 : 17;
+        int endTag = isRedAlliance ? 11 : 22;
+
+        for (int id = startTag; id <= endTag; id++) {
+            Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(id);
+            if (tagPoseOptional.isPresent()) {
+                Pose2d tagPose = tagPoseOptional.get().toPose2d();
+                double distance = drivebase.getPose().getTranslation().getDistance(tagPose.getTranslation());
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestAprilTagId = id;
+                }
+            }
+        }
+
+        return closestAprilTagId;
+    }
+
+    public Pose2d calculateClosestReefPose() {
+        Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(getClosestReefTag());
+        if (tagPoseOptional.isEmpty()) return null;
+        
+        Pose2d tagPose = tagPoseOptional.get().toPose2d();
+
+        // Extrude the target pose straight off the face of the tag.
+        Rotation2d tagRotation = tagPose.getRotation();
+        Translation2d extrudedTranslation = tagPose.getTranslation()
+            .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
+
+        return new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180)));
     }
 
     /**
@@ -146,5 +199,15 @@ public class PoseNavigator extends SubsystemBase {
         double transformedX = branch[0] + distanceFromReef * Math.cos(sideAngle);
         double transformedY = branch[1] + distanceFromReef * Math.sin(sideAngle);
         return new Pose2d(new Translation2d(transformedX, transformedY), new Rotation2d(headingAngle));
+    }
+
+    /**
+     * Returns whether the closest tag ID to the robot pose contains a high algae.
+     * @return Whether the closest tag ID contains a high algae.
+     */
+    public boolean isHighAlgae() {
+        // Determine if the closest tag has a high algae.
+        return (drivebase.isRedAlliance() && (getClosestReefTag() == 7 || getClosestReefTag() == 9 || getClosestReefTag() == 11)) ||
+               (!drivebase.isRedAlliance() && (getClosestReefTag() == 18 || getClosestReefTag() == 20 || getClosestReefTag() == 22));
     }
 }

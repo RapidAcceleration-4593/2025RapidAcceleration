@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj.Alert.AlertType;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Robot;
 import java.awt.Desktop;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -233,7 +232,7 @@ public class VisionUtils {
     private void openSimCameraViews() {
         if (Desktop.isDesktopSupported() && Desktop.getDesktop().isSupported(Desktop.Action.BROWSE)) {
             try {
-                Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
+                // Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
                 // Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
             } catch (Exception e) {
                 e.printStackTrace();

@@ -51,9 +51,6 @@ public class SwerveSubsystem extends SubsystemBase {
     /** PhotonVision class to keep an accurate odometry. */
     private VisionUtils visionUtils;
 
-    /** Is the robot currently pathfinding to a pose. */
-    private boolean isAutoDriving = false;
-
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
      * @param directory Directory of swerve drive config files.
@@ -193,9 +190,7 @@ public class SwerveSubsystem extends SubsystemBase {
             pose,
             constraints,
             edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec.
-        )
-        .beforeStarting(() -> isAutoDriving = true) // Set auto driving status variable.
-        .finallyDo(() -> isAutoDriving = false);
+        );
     }
 
     /**
@@ -398,10 +393,6 @@ public class SwerveSubsystem extends SubsystemBase {
         return alliance.isPresent() ? alliance.get() == DriverStation.Alliance.Red : false;
     }
 
-    public boolean isAutoDriving() {
-        return isAutoDriving;
-    }
-
     /**
      * This will zero (calibrate) the robot to assume the current position is facing forward.
      * <p>If red alliance rotate the robot 180 after the drivebase zero command.
@@ -469,22 +460,24 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /**
      * Command to drive the robot forward in robot-relative mode.
+     * @param distance Distance to drive forward.
      * @return A Command to drive the robot forward.
      */
-    public Command driveForward() {
+    public Command driveForward(double distance) {
         return run(() -> {
-            swerveDrive.drive(new Translation2d(0.75, 0), 0, false, false);
-        }).withTimeout(1.0);
+            swerveDrive.drive(new Translation2d(distance, 0), 0, false, false);
+        });
     }
 
     /**
      * Command to drive the robot backward in robot-relative mode.
+     * @param distance Distance to drive backward.
      * @return A Command to drive the robot backward.
      */
-    public Command driveBackward() {
+    public Command driveBackward(double distance) {
         return run(() -> {
-            swerveDrive.drive(new Translation2d(-0.75, 0), 0, false, false);
-        }).withTimeout(1.0);
+            swerveDrive.drive(new Translation2d(-distance, 0), 0, false, false);
+        });
     }
 
     /**
