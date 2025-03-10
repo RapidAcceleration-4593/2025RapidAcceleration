@@ -31,11 +31,11 @@ public class PoseNavigator extends SubsystemBase {
     /** Notifier for Custom Dashboard. */
     private final Notifier dashboardNotifier;
 
-    /** Target Dashboard Pose, updated periodically through SmartDashboard. */
-    private int targetDashboardPose;
-
     /** AprilTag field layout. */
     private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+
+    /** Target Dashboard Pose, updated periodically through SmartDashboard. */
+    private int targetDashboardPose;
 
     /**
      * Constructor for the PoseNavigator class.
@@ -54,8 +54,7 @@ public class PoseNavigator extends SubsystemBase {
      * This method is called by the Notifier.
      */
     private void updateDashboard() {
-        targetDashboardPose = (int) SmartDashboard.getNumber("TargetDashboardPose", 1);
-
+        setTargetDashboardPose((int) SmartDashboard.getNumber("TargetDashboardPose", 1));
         SmartDashboard.putNumber("MatchTime", (int) DriverStation.getMatchTime());
         SmartDashboard.putBoolean("ManualControl", autonUtils.elevatorSubsystem.isManualControlEnabled());
     }
@@ -67,8 +66,8 @@ public class PoseNavigator extends SubsystemBase {
      * @return The selected target {@link Pose2d} based on the current target dashboard pose.
      */
     public Pose2d selectTargetPose() {
-        if (targetDashboardPose > 24) return selectChutePose(targetDashboardPose);
-        return calculateReefPose(targetDashboardPose);
+        if (getTargetDashboardPose() > 24) return selectChutePose(getTargetDashboardPose());
+        return calculateReefPose(getTargetDashboardPose());
     }
 
     /**
@@ -80,46 +79,48 @@ public class PoseNavigator extends SubsystemBase {
      */
     public Pose2d calculateReefPose(int targetID) {
         List<Pose2d> poses = new ArrayList<>();
-
-        // Loop through each side of the Reef.
-        for (int sideIndex = 0; sideIndex < 6; sideIndex++) {
-            // Midpoint angle for each side.
-            double sideAngle = sideIndex * DashboardAlignment.ANGLE_INCREMENT + Math.PI;
-
-            // Midpoint of the current Reef side.
+        
+        for (int tagID = 17; tagID <= 22; tagID++) {
+            double sideAngle = (tagID - 17) * DashboardAlignment.ANGLE_INCREMENT + Math.PI;
             double midX = DashboardAlignment.REEF_RADIUS * Math.cos(sideAngle);
             double midY = DashboardAlignment.REEF_RADIUS * Math.sin(sideAngle);
-
-            // Heading angle to face the center of the Reef.
-            double headingAngle = Math.atan2(-midY, -midX);
-
-            // Vector components along the side direction.
-            double sideDirX = -Math.sin(sideAngle); // Perpendicular.
-            double sideDirY = Math.cos(sideAngle);
-
-            // Calculate branch positions.
-            double[] branch1 = {midX - DashboardAlignment.BRANCH_OFFSET * sideDirX, midY - DashboardAlignment.BRANCH_OFFSET * sideDirY};
-            double[] branch2 = {midX + DashboardAlignment.BRANCH_OFFSET * sideDirX, midY + DashboardAlignment.BRANCH_OFFSET * sideDirY};
-
-            // Offset outward from branches to calculate poses.
-            poses.add(createPose(branch1, sideAngle, DashboardAlignment.DISTANCE_FROM_REEF, headingAngle));
-            poses.add(createPose(branch2, sideAngle, DashboardAlignment.DISTANCE_FROM_REEF, headingAngle));
+            double sideDirX = -Math.sin(sideAngle), sideDirY = Math.cos(sideAngle);
+            
+            for (double offset : new double[]{-1, 1}) {
+                double branchX = midX + offset * DashboardAlignment.BRANCH_OFFSET * sideDirX;
+                double branchY = midY + offset * DashboardAlignment.BRANCH_OFFSET * sideDirY;
+                poses.add(new Pose2d(new Translation2d(
+                    branchX + DashboardAlignment.DISTANCE_FROM_REEF * Math.cos(sideAngle),
+                    branchY + DashboardAlignment.DISTANCE_FROM_REEF * Math.sin(sideAngle)),
+                    new Rotation2d(sideAngle)));
+            }
         }
-
-        // Convert target branch to zero-based index.
-        int branchIndex = targetID - 1;
-
-        // Target branch offset.
-        Pose2d offsetPose = poses.get(branchIndex);
-
-        // Transform the offset pose to the global field position.
-        double transformedX = FieldConstants.REEF_POSE.getX() + offsetPose.getX();
-        double transformedY = FieldConstants.REEF_POSE.getY() + offsetPose.getY();
-        Rotation2d transformedHeading = offsetPose.getRotation();
-
-        // Return final transformed pose, flipping if on red alliance.
-        Pose2d finalPose = new Pose2d(new Translation2d(transformedX, transformedY), transformedHeading);
+        
+        Pose2d pose = poses.get(targetID - 1);
+        Pose2d finalPose = new Pose2d(
+            new Translation2d(FieldConstants.REEF_POSE.getX() + pose.getX(),
+                               FieldConstants.REEF_POSE.getY() + pose.getY()),
+            pose.getRotation().plus(Rotation2d.kPi));
+        
         return drivebase.isRedAlliance() ? FlippingUtil.flipFieldPose(finalPose) : finalPose;
+    }
+
+    /**
+     * Calculates the closest pose to drive to based on the closest AprilTag on the reef.
+     * @return The closest AprilTag Pose Offset.
+     */
+    public Pose2d calculateClosestReefPose() {
+        Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(getClosestReefTag());
+        if (tagPoseOptional.isEmpty()) return null;
+        
+        Pose2d tagPose = tagPoseOptional.get().toPose2d();
+
+        // Extrude the target pose straight off the face of the tag.
+        Rotation2d tagRotation = tagPose.getRotation();
+        Translation2d extrudedTranslation = tagPose.getTranslation()
+            .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
+
+        return new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180)));
     }
 
     /**
@@ -152,24 +153,6 @@ public class PoseNavigator extends SubsystemBase {
     }
 
     /**
-     * Calculates the closest pose to drive to based on the closest AprilTag on the reef.
-     * @return The closest AprilTag Pose Offset.
-     */
-    public Pose2d calculateClosestReefPose() {
-        Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(getClosestReefTag());
-        if (tagPoseOptional.isEmpty()) return null;
-        
-        Pose2d tagPose = tagPoseOptional.get().toPose2d();
-
-        // Extrude the target pose straight off the face of the tag.
-        Rotation2d tagRotation = tagPose.getRotation();
-        Translation2d extrudedTranslation = tagPose.getTranslation()
-            .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
-
-        return new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180)));
-    }
-
-    /**
      * Selects a chute pose based on the target ID.
      * @param targetID The ID of the target chute.
      * @return The selected Pose2d corresponding to the chute.
@@ -193,20 +176,6 @@ public class PoseNavigator extends SubsystemBase {
     }
 
     /**
-     * Creates a {@link Pose2d} object given branch position, angle, distance, and heading.
-     * @param branch The branch position (x, y).
-     * @param sideAngle The angle of the side of the reef.
-     * @param distanceFromReef The distance from the robot to the reef, in meters.
-     * @param headingAngle The heading angle to face the reef center.
-     * @return The created {@link Pose2d} object.
-     */
-    private Pose2d createPose(double[] branch, double sideAngle, double distanceFromReef, double headingAngle) {
-        double transformedX = branch[0] + distanceFromReef * Math.cos(sideAngle);
-        double transformedY = branch[1] + distanceFromReef * Math.sin(sideAngle);
-        return new Pose2d(new Translation2d(transformedX, transformedY), new Rotation2d(headingAngle));
-    }
-
-    /**
      * Returns whether the closest tag ID to the robot pose contains a high algae.
      * @return Whether the closest tag ID contains a high algae.
      */
@@ -214,5 +183,21 @@ public class PoseNavigator extends SubsystemBase {
         // Determine if the closest tag has a high algae.
         return (drivebase.isRedAlliance() && (getClosestReefTag() == 7 || getClosestReefTag() == 9 || getClosestReefTag() == 11)) ||
                (!drivebase.isRedAlliance() && (getClosestReefTag() == 18 || getClosestReefTag() == 20 || getClosestReefTag() == 22));
+    }
+
+    /**
+     * Sets the target dashboard pose.
+     * @param targetPose The target dashboard pose value.
+     */
+    private void setTargetDashboardPose(int targetPose) {
+        this.targetDashboardPose = targetPose;
+    }
+
+    /**
+     * Gets the current target dashboard pose.
+     * @return The target dashboard pose value.
+     */
+    private int getTargetDashboardPose() {
+        return targetDashboardPose;
     }
 }

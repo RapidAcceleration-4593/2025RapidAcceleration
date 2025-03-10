@@ -238,9 +238,9 @@ public class ArmSubsystem extends SubsystemBase {
         if (Robot.isSimulation())
             return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
 
-        if (getEncoderValue() <= 30)
+        if (getEncoderValue() <= 50)
             return ArmDirections.DOWN;
-        else if (getEncoderValue() >= 300)
+        else if (getEncoderValue() >= 500)
             return ArmDirections.UP;
         else
             return ArmDirections.UNKNOWN;

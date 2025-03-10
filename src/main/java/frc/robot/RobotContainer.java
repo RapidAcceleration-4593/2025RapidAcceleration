@@ -142,7 +142,10 @@ public class RobotContainer {
         auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.DOWN));
     }
 
-    /** Handles the state of the armivator based on the value from the dashboard. */
+    /** 
+     * Handles the state of the armivator based on the value from the dashboard.
+     * @return The command to run based on the dashboard selected state.
+     */
     private Command handleDashboardState() {
         Map<Integer, Command> commandMap = Map.of(
             1, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM),
