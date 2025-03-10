@@ -106,7 +106,7 @@ public class ThreeCoralAuton extends AutonCommand {
 
     @Override
     public List<Pose2d> getAllPathPoses() {
-        return paths.subList(0, 4).stream()
+        return paths.subList(0, 5).stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());

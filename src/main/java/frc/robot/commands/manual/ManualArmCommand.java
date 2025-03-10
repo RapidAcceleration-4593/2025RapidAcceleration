@@ -18,8 +18,7 @@ public class ManualArmCommand extends Command {
 
     @Override
     public void execute() {
-        if (!armSubsystem.isManualControlEnabled())
-            return;
+        if (!armSubsystem.isManualControlEnabled()) return;
 
         if (armSubsystem.isBottomLimitSwitchPressed())
             armSubsystem.resetEncoder();

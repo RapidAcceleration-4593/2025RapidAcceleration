@@ -16,9 +16,10 @@ import frc.robot.Constants.DrivebaseConstants;
  * Update Main.java if the class or package name changes.
  */
 public class Robot extends TimedRobot {
-    private Command m_autonomousCommand;
 
     private final RobotContainer m_robotContainer;
+
+    private Command m_autonomousCommand;
 
     private Timer disabledTimer;
 

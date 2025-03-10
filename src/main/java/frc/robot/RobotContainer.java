@@ -5,6 +5,7 @@
 package frc.robot;
 
 import java.io.File;
+import java.util.Map;
 
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Filesystem;
@@ -67,8 +68,6 @@ public class RobotContainer {
     /** DriveToPoseCommand for Acceleration Station Dashboard. */
     private Command driveToPoseCommand = Commands.none();
 
-    private int dashboardStateValue;
-
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
                                                                   () -> -driverController.getLeftY(),
@@ -116,7 +115,7 @@ public class RobotContainer {
         driverController.rightTrigger().onTrue(new ScoreCoralCommand(armSubsystem).withTimeout(0.3));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
-        driverController.rightBumper().onTrue(Commands.runOnce(() -> handleDashboardState()));
+        driverController.rightBumper().onTrue(handleDashboardState());
 
         driverController.x().onTrue(new RemoveAlgaeCommand(elevatorSubsystem, armSubsystem, drivebase, poseNavigator));
 
@@ -144,23 +143,17 @@ public class RobotContainer {
     }
 
     /** Handles the state of the armivator based on the value from the dashboard. */
-    private void handleDashboardState() {
-        dashboardStateValue = (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
-        switch (dashboardStateValue) {
-            case 1:
-                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM).schedule();
-                break;
-            case 2:
-                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2).schedule();
-                break;
-            case 3:
-                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP).schedule();
-                break;
-            case 4:
-                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP).schedule();
-                break;
-            default: new Error("Invalid Dashboard Selection!");
-        }
+    private Command handleDashboardState() {
+        Map<Integer, Command> commandMap = Map.of(
+            1, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM),
+            2, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2),
+            3, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP),
+            4, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP)
+        );
+
+        return Commands.select(commandMap, () ->
+            (int) SmartDashboard.getNumber("TargetArmivatorState", 1)
+        );
     }
 
     /**
@@ -168,26 +161,26 @@ public class RobotContainer {
      * @return The command to run in autonomous.
      */
     public Command getAutonomousCommand() {
-        String selectedAutonomous = SmartDashboard.getString("SelectedAutonomous", "Do Nothing");
+        Map<String, Command> autonMap = Map.ofEntries(
+            Map.entry("Do Nothing", new NoneAuton()),
 
-        return switch(selectedAutonomous) {
-            case "Do Nothing" -> new NoneAuton();
+            Map.entry("Left, Move Out", new MoveOutAuton(autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 1-Coral", new OneCoralAuton(autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 2-Coral", new TwoCoralAuton(autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 3-Coral", new ThreeCoralAuton(autonUtils, StartingPosition.LEFT)),
 
-            case "Left, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.LEFT);
-            case "Left, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.LEFT);
-            case "Left, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.LEFT);
-            case "Left, 3-Coral" -> new ThreeCoralAuton(autonUtils, StartingPosition.LEFT);
+            Map.entry("Center, Move Out", new MoveOutAuton(autonUtils, StartingPosition.CENTER)),
+            Map.entry("Center, 1-Coral", new OneCoralAuton(autonUtils, StartingPosition.CENTER)),
 
-            case "Center, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.CENTER);
-            case "Center, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.CENTER);
+            Map.entry("Right, Move Out", new MoveOutAuton(autonUtils, StartingPosition.RIGHT)),
+            Map.entry("Right, 1-Coral", new OneCoralAuton(autonUtils, StartingPosition.RIGHT)),
+            Map.entry("Right, 2-Coral", new TwoCoralAuton(autonUtils, StartingPosition.RIGHT)),
+            Map.entry("Right, 3-Coral", new ThreeCoralAuton(autonUtils, StartingPosition.RIGHT))
+        );
 
-            case "Right, Move Out" -> new MoveOutAuton(autonUtils, StartingPosition.RIGHT);
-            case "Right, 1-Coral" -> new OneCoralAuton(autonUtils, StartingPosition.RIGHT);
-            case "Right, 2-Coral" -> new TwoCoralAuton(autonUtils, StartingPosition.RIGHT);
-            case "Right, 3-Coral" -> new ThreeCoralAuton(autonUtils, StartingPosition.RIGHT);
-            
-            default -> new NoneAuton();
-        };
+        return Commands.select(autonMap, () -> 
+            SmartDashboard.getString("SelectedAutonomous", "Do Nothing")
+        );
     }
 
     public void setMotorBrake(boolean brake) {

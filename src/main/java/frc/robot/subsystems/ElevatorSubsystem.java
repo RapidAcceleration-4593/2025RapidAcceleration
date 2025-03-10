@@ -112,8 +112,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void controlElevatorState() {
         updateValues();
 
-        if (isManualControlEnabled())
-            return;
+        if (isManualControlEnabled()) return;
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotors();

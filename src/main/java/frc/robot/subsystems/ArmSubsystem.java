@@ -34,7 +34,7 @@ public class ArmSubsystem extends SubsystemBase {
                                                                                 ArmPIDConstants.MAX_VELOCITY,
                                                                                 ArmPIDConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-20, 600, 900}; // TODO: Adjust Setpoint Values. Previously: {-20, 600, 900}.
+    private final double[] SETPOINTS = {-20, 600, 875}; // TODO: Adjust Setpoint Values. Previously: {-20, 600, 900}.
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -107,8 +107,7 @@ public class ArmSubsystem extends SubsystemBase {
     public void controlArmState() {
         updateValues();
 
-        if (isManualControlEnabled())
-            return;
+        if (isManualControlEnabled()) return;
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotor();

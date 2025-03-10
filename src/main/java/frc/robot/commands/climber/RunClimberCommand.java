@@ -6,17 +6,17 @@ import frc.robot.subsystems.ClimberSubsystem;
 public class RunClimberCommand extends Command {
     
     private final ClimberSubsystem climberSubsystem;
-    private final boolean climberInverted;
+    private final boolean climberReversed;
 
-    public RunClimberCommand(ClimberSubsystem subsystem, boolean inverted) {
+    public RunClimberCommand(ClimberSubsystem subsystem, boolean reversed) {
         this.climberSubsystem = subsystem;
-        this.climberInverted = inverted;
+        this.climberReversed = reversed;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
-        climberSubsystem.runClimber(climberInverted);
+        climberSubsystem.runClimber(climberReversed);
     }
 
     @Override

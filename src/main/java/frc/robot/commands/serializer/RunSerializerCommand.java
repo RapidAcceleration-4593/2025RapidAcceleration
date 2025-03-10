@@ -6,17 +6,17 @@ import frc.robot.subsystems.SerializerSubsystem;
 public class RunSerializerCommand extends Command {
     
     private final SerializerSubsystem serializerSubsystem;
-    private final boolean serializerInverted;
+    private final boolean serializerReversed;
 
-    public RunSerializerCommand(SerializerSubsystem subsystem, boolean inverted) {
+    public RunSerializerCommand(SerializerSubsystem subsystem, boolean reversed) {
         this.serializerSubsystem = subsystem;
-        this.serializerInverted = inverted;
+        this.serializerReversed = reversed;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
-        serializerSubsystem.runSerializer(serializerInverted);
+        serializerSubsystem.runSerializer(serializerReversed);
     }
 
     @Override
