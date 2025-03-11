@@ -100,11 +100,11 @@ public class SetArmivatorState extends Command {
             return pureSequentialSequence;
         }
 
-        if (elevatorUp && armUp && !targetElevatorUp && !targetArmUp) {     // Elevator all the way up and wants to kah-chunk.
+        if (elevatorUp && !targetElevatorUp && armUp != targetArmUp) {     // Elevator all the way up and wants to kah-chunk.
             return topToBottomSequence;
         }
 
-        if (!elevatorUp && !armUp && targetElevatorUp && targetArmUp) {     // Elevator kah-chunked and wants to go all the way up.            
+        if (!elevatorUp && targetElevatorUp && armUp != targetArmUp) {     // Elevator kah-chunked and wants to go all the way up.            
             return bottomToTopSequence;
         }
 

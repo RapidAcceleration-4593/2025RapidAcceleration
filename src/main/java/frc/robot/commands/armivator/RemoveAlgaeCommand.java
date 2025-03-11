@@ -16,19 +16,18 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
     
     public RemoveAlgaeCommand(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SwerveSubsystem drivebase, PoseNavigator poseNavigator) {
         addCommands(
+            new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2),
             Commands.either(
-                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.L2),
-                new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP),
+                Commands.none(),
+                new ScoreCoralCommand(armSubsystem, -210).withTimeout(0.75),
                 poseNavigator::isHighAlgae
             ),
             Commands.defer(
                 () -> drivebase.driveToPose(poseNavigator.calculateClosestReefPose()),
                 Set.of(drivebase)
             ),
-            Commands.parallel(
-                new ScoreCoralCommand(armSubsystem).withTimeout(0.3),
-                drivebase.driveToDistance(-0.75).withTimeout(1.0)
-            )
+            new ScoreCoralCommand(armSubsystem, 200).withTimeout(0.4),
+            drivebase.driveToDistance(-0.75).withTimeout(1.0)
         );
     }
 }

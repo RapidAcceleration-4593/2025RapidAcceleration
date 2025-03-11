@@ -25,7 +25,7 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final class ElevatorPIDConstants {
-            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.0005, 0, 0); // TODO: Tune PID. Previously: 0.00055, 0, 0.
+            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.000475, 0.00001, 0); // TODO: Tune PID. Previously: 0.00055, 0, 0.
             public static final int TOLERANCE = 30; // TODO: Adjust Tolerance.
 
             public static final double MAX_VELOCITY = 23000; // Previously: 23000
@@ -46,7 +46,7 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
-            public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0, 0); // TODO: Tune PID. Previously: 0.008, 0, 0.
+            public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0.000003, 0); // TODO: Tune PID. Previously: 0.008, 0, 0.
             public static final int TOLERANCE = 15; // TODO: Adjust Tolerance.
 
             public static final double MAX_VELOCITY = 1600; // Previously: 1600.
@@ -85,7 +85,7 @@ public final class Constants {
         public static final boolean DRIVE_WITH_VISION = true;
 
         public static final class DashboardAlignment {
-            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(20.0);
+            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5);
             public static final double REEF_RADIUS = Units.inchesToMeters(32.75);
             public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
             public static final double ANGLE_INCREMENT = Math.toRadians(60.0);

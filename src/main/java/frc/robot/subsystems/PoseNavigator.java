@@ -11,6 +11,7 @@ import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
@@ -113,7 +114,7 @@ public class PoseNavigator extends SubsystemBase {
         Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(getClosestReefTag());
         if (tagPoseOptional.isEmpty()) return null;
         
-        Pose2d tagPose = tagPoseOptional.get().toPose2d();
+        Pose2d tagPose = tagPoseOptional.get().toPose2d().plus(new Transform2d(0, -0.0508, new Rotation2d()));
 
         // Extrude the target pose straight off the face of the tag.
         Rotation2d tagRotation = tagPose.getRotation();
