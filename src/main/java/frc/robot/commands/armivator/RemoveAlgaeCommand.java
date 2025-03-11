@@ -10,7 +10,7 @@ import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.PoseNavigator;
-import frc.robot.commands.arm.ScoreCoralCommand;
+import frc.robot.commands.arm.AdjustArmCommand;
 
 public class RemoveAlgaeCommand extends SequentialCommandGroup {
     
@@ -18,16 +18,16 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
         addCommands(
             new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2),
             Commands.either(
-                Commands.none(),
-                new ScoreCoralCommand(armSubsystem, -210).withTimeout(0.75),
+                new AdjustArmCommand(armSubsystem, -50).withTimeout(0.4),
+                new AdjustArmCommand(armSubsystem, -210).withTimeout(0.75),
                 poseNavigator::isHighAlgae
             ),
             Commands.defer(
                 () -> drivebase.driveToPose(poseNavigator.calculateClosestReefPose()),
                 Set.of(drivebase)
             ),
-            new ScoreCoralCommand(armSubsystem, 200).withTimeout(0.4),
-            drivebase.driveToDistance(-0.75).withTimeout(1.0)
+            new AdjustArmCommand(armSubsystem, 200).withTimeout(0.4),
+            drivebase.driveToDistance(-1.0).withTimeout(0.8)
         );
     }
 }

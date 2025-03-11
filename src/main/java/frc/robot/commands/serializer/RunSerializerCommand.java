@@ -7,7 +7,7 @@ public class RunSerializerCommand extends Command {
     
     private final SerializerSubsystem serializerSubsystem;
     private final boolean serializerReversed;
-
+    
     public RunSerializerCommand(SerializerSubsystem subsystem, boolean reversed) {
         this.serializerSubsystem = subsystem;
         this.serializerReversed = reversed;

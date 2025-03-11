@@ -43,10 +43,10 @@ public class SerializerSubsystem extends SubsystemBase {
 
     /**
      * Runs the serializer belt, either forward or backward.
-     * @param inverted Whether the serializer should spin reversely.
+     * @param reversed Whether the serializer should spin reversely.
      */
-    public void runSerializer(boolean inverted) {
-        serializerMotor.set(inverted ? SerializerConstants.CONTROL_SPEED : -SerializerConstants.CONTROL_SPEED);
+    public void runSerializer(boolean reversed) {
+        serializerMotor.set(reversed ? SerializerConstants.CONTROL_SPEED : -SerializerConstants.CONTROL_SPEED);
     }
 
     /** Stops the serializer belt motor. */

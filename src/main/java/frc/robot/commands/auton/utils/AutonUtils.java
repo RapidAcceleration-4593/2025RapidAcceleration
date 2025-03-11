@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
-import frc.robot.commands.arm.ScoreCoralCommand;
+import frc.robot.commands.arm.AdjustArmCommand;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.elevator.SetElevatorState;
@@ -101,7 +101,7 @@ public class AutonUtils {
      * @return A lower setpoint for the arm mechanism.
      */
     public Command scoreCoralCommand(double timeout) {
-        return new ScoreCoralCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(timeout);
+        return new AdjustArmCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(timeout);
 
     }
 

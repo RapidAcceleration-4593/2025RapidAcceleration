@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
@@ -48,7 +49,7 @@ public class TwoCoralAuton extends AutonCommand {
                     )
                 ),
                 utils.runSerializerCommand(1.5),
-                utils.setElevatorState(ElevatorStates.BOTTOM, 0.8),
+                utils.setElevatorState(ElevatorStates.BOTTOM, ElevatorTravelTime.BOTTOM_TO_PICKUP),
                 Commands.parallel(
                     utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(2))

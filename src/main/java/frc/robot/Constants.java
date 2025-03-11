@@ -8,9 +8,6 @@ import com.pathplanner.lib.config.PIDConstants;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
@@ -28,11 +25,16 @@ public final class Constants {
             public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.000475, 0.00001, 0); // TODO: Tune PID. Previously: 0.00055, 0, 0.
             public static final int TOLERANCE = 30; // TODO: Adjust Tolerance.
 
-            public static final double MAX_VELOCITY = 23000; // Previously: 23000
-            public static final double MAX_ACCELERATION = 120000; // Previously: 120000
+            public static final double MAX_VELOCITY = 23000; // Previously: 23000.
+            public static final double MAX_ACCELERATION = 120000; // Previously: 120000.
         }
 
-        public static final double MAX_TRAVEL_TIME = 1.25;
+        public static final class ElevatorTravelTime {
+            public static final double BOTTOM_TO_PICKUP = 0.7;
+            public static final double PICKUP_TO_TOP = 1.25;
+            public static final double MAX_TRAVEL = 1.25;
+        }
+
         public static final double CONTROL_SPEED = 0.6;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
@@ -53,8 +55,15 @@ public final class Constants {
             public static final double MAX_ACCELERATION = 5000; // Previously: 9500.
         }
 
-        public static final double MAX_TRAVEL_TIME = 1.25;
-        public static final int PLACE_ROTATION_AMOUNT = 250; // Previously: 180.
+        public static final class ArmTravelTime {
+            public static final double BOTTOM_TO_L2 = 0.75;
+            public static final double BOTTOM_TO_TOP = 1.25;
+            public static final double L2_TO_L3 = 0.75;
+            public static final double SCORE = 0.75;
+            public static final double MAX_TRAVEL = 1.25;
+        }
+
+        public static final int PLACE_ROTATION_AMOUNT = 225; // Previously: 250.
         public static final double CONTROL_SPEED = 0.8;
 
         public static final SparkMax armMotor = new SparkMax(5, MotorType.kBrushless);
@@ -86,9 +95,7 @@ public final class Constants {
 
         public static final class DashboardAlignment {
             public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5);
-            public static final double REEF_RADIUS = Units.inchesToMeters(32.75);
             public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
-            public static final double ANGLE_INCREMENT = Math.toRadians(60.0);
         }
     }
 
@@ -118,10 +125,6 @@ public final class Constants {
                 LEFT, CENTER, RIGHT
             }
         }
-    }
-
-    public static final class FieldConstants {
-        public static final Pose2d REEF_POSE = new Pose2d(new Translation2d(4.4895, 4.0259), new Rotation2d(0));
     }
 
     public static final class DrivebaseConstants {

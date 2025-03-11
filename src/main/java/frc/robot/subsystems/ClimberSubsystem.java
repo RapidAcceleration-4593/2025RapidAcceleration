@@ -34,10 +34,10 @@ public class ClimberSubsystem extends SubsystemBase {
 
     /**
      * Runs the climber motor at a pre-defined speed.
-     * @param inverted Whether the climber should spin reveresely.
+     * @param reversed Whether the climber should spin reveresely.
      */
-    public void runClimber(boolean inverted) {
-        leaderClimberMotor.set(inverted ? ClimberConstants.CONTROL_SPEED : -ClimberConstants.CONTROL_SPEED);
+    public void runClimber(boolean reversed) {
+        leaderClimberMotor.set(reversed ? ClimberConstants.CONTROL_SPEED : -ClimberConstants.CONTROL_SPEED);
     }
 
     /** Stops the climber motor, putting it in brake mode. */

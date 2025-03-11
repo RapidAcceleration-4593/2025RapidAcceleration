@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.FieldConstants;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
 import frc.robot.commands.auton.utils.AutonUtils;
 
@@ -62,8 +61,6 @@ public class PoseNavigator extends SubsystemBase {
 
     /**
      * Selects the target pose based on the current dashboard state and alliance side.
-     * @param distanceFromReef The distance from the robot's center to the reef, in meters.
-     * @param isRedAlliance Whether the robot is on the red alliance.
      * @return The selected target {@link Pose2d} based on the current target dashboard pose.
      */
     public Pose2d selectTargetPose() {
@@ -72,37 +69,40 @@ public class PoseNavigator extends SubsystemBase {
     }
 
     /**
-     * Calculates the reef branch offsets and optionally returns a specific target pose.
-     * @param distanceFromReef The distance to the reef.
-     * @param targetID The target pose ID.
-     * @param isRedAlliance Whether the robot is on the red alliance.
-     * @return A {@link Pose2d} of the target ID.
+     * Calculates the reef branch offsets and returns the specific target pose.
+     * @param targetID The target pose ID (1-12).
+     * @return A {@link Pose2d} corresponding to the given target ID.
      */
     public Pose2d calculateReefPose(int targetID) {
         List<Pose2d> poses = new ArrayList<>();
-        
-        for (int tagID = 17; tagID <= 22; tagID++) {
-            double sideAngle = (tagID - 17) * DashboardAlignment.ANGLE_INCREMENT + Math.PI;
-            double midX = DashboardAlignment.REEF_RADIUS * Math.cos(sideAngle);
-            double midY = DashboardAlignment.REEF_RADIUS * Math.sin(sideAngle);
-            double sideDirX = -Math.sin(sideAngle), sideDirY = Math.cos(sideAngle);
-            
-            for (double offset : new double[]{-1, 1}) {
-                double branchX = midX + offset * DashboardAlignment.BRANCH_OFFSET * sideDirX;
-                double branchY = midY + offset * DashboardAlignment.BRANCH_OFFSET * sideDirY;
-                poses.add(new Pose2d(new Translation2d(
-                    branchX + DashboardAlignment.DISTANCE_FROM_REEF * Math.cos(sideAngle),
-                    branchY + DashboardAlignment.DISTANCE_FROM_REEF * Math.sin(sideAngle)),
-                    new Rotation2d(sideAngle)));
+
+        // Start with tag 18, then proceed in counterclockwise order (18 -> 17 -> 22 -> 21 -> 20 -> 19).
+        int[] tagOrder = {18, 17, 22, 21, 20, 19};
+
+        // Iterate through each AprilTag in order.
+        for (int tagID : tagOrder) {
+            Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(tagID);
+            if (tagPoseOptional.isEmpty()) continue;
+
+            Pose2d tagPose = tagPoseOptional.get().toPose2d();
+            Rotation2d tagRotation = tagPose.getRotation();
+
+            // Iterate over the branch offsets (-1 for left, +1 for right).
+            for (double branchOffsetDirection : new double[]{-1, 1}) {
+                // Calculate the branch translation and extrusion from face.
+                Translation2d branchTranslation = tagPose.getTranslation()
+                    .plus(new Translation2d(branchOffsetDirection * DashboardAlignment.BRANCH_OFFSET, 
+                                            tagRotation.plus(Rotation2d.fromDegrees(90))));
+                Translation2d extrudedTranslation = branchTranslation
+                    .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
+
+                // Add the extruded pose to the Pose2d List.
+                poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))));
             }
         }
-        
-        Pose2d pose = poses.get(targetID - 1);
-        Pose2d finalPose = new Pose2d(
-            new Translation2d(FieldConstants.REEF_POSE.getX() + pose.getX(),
-                               FieldConstants.REEF_POSE.getY() + pose.getY()),
-            pose.getRotation().plus(Rotation2d.kPi));
-        
+
+        // Retrieve the requested pose and flip if on red alliance.
+        Pose2d finalPose = poses.get(targetID - 1);
         return drivebase.isRedAlliance() ? FlippingUtil.flipFieldPose(finalPose) : finalPose;
     }
 

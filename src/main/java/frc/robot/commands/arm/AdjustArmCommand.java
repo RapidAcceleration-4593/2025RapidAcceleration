@@ -3,20 +3,20 @@ package frc.robot.commands.arm;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 
-public class ScoreCoralCommand extends Command {
+public class AdjustArmCommand extends Command {
     
     private final ArmSubsystem armSubsystem;
-    private int scoreAmount;
+    private int offset;
 
-    public ScoreCoralCommand(ArmSubsystem subsystem, int scoreAmount) {
+    public AdjustArmCommand(ArmSubsystem subsystem, int offset) {
         this.armSubsystem = subsystem;
-        this.scoreAmount = scoreAmount;
+        this.offset = offset;
         addRequirements(subsystem);
     }
 
     @Override
     public void initialize() {
-        armSubsystem.setSetpoint(armSubsystem.getSetpoint() + scoreAmount);
+        armSubsystem.setSetpoint(armSubsystem.getSetpoint() + offset);
     }
 
     @Override

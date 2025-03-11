@@ -15,13 +15,14 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
-import frc.robot.commands.arm.ScoreCoralCommand;
+import frc.robot.commands.arm.AdjustArmCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.KahChunkCommand;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
@@ -113,7 +114,7 @@ public class RobotContainer {
             }));
 
         // Armivator Control.
-        driverController.rightTrigger().onTrue(new ScoreCoralCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(0.75));
+        driverController.rightTrigger().onTrue(new AdjustArmCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
         driverController.rightBumper().onTrue(handleDashboardState());

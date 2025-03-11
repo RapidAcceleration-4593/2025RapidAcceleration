@@ -11,7 +11,7 @@
     "SideTwoCoral"
   ],
   "autoFolders": [],
-  "defaultMaxVel": 3.0,
+  "defaultMaxVel": 2.0,
   "defaultMaxAccel": 2.5,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
