@@ -3,12 +3,10 @@
   "robotLength": 0.914,
   "holonomicMode": true,
   "pathFolders": [
+    "CenterCoral",
     "CenterMoveOut",
-    "CenterOneCoral",
-    "SideThreeCoral",
-    "SideMoveOut",
-    "SideOneCoral",
-    "SideTwoCoral"
+    "SideCoral",
+    "SideMoveOut"
   ],
   "autoFolders": [],
   "defaultMaxVel": 2.0,

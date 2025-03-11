@@ -71,6 +71,7 @@ public class AutonUtils {
     /**
      * Functional Command to set elevator state while running PID Control.
      * @param state The selected state of the elevator.
+     * @param timeout The time to execute before moving on.
      * @return A Functional Command to set the state of the elevator during autonomous.
      */
     public Command setElevatorState(ElevatorStates state, double timeout) {
@@ -78,8 +79,9 @@ public class AutonUtils {
     }
 
     /**
-     * Functional Command to set arm state while running PID Control.
+     * Command to set arm state while running PID Control.
      * @param state The selected state of the arm.
+     * @param timeout The time to execute before moving on.
      * @return A Functional Command to set the state of the arm during autonomous.
      */
     public Command setArmState(ArmStates state, double timeout) {
@@ -87,7 +89,7 @@ public class AutonUtils {
     }
 
     /**
-     * Functional Command to set elevator and arm state while running PID Control.
+     * Command to set elevator and arm state while running PID Control.
      * @param elevatorState The selected state of the elevator.
      * @param armState The selected state of the arm.
      * @return A Functional Command to set the state of the elevator and arm during autonomous.
@@ -97,7 +99,7 @@ public class AutonUtils {
     }
 
     /**
-     * Functional Command to rotate the arm down in Autonomous.
+     * Command to rotate the arm down in Autonomous.
      * @return A lower setpoint for the arm mechanism.
      */
     public Command scoreCoralCommand(double timeout) {
@@ -106,12 +108,20 @@ public class AutonUtils {
     }
 
     /**
-     * Functional Command to run the serializer for a set amount of time.
+     * Command to run the serializer for a set amount of time.
      * @param timeout The amount of time to run the serializer.
      * @return A Functional Command to run the serializer for a set amount of time.
      */
     public Command runSerializerCommand(double timeout) {
         return serializerSubsystem.runSerializerCommand().withTimeout(timeout);
+    }
+
+    /**
+     * Command to drive backward to end autonomous.
+     * @return A Deferred Command to drive backward from the current pose.
+     */
+    public Command driveBackward() {
+        return drivebase.driveToDistance(-0.75);
     }
 
     /**

@@ -27,7 +27,7 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                 Set.of(drivebase)
             ),
             new AdjustArmCommand(armSubsystem, 200).withTimeout(0.4),
-            drivebase.driveToDistance(-1.0).withTimeout(0.8)
+            drivebase.driveToDistance(-0.75)
         );
     }
 }

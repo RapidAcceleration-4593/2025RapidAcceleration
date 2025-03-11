@@ -70,7 +70,7 @@ public class ThreeCoralAuton extends AutonCommand {
                 ),
                 utils.scoreCoralCommand(0.3),
                 Commands.parallel(
-                    AutoBuilder.followPath(paths.get(5)),
+                    utils.driveBackward(),
                     Commands.sequence(
                         Commands.waitSeconds(0.75),
                         utils.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
@@ -84,22 +84,20 @@ public class ThreeCoralAuton extends AutonCommand {
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return switch (position) {
             case LEFT -> List.of(
-                utils.loadPath("SideThreeCoral-1").mirrorPath(),
-                utils.loadPath("SideThreeCoral-2").mirrorPath(),
-                utils.loadPath("SideThreeCoral-3").mirrorPath(),
-                utils.loadPath("SideThreeCoral-4").mirrorPath(),
-                utils.loadPath("SideThreeCoral-5").mirrorPath(),
-                utils.loadPath("SideThreeCoral-6").mirrorPath()
+                utils.loadPath("SideCoral-1").mirrorPath(),
+                utils.loadPath("SideCoral-2").mirrorPath(),
+                utils.loadPath("SideCoral-3").mirrorPath(),
+                utils.loadPath("SideCoral-4").mirrorPath(),
+                utils.loadPath("SideCoral-5").mirrorPath()
 
             );
             case CENTER -> Collections.emptyList();
             case RIGHT -> List.of(
-                utils.loadPath("SideThreeCoral-1"),
-                utils.loadPath("SideThreeCoral-2"),
-                utils.loadPath("SideThreeCoral-3"),
-                utils.loadPath("SideThreeCoral-4"),
-                utils.loadPath("SideThreeCoral-5"),
-                utils.loadPath("SideThreeCoral-6")
+                utils.loadPath("SideCoral-1"),
+                utils.loadPath("SideCoral-2"),
+                utils.loadPath("SideCoral-3"),
+                utils.loadPath("SideCoral-4"),
+                utils.loadPath("SideCoral-5")
 
             );
         };
@@ -107,7 +105,7 @@ public class ThreeCoralAuton extends AutonCommand {
 
     @Override
     public List<Pose2d> getAllPathPoses() {
-        return paths.subList(0, 5).stream()
+        return paths.subList(0, 4).stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());

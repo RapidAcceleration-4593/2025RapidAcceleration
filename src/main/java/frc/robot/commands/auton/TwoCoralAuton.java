@@ -56,7 +56,7 @@ public class TwoCoralAuton extends AutonCommand {
                 ),
                 utils.scoreCoralCommand(0.3),
                 Commands.parallel(
-                    AutoBuilder.followPath(paths.get(3)),
+                    utils.driveBackward(),
                     Commands.sequence(
                         Commands.waitSeconds(0.75),
                         utils.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
@@ -70,24 +70,22 @@ public class TwoCoralAuton extends AutonCommand {
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return switch (position) {
             case LEFT -> List.of(
-                utils.loadPath("SideTwoCoral-1").mirrorPath(),
-                utils.loadPath("SideTwoCoral-2").mirrorPath(),
-                utils.loadPath("SideTwoCoral-3").mirrorPath(),
-                utils.loadPath("SideTwoCoral-4").mirrorPath()
+                utils.loadPath("SideCoral-1").mirrorPath(),
+                utils.loadPath("SideCoral-2").mirrorPath(),
+                utils.loadPath("SideCoral-3").mirrorPath()
             );
             case CENTER -> Collections.emptyList();
             case RIGHT -> List.of(
-                utils.loadPath("SideTwoCoral-1"),
-                utils.loadPath("SideTwoCoral-2"),
-                utils.loadPath("SideTwoCoral-3"),
-                utils.loadPath("SideTwoCoral-4")
+                utils.loadPath("SideCoral-1"),
+                utils.loadPath("SideCoral-2"),
+                utils.loadPath("SideCoral-3")
             );
         };
     } 
 
     @Override
     public List<Pose2d> getAllPathPoses() {
-        return paths.subList(0, 3).stream()
+        return paths.subList(0, 2).stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());

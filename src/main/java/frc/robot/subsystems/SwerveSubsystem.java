@@ -28,6 +28,8 @@ import frc.robot.Constants.AutonConstants;
 
 import java.io.File;
 import java.util.function.Supplier;
+import java.util.Set;
+import edu.wpi.first.wpilibj2.command.DeferredCommand;
 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
@@ -173,7 +175,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return PathFinding command.
      */
     public Command driveToPose(Pose2d pose) {
-        // Create the constraints to use while pathfinding
+        // Create the constraints to use while pathfinding.
         PathConstraints constraints = new PathConstraints(
             1.5, 1.5,
             swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
@@ -280,9 +282,19 @@ public class SwerveSubsystem extends SubsystemBase {
      * @return A Command to drive the robot in robot-relative mode.
      */
     public Command driveToDistance(double distance) {
-        return run(() -> {
-            swerveDrive.drive(new Translation2d(distance, 0), 0, false, false);
-        });
+        return new DeferredCommand(() -> {
+            Pose2d currentPose = getPose();
+            Rotation2d currentRotation = currentPose.getRotation();
+
+            Pose2d newPose = new Pose2d(
+                currentPose.getTranslation()
+                    .plus(new Translation2d(distance, 0)
+                    .rotateBy(currentRotation)),
+                currentRotation
+            );
+
+            return driveToPose(newPose);
+        }, Set.of(this));
     }
 
     /**
