@@ -120,6 +120,12 @@ public final class Constants {
             }
         }
 
+        public static final class Climber {
+            public enum ClimberDirections {
+                IN, OUT
+            }
+        }
+
         public static final class Autonomous {
             public enum StartingPosition {
                 LEFT, CENTER, RIGHT

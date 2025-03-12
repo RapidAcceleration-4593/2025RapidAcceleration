@@ -8,25 +8,26 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
+import frc.robot.Constants.RobotStates.Climber.ClimberDirections;
 
 public class ClimberSubsystem extends SubsystemBase {
 
-    private final SparkMax leaderClimberMotor = ClimberConstants.leftClimberMotor;
-    private final SparkMax followerClimberMotor = ClimberConstants.rightClimberMotor;
+    private final SparkMax leftClimberMotor = ClimberConstants.leftClimberMotor;
+    private final SparkMax rightClimberMotor = ClimberConstants.rightClimberMotor;
 
-    private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
-    private final SparkMaxConfig followerConfig = new SparkMaxConfig();
+    private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
+    private final SparkMaxConfig coastConfig = new SparkMaxConfig();
 
     /**
      * Constructor for the ClimberSubsystem class.
      * Configures the motor settings and sets the idle mode to brake.
      */
     public ClimberSubsystem() {
-        leaderConfig.idleMode(IdleMode.kBrake);
-        followerConfig.idleMode(IdleMode.kBrake).follow(leaderClimberMotor, true);
+        brakeConfig.idleMode(IdleMode.kBrake);
+        coastConfig.idleMode(IdleMode.kCoast);
 
-        leaderClimberMotor.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        followerClimberMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        leftClimberMotor.configure(coastConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rightClimberMotor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
     
 
@@ -34,14 +35,24 @@ public class ClimberSubsystem extends SubsystemBase {
 
     /**
      * Runs the climber motor at a pre-defined speed.
-     * @param reversed Whether the climber should spin reveresely.
+     * @param direction The direction to move the climber.
      */
-    public void runClimber(boolean reversed) {
-        leaderClimberMotor.set(reversed ? ClimberConstants.CONTROL_SPEED : -ClimberConstants.CONTROL_SPEED);
+    public void runClimber(ClimberDirections direction) {
+        switch (direction) {
+            case IN:
+                rightClimberMotor.set(-ClimberConstants.CONTROL_SPEED); // NEO V1.1
+                break;
+            case OUT:
+                rightClimberMotor.set(ClimberConstants.CONTROL_SPEED);  // NEO 550
+                break;
+            default:
+                break;
+        }
     }
 
     /** Stops the climber motor, putting it in brake mode. */
     public void stopClimber() {
-        leaderClimberMotor.stopMotor();
+        leftClimberMotor.stopMotor();
+        rightClimberMotor.stopMotor();
     }
 }
