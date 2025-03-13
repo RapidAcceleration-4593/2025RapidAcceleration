@@ -12,6 +12,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
+import frc.robot.Constants.SerializerConstants;
+import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
@@ -40,25 +42,28 @@ public class TwoCoralAuton extends AutonCommand {
                     utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
-                utils.scoreCoralCommand(0.3),
+                utils.scoreCoralCommand(ArmTravelTime.SCORE),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(1)),
                     Commands.sequence(
-                        Commands.waitSeconds(0.75),
+                        Commands.waitSeconds(0.5),
                         utils.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                     )
                 ),
-                utils.runSerializerCommand(1.5),
-                utils.setElevatorState(ElevatorStates.BOTTOM, ElevatorTravelTime.BOTTOM_TO_PICKUP),
+                utils.runSerializerCommand(SerializerConstants.MAX_TIMEOUT),
                 Commands.parallel(
-                    utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
-                    AutoBuilder.followPath(paths.get(2))
+                    utils.setElevatorState(ElevatorStates.BOTTOM, ElevatorTravelTime.BOTTOM_TO_PICKUP),
+                    AutoBuilder.followPath(paths.get(2)),
+                    Commands.sequence(
+                        Commands.waitSeconds(0.5),
+                        utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
+                    )
                 ),
-                utils.scoreCoralCommand(0.3),
+                utils.scoreCoralCommand(ArmTravelTime.SCORE),
                 Commands.parallel(
                     utils.driveBackward(),
                     Commands.sequence(
-                        Commands.waitSeconds(0.75),
+                        Commands.waitSeconds(0.5),
                         utils.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                     )
                 )

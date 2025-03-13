@@ -235,8 +235,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Is the elevator at or above the INTAKE position.
      */
     public ArmDirections isArmUp() {
-        if (Robot.isSimulation())
-            return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
+        if (Robot.isSimulation()) return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
 
         if (getEncoderValue() <= 50)
             return ArmDirections.DOWN;

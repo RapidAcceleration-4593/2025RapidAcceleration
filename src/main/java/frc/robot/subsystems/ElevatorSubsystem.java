@@ -241,11 +241,10 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return If the elevator at or above the PICKUP position.
      */
     public boolean isElevatorUp() {
-        if (Robot.isSimulation())
-            return targetElevatorState != ElevatorStates.BOTTOM;
+        if (Robot.isSimulation()) return targetElevatorState != ElevatorStates.BOTTOM;
 
-        return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||   // At PICKUP.
-               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) + ElevatorPIDConstants.TOLERANCE);   // Above PICKUP.
+        return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP.
+               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) - 500);  // Above PICKUP.
     }
 
 

@@ -59,7 +59,7 @@ public final class Constants {
             public static final double BOTTOM_TO_L2 = 0.75;
             public static final double BOTTOM_TO_TOP = 1.25;
             public static final double L2_TO_L3 = 0.75;
-            public static final double SCORE = 0.75;
+            public static final double SCORE = 0.7;
             public static final double MAX_TRAVEL = 1.25;
         }
 
@@ -78,6 +78,7 @@ public final class Constants {
         public static final DigitalInput serializerSensor = new DigitalInput(4);
 
         public static final double CONTROL_SPEED = 0.3;
+        public static final double MAX_TIMEOUT = 1.5;
     }
 
     public static final class ClimberConstants {
