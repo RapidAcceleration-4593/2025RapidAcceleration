@@ -22,24 +22,24 @@ import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
 
-    /** SwerveSubsystem Object. */
-    public SwerveSubsystem drivebase;
-
     /** ElevatorSubsystem Object. */
-    public ElevatorSubsystem elevatorSubsystem;
+    public final ElevatorSubsystem elevatorSubsystem;
 
     /** ArmSubsystem Object. */
-    public ArmSubsystem armSubsystem;
+    public final ArmSubsystem armSubsystem;
 
     /** Serializer Object. */
-    public SerializerSubsystem serializerSubsystem;
+    public final SerializerSubsystem serializerSubsystem;
+
+    /** SwerveSubsystem Object. */
+    public final SwerveSubsystem drivebase;
 
     /** Constructor for AutonUtils. */
-    public AutonUtils(SwerveSubsystem drivebase, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SerializerSubsystem serializerSubsystem) {
-        this.drivebase = drivebase;
+    public AutonUtils(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SerializerSubsystem serializerSubsystem, SwerveSubsystem drivebase) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
         this.serializerSubsystem = serializerSubsystem;
+        this.drivebase = drivebase;
     }
 
     /**

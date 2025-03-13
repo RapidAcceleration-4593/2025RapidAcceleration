@@ -25,7 +25,6 @@ import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.AdjustArmCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
-import frc.robot.commands.armivator.KahChunkCommand;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
@@ -61,8 +60,8 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
-    public final AutonUtils autonUtils = new AutonUtils(drivebase, elevatorSubsystem, armSubsystem, serializerSubsystem);
-    public final PoseNavigator poseNavigator = new PoseNavigator(drivebase, autonUtils);
+    public final AutonUtils autonUtils = new AutonUtils(elevatorSubsystem, armSubsystem, serializerSubsystem, drivebase);
+    public final PoseNavigator poseNavigator = new PoseNavigator(elevatorSubsystem, armSubsystem, autonUtils, drivebase);
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
@@ -109,23 +108,21 @@ public class RobotContainer {
                 driveToPoseCommand.schedule();
             }))
             .onFalse(Commands.runOnce(() -> {
-                if (driveToPoseCommand != Commands.none()) {
-                    driveToPoseCommand.cancel();
-                }
+                driveToPoseCommand.cancel();
             }));
 
         // Armivator Control.
         driverController.rightTrigger().onTrue(new AdjustArmCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
-        driverController.rightBumper().onTrue(handleDashboardState());
+        driverController.rightBumper().onTrue(poseNavigator.handleDashboardState());
 
         driverController.x().onTrue(new RemoveAlgaeCommand(elevatorSubsystem, armSubsystem, drivebase, poseNavigator));
 
         auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
         auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
-        auxiliaryController.povDown().onTrue(new KahChunkCommand(elevatorSubsystem, armSubsystem));
+        auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
         // Serializer Control.
         auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
@@ -143,23 +140,6 @@ public class RobotContainer {
 
         auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.UP));
         auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.DOWN));
-    }
-
-    /** 
-     * Handles the state of the armivator based on the value from the dashboard.
-     * @return The command to run based on the dashboard selected state.
-     */
-    private Command handleDashboardState() {
-        Map<Integer, Command> commandMap = Map.of(
-            1, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM),
-            2, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2),
-            3, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP),
-            4, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP)
-        );
-
-        return Commands.select(commandMap, () ->
-            (int) SmartDashboard.getNumber("TargetArmivatorState", 1)
-        );
     }
 
     /**

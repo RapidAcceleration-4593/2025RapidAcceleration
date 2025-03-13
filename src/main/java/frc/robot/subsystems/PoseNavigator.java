@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import com.pathplanner.lib.util.FlippingUtil;
@@ -13,20 +14,32 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
+import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.auton.utils.AutonUtils;
 
 public class PoseNavigator extends SubsystemBase {
 
-    /** SwerveSubsystem Class Object. */
-    private final SwerveSubsystem drivebase;
+    /** ElevatorSubsystem Object. */
+    public final ElevatorSubsystem elevatorSubsystem;
+
+    /** ArmSubsystem Object. */
+    public final ArmSubsystem armSubsystem;
 
     /** AutonUtils Class Object. */
     private final AutonUtils autonUtils;
+
+    /** SwerveSubsystem Class Object. */
+    private final SwerveSubsystem drivebase;
 
     /** Notifier for Custom Dashboard. */
     private final Notifier dashboardNotifier;
@@ -34,16 +47,15 @@ public class PoseNavigator extends SubsystemBase {
     /** AprilTag field layout. */
     private final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
-    /** Target Dashboard Pose, updated periodically through SmartDashboard. */
-    private int targetDashboardPose;
-
     /**
      * Constructor for the PoseNavigator class.
      * Initializes the notifier that updates the SmartDashboard periodically.
      */
-    public PoseNavigator(SwerveSubsystem drivebase, AutonUtils autonUtils) {
-        this.drivebase = drivebase;
+    public PoseNavigator(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, AutonUtils autonUtils, SwerveSubsystem drivebase) {
+        this.elevatorSubsystem = elevatorSubsystem;
+        this.armSubsystem = armSubsystem;
         this.autonUtils = autonUtils;
+        this.drivebase = drivebase;
 
         dashboardNotifier = new Notifier(this::updateDashboard);
         dashboardNotifier.startPeriodic(0.2); // Run periodically, 200ms.
@@ -54,7 +66,6 @@ public class PoseNavigator extends SubsystemBase {
      * This method is called by the Notifier.
      */
     private void updateDashboard() {
-        setTargetDashboardPose((int) SmartDashboard.getNumber("TargetDashboardPose", 1));
         SmartDashboard.putNumber("MatchTime", (int) DriverStation.getMatchTime());
         SmartDashboard.putBoolean("ManualControl", autonUtils.elevatorSubsystem.isManualControlEnabled());
     }
@@ -64,8 +75,8 @@ public class PoseNavigator extends SubsystemBase {
      * @return The selected target {@link Pose2d} based on the current target dashboard pose.
      */
     public Pose2d selectTargetPose() {
-        if (getTargetDashboardPose() > 24) return selectChutePose(getTargetDashboardPose());
-        return calculateReefPose(getTargetDashboardPose());
+        int targetID = getTargetDashboardPose();
+        return (targetID > 24) ? selectChutePose(targetID) : calculateReefPose(targetID);
     }
 
     /**
@@ -81,24 +92,24 @@ public class PoseNavigator extends SubsystemBase {
 
         // Iterate through each AprilTag in order.
         for (int tagID : tagOrder) {
-            Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(tagID);
-            if (tagPoseOptional.isEmpty()) continue;
+            aprilTagFieldLayout.getTagPose(tagID).ifPresent(tagPose3d -> {
+                Pose2d tagPose = tagPose3d.toPose2d();
+                Rotation2d tagRotation = tagPose.getRotation();
 
-            Pose2d tagPose = tagPoseOptional.get().toPose2d();
-            Rotation2d tagRotation = tagPose.getRotation();
+                // Iterate over the branch offsets (-1 for left, +1 for right).
+                for (double offset : new double[]{-1, 1}) {
+                    // Calculate the branch translation and extrusion from face.
+                    Translation2d branchTranslation = tagPose.getTranslation()
+                        .plus(new Translation2d(offset * DashboardAlignment.BRANCH_OFFSET, 
+                                                tagRotation.plus(Rotation2d.fromDegrees(90))));
+                    double extraDistance = getTargetArmivatorState() == 2 ? Units.inchesToMeters(5) : 0;
+                    Translation2d extrudedTranslation = branchTranslation
+                        .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF + extraDistance, tagRotation));
 
-            // Iterate over the branch offsets (-1 for left, +1 for right).
-            for (double branchOffsetDirection : new double[]{-1, 1}) {
-                // Calculate the branch translation and extrusion from face.
-                Translation2d branchTranslation = tagPose.getTranslation()
-                    .plus(new Translation2d(branchOffsetDirection * DashboardAlignment.BRANCH_OFFSET, 
-                                            tagRotation.plus(Rotation2d.fromDegrees(90))));
-                Translation2d extrudedTranslation = branchTranslation
-                    .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
-
-                // Add the extruded pose to the Pose2d List.
-                poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))));
-            }
+                    // Add the extruded pose to the Pose2d List.
+                    poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))));
+                }
+            });
         }
 
         // Retrieve the requested pose and flip if on red alliance.
@@ -159,21 +170,30 @@ public class PoseNavigator extends SubsystemBase {
      * @return The selected Pose2d corresponding to the chute.
      */
     private Pose2d selectChutePose(int targetID) {
-        return switch (targetID) {
-            case 25 -> autonUtils.RED_TOP_CHUTE[2];
-            case 26 -> autonUtils.RED_TOP_CHUTE[1];
-            case 27 -> autonUtils.RED_TOP_CHUTE[0];
-            case 28 -> autonUtils.RED_BOTTOM_CHUTE[2];
-            case 29 -> autonUtils.RED_BOTTOM_CHUTE[1];
-            case 30 -> autonUtils.RED_BOTTOM_CHUTE[0];
-            case 31 -> autonUtils.BLUE_TOP_CHUTE[2];
-            case 32 -> autonUtils.BLUE_TOP_CHUTE[1];
-            case 33 -> autonUtils.BLUE_TOP_CHUTE[0];
-            case 34 -> autonUtils.BLUE_BOTTOM_CHUTE[2];
-            case 35 -> autonUtils.BLUE_BOTTOM_CHUTE[1];
-            case 36 -> autonUtils.BLUE_BOTTOM_CHUTE[0];
-            default -> throw new IllegalArgumentException("Invalid chute: " + targetID);
-        };
+        boolean isRed = targetID <= 30; // Red chutes = 25 to 30.
+        boolean isTop = (targetID - 25) % 6 < 3; // Top chutes are first three in each set.
+        int index = 2 - (targetID - 25) % 3; // Maps 25->2, 26->1, 27->0, etc.
+
+        return isRed 
+            ? (isTop ? autonUtils.RED_TOP_CHUTE[index] : autonUtils.RED_BOTTOM_CHUTE[index]) 
+            : (isTop ? autonUtils.BLUE_TOP_CHUTE[index] : autonUtils.BLUE_BOTTOM_CHUTE[index]);
+    }
+
+    /** 
+     * Handles the state of the armivator based on the value from the dashboard.
+     * @return The command to run based on the dashboard selected state.
+     */
+    public Command handleDashboardState() {
+        Map<Integer, Command> commandMap = Map.of(
+            1, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM),
+            2, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2),
+            3, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP),
+            4, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP)
+        );
+
+        return Commands.select(commandMap, () ->
+            getTargetArmivatorState()
+        );
     }
 
     /**
@@ -186,19 +206,11 @@ public class PoseNavigator extends SubsystemBase {
                (!drivebase.isRedAlliance() && (getClosestReefTag() == 18 || getClosestReefTag() == 20 || getClosestReefTag() == 22));
     }
 
-    /**
-     * Sets the target dashboard pose.
-     * @param targetPose The target dashboard pose value.
-     */
-    private void setTargetDashboardPose(int targetPose) {
-        this.targetDashboardPose = targetPose;
+    private int getTargetDashboardPose() {
+        return (int) SmartDashboard.getNumber("TargetDashboardPose", 1);
     }
 
-    /**
-     * Gets the current target dashboard pose.
-     * @return The target dashboard pose value.
-     */
-    private int getTargetDashboardPose() {
-        return targetDashboardPose;
+    private int getTargetArmivatorState() {
+        return (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
     }
 }
