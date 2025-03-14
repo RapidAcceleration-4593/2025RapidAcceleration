@@ -1,23 +1,22 @@
 package frc.robot.commands.climber;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.RobotStates.Climber.ClimberDirections;
 import frc.robot.subsystems.ClimberSubsystem;
 
 public class RunClimberCommand extends Command {
     
     private final ClimberSubsystem climberSubsystem;
-    private final ClimberDirections climberDirection;
+    private final boolean climberReversed;
 
-    public RunClimberCommand(ClimberSubsystem subsystem, ClimberDirections direction) {
+    public RunClimberCommand(ClimberSubsystem subsystem, boolean reversed) {
         this.climberSubsystem = subsystem;
-        this.climberDirection = direction;
+        this.climberReversed = reversed;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
-        climberSubsystem.runClimber(climberDirection);
+        climberSubsystem.runClimber(climberReversed);
     }
 
     @Override

@@ -102,7 +102,7 @@ public class PoseNavigator extends SubsystemBase {
                     Translation2d branchTranslation = tagPose.getTranslation()
                         .plus(new Translation2d(offset * DashboardAlignment.BRANCH_OFFSET, 
                                                 tagRotation.plus(Rotation2d.fromDegrees(90))));
-                    double extraDistance = getTargetArmivatorState() == 2 ? Units.inchesToMeters(5) : 0;
+                    double extraDistance = getTargetArmivatorState() == 2 ? Units.inchesToMeters(8) : 0;
                     Translation2d extrudedTranslation = branchTranslation
                         .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF + extraDistance, tagRotation));
 

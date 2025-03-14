@@ -19,7 +19,6 @@ import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
-import frc.robot.Constants.RobotStates.Climber.ClimberDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
@@ -129,8 +128,8 @@ public class RobotContainer {
         auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
         // Climber Control.
-        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, ClimberDirections.IN));
-        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, ClimberDirections.OUT));
+        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
+        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
 
         // Manual Control.
         auxiliaryController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));

@@ -59,7 +59,7 @@ public final class Constants {
             public static final double BOTTOM_TO_L2 = 0.75;
             public static final double BOTTOM_TO_TOP = 1.25;
             public static final double L2_TO_L3 = 0.75;
-            public static final double SCORE = 0.7;
+            public static final double SCORE = 0.5;
             public static final double MAX_TRAVEL = 1.25;
         }
 
@@ -82,8 +82,7 @@ public final class Constants {
     }
 
     public static final class ClimberConstants {
-        public static final SparkMax leftClimberMotor = new SparkMax(2, MotorType.kBrushless);
-        public static final SparkMax rightClimberMotor = new SparkMax(4, MotorType.kBrushless);
+        public static final SparkMax climberMotor = new SparkMax(4, MotorType.kBrushless);
         
         public static final double CONTROL_SPEED = 1.0;
     }
@@ -118,12 +117,6 @@ public final class Constants {
     
             public enum ArmDirections {
                 UP, DOWN, UNKNOWN
-            }
-        }
-
-        public static final class Climber {
-            public enum ClimberDirections {
-                IN, OUT
             }
         }
 

@@ -13,7 +13,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.SerializerConstants;
-import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
@@ -23,7 +22,7 @@ import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
 public class TwoCoralAuton extends AutonCommand {
-    private AutonUtils utils;
+    private final AutonUtils utils;
 
     private final List<PathPlannerPath> paths;
 
@@ -42,7 +41,7 @@ public class TwoCoralAuton extends AutonCommand {
                     utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
-                utils.scoreCoralCommand(ArmTravelTime.SCORE),
+                utils.scoreCoralCommand(),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(1)),
                     Commands.sequence(
@@ -59,7 +58,7 @@ public class TwoCoralAuton extends AutonCommand {
                         utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
                     )
                 ),
-                utils.scoreCoralCommand(ArmTravelTime.SCORE),
+                utils.scoreCoralCommand(),
                 Commands.parallel(
                     utils.driveBackward(),
                     Commands.sequence(

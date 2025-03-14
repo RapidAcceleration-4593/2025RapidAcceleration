@@ -19,7 +19,7 @@ import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
 public class OneCoralAuton extends AutonCommand {
-    private AutonUtils utils;
+    private final AutonUtils utils;
 
     private final List<PathPlannerPath> paths;
 
@@ -38,7 +38,7 @@ public class OneCoralAuton extends AutonCommand {
                     utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
-                utils.scoreCoralCommand(0.3),
+                utils.scoreCoralCommand(),
                 Commands.parallel(
                     utils.driveBackward(),
                     Commands.sequence(
