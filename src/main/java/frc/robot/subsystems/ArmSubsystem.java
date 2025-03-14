@@ -34,7 +34,7 @@ public class ArmSubsystem extends SubsystemBase {
                                                                                 ArmPIDConstants.MAX_VELOCITY,
                                                                                 ArmPIDConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-20, 600, 875}; // TODO: Adjust Setpoint Values. Previously: {-20, 600, 900}.
+    private static final double[] SETPOINTS = {-20, 600, 875}; // TODO: Adjust Setpoint Values. Previously: {-20, 600, 900}.
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -107,7 +107,9 @@ public class ArmSubsystem extends SubsystemBase {
     public void controlArmState() {
         updateValues();
 
-        if (isManualControlEnabled()) return;
+        if (isManualControlEnabled()) {
+            return;
+        }
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotor();
@@ -235,14 +237,17 @@ public class ArmSubsystem extends SubsystemBase {
      * @return Is the elevator at or above the INTAKE position.
      */
     public ArmDirections isArmUp() {
-        if (Robot.isSimulation()) return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
+        if (Robot.isSimulation()) {
+            return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
+        }
 
-        if (getEncoderValue() <= 50)
+        if (getEncoderValue() <= 50) {
             return ArmDirections.DOWN;
-        else if (getEncoderValue() >= 500)
+        } else if (getEncoderValue() >= 500) {
             return ArmDirections.UP;
-        else
+        } else {
             return ArmDirections.UNKNOWN;
+        }
     }
 
 
@@ -288,6 +293,5 @@ public class ArmSubsystem extends SubsystemBase {
         SmartDashboard.putNumber("A-Encoder", getEncoderValue());
         SmartDashboard.putNumber("A-Setpoint", getSetpoint());
         SmartDashboard.putString("A-State", targetArmState.toString());
-
     }
 }

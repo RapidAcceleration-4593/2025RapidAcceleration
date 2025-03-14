@@ -24,6 +24,7 @@ import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.AdjustArmCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
+import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
@@ -59,8 +60,9 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
-    public final AutonUtils autonUtils = new AutonUtils(elevatorSubsystem, armSubsystem, serializerSubsystem, drivebase);
-    public final PoseNavigator poseNavigator = new PoseNavigator(elevatorSubsystem, armSubsystem, autonUtils, drivebase);
+    public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem);
+    public final AutonUtils autonUtils = new AutonUtils(serializerSubsystem, drivebase);
+    public final PoseNavigator poseNavigator = new PoseNavigator(armivatorCommands, autonUtils, drivebase);
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
@@ -113,10 +115,10 @@ public class RobotContainer {
         // Armivator Control.
         driverController.rightTrigger().onTrue(new AdjustArmCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE));
 
-        driverController.leftBumper().onTrue(new PickupCoralCommand(elevatorSubsystem, armSubsystem, serializerSubsystem));
+        driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
         driverController.rightBumper().onTrue(poseNavigator.handleDashboardState());
 
-        driverController.x().onTrue(new RemoveAlgaeCommand(elevatorSubsystem, armSubsystem, drivebase, poseNavigator));
+        driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
 
         auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
         auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
@@ -150,17 +152,17 @@ public class RobotContainer {
             Map.entry("Do Nothing", new NoneAuton()),
 
             Map.entry("Left, Move Out", new MoveOutAuton(autonUtils, StartingPosition.LEFT)),
-            Map.entry("Left, 1-Coral", new OneCoralAuton(autonUtils, StartingPosition.LEFT)),
-            Map.entry("Left, 2-Coral", new TwoCoralAuton(autonUtils, StartingPosition.LEFT)),
-            Map.entry("Left, 3-Coral", new ThreeCoralAuton(autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 2-Coral", new TwoCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 3-Coral", new ThreeCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
 
             Map.entry("Center, Move Out", new MoveOutAuton(autonUtils, StartingPosition.CENTER)),
-            Map.entry("Center, 1-Coral", new OneCoralAuton(autonUtils, StartingPosition.CENTER)),
+            Map.entry("Center, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.CENTER)),
 
             Map.entry("Right, Move Out", new MoveOutAuton(autonUtils, StartingPosition.RIGHT)),
-            Map.entry("Right, 1-Coral", new OneCoralAuton(autonUtils, StartingPosition.RIGHT)),
-            Map.entry("Right, 2-Coral", new TwoCoralAuton(autonUtils, StartingPosition.RIGHT)),
-            Map.entry("Right, 3-Coral", new ThreeCoralAuton(autonUtils, StartingPosition.RIGHT))
+            Map.entry("Right, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.RIGHT)),
+            Map.entry("Right, 2-Coral", new TwoCoralAuton(armivatorCommands, autonUtils, StartingPosition.RIGHT)),
+            Map.entry("Right, 3-Coral", new ThreeCoralAuton(armivatorCommands, autonUtils, StartingPosition.RIGHT))
         );
 
         return Commands.select(autonMap, () -> 

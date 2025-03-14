@@ -8,37 +8,19 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.ArmConstants.ArmTravelTime;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
-import frc.robot.commands.arm.AdjustArmCommand;
-import frc.robot.commands.arm.SetArmState;
-import frc.robot.commands.armivator.SetArmivatorState;
-import frc.robot.commands.elevator.SetElevatorState;
-import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SerializerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
 
-    /** ElevatorSubsystem Object. */
-    public final ElevatorSubsystem elevatorSubsystem;
-
-    /** ArmSubsystem Object. */
-    public final ArmSubsystem armSubsystem;
-
     /** Serializer Object. */
-    public final SerializerSubsystem serializerSubsystem;
+    private final SerializerSubsystem serializerSubsystem;
 
     /** SwerveSubsystem Object. */
-    public final SwerveSubsystem drivebase;
+    private final SwerveSubsystem drivebase;
 
     /** Constructor for AutonUtils. */
-    public AutonUtils(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SerializerSubsystem serializerSubsystem, SwerveSubsystem drivebase) {
-        this.elevatorSubsystem = elevatorSubsystem;
-        this.armSubsystem = armSubsystem;
+    public AutonUtils(SerializerSubsystem serializerSubsystem, SwerveSubsystem drivebase) {
         this.serializerSubsystem = serializerSubsystem;
         this.drivebase = drivebase;
     }
@@ -67,45 +49,6 @@ public class AutonUtils {
     
                 drivebase.resetOdometry(pose);
         });
-    }
-
-    /**
-     * Functional Command to set elevator state while running PID Control.
-     * @param state The selected state of the elevator.
-     * @param timeout The time to execute before moving on.
-     * @return A Functional Command to set the state of the elevator during autonomous.
-     */
-    public Command setElevatorState(ElevatorStates state, double timeout) {
-        return new SetElevatorState(elevatorSubsystem, state).withTimeout(timeout);
-    }
-
-    /**
-     * Command to set arm state while running PID Control.
-     * @param state The selected state of the arm.
-     * @param timeout The time to execute before moving on.
-     * @return A Functional Command to set the state of the arm during autonomous.
-     */
-    public Command setArmState(ArmStates state, double timeout) {
-        return new SetArmState(armSubsystem, state).withTimeout(timeout);
-    }
-
-    /**
-     * Command to set elevator and arm state while running PID Control.
-     * @param elevatorState The selected state of the elevator.
-     * @param armState The selected state of the arm.
-     * @return A Functional Command to set the state of the elevator and arm during autonomous.
-     */
-    public Command setArmivatorState(ElevatorStates elevatorState, ArmStates armState) {
-        return new SetArmivatorState(elevatorSubsystem, armSubsystem, elevatorState, armState);
-    }
-
-    /**
-     * Command to rotate the arm down in Autonomous.
-     * @return A lower setpoint for the arm mechanism.
-     */
-    public Command scoreCoralCommand() {
-        return new AdjustArmCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE);
-
     }
 
     /**

@@ -35,7 +35,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorPIDConstants.MAX_VELOCITY, 
                                                                                     ElevatorPIDConstants.MAX_ACCELERATION));
 
-    private final double[] SETPOINTS = {-500, 3000, 12550}; // TODO: Adjust Setpoint Values. Previously: {-300, 2750, 12550}.
+    private static final double[] SETPOINTS = {-500, 3000, 12550}; // TODO: Adjust Setpoint Values. Previously: {-300, 2750, 12550}.
 
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
@@ -112,7 +112,9 @@ public class ElevatorSubsystem extends SubsystemBase {
     public void controlElevatorState() {
         updateValues();
 
-        if (isManualControlEnabled()) return;
+        if (isManualControlEnabled()) {
+            return;
+        }
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
             stopMotors();
@@ -241,7 +243,9 @@ public class ElevatorSubsystem extends SubsystemBase {
      * @return If the elevator at or above the PICKUP position.
      */
     public boolean isElevatorUp() {
-        if (Robot.isSimulation()) return targetElevatorState != ElevatorStates.BOTTOM;
+        if (Robot.isSimulation()) {
+            return targetElevatorState != ElevatorStates.BOTTOM;
+        }
 
         return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP.
                (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) - 500);  // Above PICKUP.

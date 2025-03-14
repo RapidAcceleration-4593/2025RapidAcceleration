@@ -18,6 +18,7 @@ import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.Robot;
+import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
@@ -26,7 +27,7 @@ public class TwoCoralAuton extends AutonCommand {
 
     private final List<PathPlannerPath> paths;
 
-    public TwoCoralAuton(AutonUtils utils, StartingPosition position) {
+    public TwoCoralAuton(ArmivatorCommands armivatorCommands, AutonUtils utils, StartingPosition position) {
         this.utils = utils;
 
         paths = getAutonPaths(position);
@@ -38,32 +39,32 @@ public class TwoCoralAuton extends AutonCommand {
         addCommands(
             Commands.sequence(
                 Commands.parallel(
-                    utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
+                    armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
-                utils.scoreCoralCommand(),
+                armivatorCommands.scoreCoral(),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(1)),
                     Commands.sequence(
                         Commands.waitSeconds(0.5),
-                        utils.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
+                        armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                     )
                 ),
                 utils.runSerializerCommand(SerializerConstants.MAX_TIMEOUT),
                 Commands.parallel(
-                    utils.setElevatorState(ElevatorStates.BOTTOM, ElevatorTravelTime.BOTTOM_TO_PICKUP),
+                    armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
                     AutoBuilder.followPath(paths.get(2)),
                     Commands.sequence(
                         Commands.waitSeconds(0.5),
-                        utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
+                        armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
                     )
                 ),
-                utils.scoreCoralCommand(),
+                armivatorCommands.scoreCoral(),
                 Commands.parallel(
                     utils.driveBackward(),
                     Commands.sequence(
                         Commands.waitSeconds(0.5),
-                        utils.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
+                        armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                     )
                 )
             )

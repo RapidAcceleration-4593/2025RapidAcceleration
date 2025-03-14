@@ -15,6 +15,7 @@ import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.Robot;
+import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
@@ -23,7 +24,7 @@ public class OneCoralAuton extends AutonCommand {
 
     private final List<PathPlannerPath> paths;
 
-    public OneCoralAuton(AutonUtils utils, StartingPosition position) {
+    public OneCoralAuton(ArmivatorCommands armivatorCommands, AutonUtils utils, StartingPosition position) {
         this.utils = utils;
 
         paths = getAutonPaths(position);
@@ -35,15 +36,15 @@ public class OneCoralAuton extends AutonCommand {
         addCommands(
             Commands.sequence(
                 Commands.parallel(
-                    utils.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
+                    armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
-                utils.scoreCoralCommand(),
+                armivatorCommands.scoreCoral(),
                 Commands.parallel(
                     utils.driveBackward(),
                     Commands.sequence(
                         Commands.waitSeconds(0.75),
-                        utils.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
+                        armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                     )
                 )
             )

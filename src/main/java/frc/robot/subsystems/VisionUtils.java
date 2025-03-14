@@ -44,8 +44,9 @@ import swervelib.telemetry.SwerveDriveTelemetry;
 
 /** Utility class for handling vision-related functions like Object Detection and AprilTag localization. */
 public class VisionUtils {
+
     /** AprilTag Field Layout of the year. */
-    public static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
+    private static final AprilTagFieldLayout fieldLayout = AprilTagFieldLayout.loadField(AprilTagFields.k2025ReefscapeAndyMark);
 
     /** PhotonVision Simulation. */
     private VisionSystemSim visionSim;
@@ -293,7 +294,7 @@ public class VisionUtils {
             // https://docs.wpilib.org/en/stable/docs/software/basic-programming/coordinate-system.html
             robotToCamTransform = new Transform3d(robotToCamTranslation, robotToCamRotation);
 
-            poseEstimator = new PhotonPoseEstimator(VisionUtils.fieldLayout,
+            poseEstimator = new PhotonPoseEstimator(fieldLayout,
                                                     PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
                                                     robotToCamTransform);
             poseEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);

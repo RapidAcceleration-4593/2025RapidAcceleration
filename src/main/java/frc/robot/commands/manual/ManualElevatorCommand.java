@@ -18,11 +18,14 @@ public class ManualElevatorCommand extends Command {
 
     @Override
     public void execute() {
-        if (!elevatorSubsystem.isManualControlEnabled()) return;
+        if (!elevatorSubsystem.isManualControlEnabled()) {
+            return;
+        }
 
-        if (elevatorSubsystem.isBottomLimitSwitchPressed())
+        if (elevatorSubsystem.isBottomLimitSwitchPressed()) {
             elevatorSubsystem.resetEncoder();
-
+        }
+        
         if (isLimitSwitchPressed()) {
             elevatorSubsystem.stopMotors();
             return;

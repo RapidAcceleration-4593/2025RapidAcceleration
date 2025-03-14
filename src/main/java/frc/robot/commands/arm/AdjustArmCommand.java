@@ -6,17 +6,17 @@ import frc.robot.subsystems.ArmSubsystem;
 public class AdjustArmCommand extends Command {
     
     private final ArmSubsystem armSubsystem;
-    private int offset;
+    private final double adjustment;
 
-    public AdjustArmCommand(ArmSubsystem subsystem, int offset) {
+    public AdjustArmCommand(ArmSubsystem subsystem, double adjustment) {
         this.armSubsystem = subsystem;
-        this.offset = offset;
+        this.adjustment = adjustment;
         addRequirements(subsystem);
     }
 
     @Override
     public void initialize() {
-        armSubsystem.setSetpoint(armSubsystem.getSetpoint() + offset);
+        armSubsystem.setSetpoint(armSubsystem.getSetpoint() + adjustment);
     }
 
     @Override

@@ -24,16 +24,13 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
-import frc.robot.commands.armivator.SetArmivatorState;
+import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonUtils;
 
 public class PoseNavigator extends SubsystemBase {
 
-    /** ElevatorSubsystem Object. */
-    public final ElevatorSubsystem elevatorSubsystem;
-
-    /** ArmSubsystem Object. */
-    public final ArmSubsystem armSubsystem;
+    /** ArmivatorCommands Object. */
+    public final ArmivatorCommands armivatorCommands;
 
     /** AutonUtils Class Object. */
     private final AutonUtils autonUtils;
@@ -51,9 +48,8 @@ public class PoseNavigator extends SubsystemBase {
      * Constructor for the PoseNavigator class.
      * Initializes the notifier that updates the SmartDashboard periodically.
      */
-    public PoseNavigator(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, AutonUtils autonUtils, SwerveSubsystem drivebase) {
-        this.elevatorSubsystem = elevatorSubsystem;
-        this.armSubsystem = armSubsystem;
+    public PoseNavigator(ArmivatorCommands armivatorCommands, AutonUtils autonUtils, SwerveSubsystem drivebase) {
+        this.armivatorCommands = armivatorCommands;
         this.autonUtils = autonUtils;
         this.drivebase = drivebase;
 
@@ -67,7 +63,7 @@ public class PoseNavigator extends SubsystemBase {
      */
     private void updateDashboard() {
         SmartDashboard.putNumber("MatchTime", (int) DriverStation.getMatchTime());
-        SmartDashboard.putBoolean("ManualControl", autonUtils.elevatorSubsystem.isManualControlEnabled());
+        SmartDashboard.putBoolean("ManualControl", armivatorCommands.isManualControlEnabled());
     }
 
     /**
@@ -185,10 +181,10 @@ public class PoseNavigator extends SubsystemBase {
      */
     public Command handleDashboardState() {
         Map<Integer, Command> commandMap = Map.of(
-            1, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM),
-            2, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2),
-            3, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP),
-            4, new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP)
+            1, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM),
+            2, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.L2),
+            3, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.TOP),
+            4, armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
         );
 
         return Commands.select(commandMap, () ->
