@@ -76,10 +76,7 @@ public class SetArmivatorState extends Command {
         }
 
         if (!elevatorUp && targetElevatorUp && armUp != targetArmUp) {  // Elevator at BOTTOM and wants to go to TOP.           
-            return Commands.parallel(
-                moveElevator,
-                moveArm.beforeStarting(Commands.waitUntil(elevatorSubsystem::isElevatorUp))
-            );
+            return Commands.sequence(moveToPickup, Commands.parallel(moveElevator, moveArm));
         }
 
         // Least Stable Sequence. Only used if there is no chance that the arm will hit the BUMPER.
