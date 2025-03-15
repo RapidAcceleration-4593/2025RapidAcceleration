@@ -55,7 +55,6 @@ public class ArmSubsystem extends SubsystemBase {
 
         armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
-        armPID.setTolerance(ArmPIDConstants.TOLERANCE);
         armPID.reset(0);
     }
 
@@ -228,7 +227,7 @@ public class ArmSubsystem extends SubsystemBase {
      * @return If the arm is at the setpoint, accounting for tolerance.
      */
     public boolean atSetpoint() {
-        return armPID.atGoal();
+        return Math.abs(getEncoderValue() - armPID.getSetpoint().position) < ArmPIDConstants.TOLERANCE;
     }
 
     /**
