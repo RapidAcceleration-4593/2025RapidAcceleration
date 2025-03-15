@@ -110,11 +110,7 @@ public class RobotContainer {
             }));
 
         // Armivator Control.
-        driverController.rightTrigger()
-            .onTrue(Commands.sequence(
-                armivatorCommands.scoreCoral(),
-                drivebase.driveToDistance(-0.5)
-            ));
+        driverController.rightTrigger().onTrue(armivatorCommands.scoreCoral());
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
         driverController.rightBumper().onTrue(poseNavigator.handleDashboardState());

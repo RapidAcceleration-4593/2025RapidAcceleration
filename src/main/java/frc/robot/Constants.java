@@ -30,7 +30,7 @@ public final class Constants {
         }
 
         public static final class ElevatorTravelTime {
-            public static final double BOTTOM_TO_PICKUP = 0.5;
+            public static final double BOTTOM_TO_PICKUP = 0.4;
             public static final double MAX_TRAVEL = 1.25;
         }
 
@@ -56,7 +56,7 @@ public final class Constants {
 
         public static final class ArmTravelTime {
             public static final double SCORE = 0.4;
-            public static final double MAX_TRAVEL = 1.25;
+            public static final double MAX_TRAVEL = 1.4;
         }
 
         public static final int PLACE_ROTATION_AMOUNT = 225; // Previously: 250.
@@ -74,7 +74,7 @@ public final class Constants {
         public static final DigitalInput serializerSensor = new DigitalInput(4);
 
         public static final double CONTROL_SPEED = 0.4;
-        public static final double MAX_TIMEOUT = 1.5;
+        public static final double MAX_TIMEOUT = 1.75;
     }
 
     public static final class ClimberConstants {
@@ -90,8 +90,8 @@ public final class Constants {
         public static final boolean DRIVE_WITH_VISION = true;
 
         public static final class DashboardAlignment {
-            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(18.5);
-            public static final double BRANCH_OFFSET = Units.inchesToMeters(6.25);
+            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(17);
+            public static final double BRANCH_OFFSET = Units.inchesToMeters(7);
         }
     }
 

@@ -23,7 +23,7 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                 () -> drivebase.driveToPose(poseNavigator.calculateClosestReefPose()),
                 Set.of(drivebase)
             ),
-            armivatorCommands.adjustArmSetpoint(200).withTimeout(0.6),
+            armivatorCommands.adjustArmSetpoint(230).withTimeout(0.6),
             drivebase.driveToDistance(-0.75)
         );
     }

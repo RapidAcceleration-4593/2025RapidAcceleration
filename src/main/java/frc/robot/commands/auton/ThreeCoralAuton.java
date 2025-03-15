@@ -59,23 +59,23 @@ public class ThreeCoralAuton extends AutonCommand {
                 AutoBuilder.followPath(paths.get(3)),
                 Commands.sequence(
                     Commands.waitSeconds(0.5),
-                    armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
-                )
-            ),
-            utils.runSerializerCommand(SerializerConstants.MAX_TIMEOUT),
-            armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
-            Commands.parallel(
-                AutoBuilder.followPath(paths.get(4)),
-                armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
-            ),
-            armivatorCommands.scoreCoral(),
-            Commands.parallel(
-                utils.driveBackward(),
-                Commands.sequence(
-                    Commands.waitSeconds(0.75),
                     armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                 )
             )
+            // utils.runSerializerCommand(SerializerConstants.MAX_TIMEOUT),
+            // armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
+            // Commands.parallel(
+            //     AutoBuilder.followPath(paths.get(4)),
+            //     armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
+            // ),
+            // armivatorCommands.scoreCoral(),
+            // Commands.parallel(
+            //     utils.driveBackward(),
+            //     Commands.sequence(
+            //         Commands.waitSeconds(0.75),
+            //         armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
+            //     )
+            // )
         );
     }
 
