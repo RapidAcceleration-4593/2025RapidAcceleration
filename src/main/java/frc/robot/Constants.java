@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import swervelib.math.Matter;
 
 public final class Constants {
-    public static final double ROBOT_MASS = (110) * 0.453592; // 110 Pounds to Kilograms.
+    public static final double ROBOT_MASS = Units.lbsToKilograms(110);
     public static final Matter CHASSIS = new Matter(new Translation3d(0, 0, Units.inchesToMeters(8)), ROBOT_MASS);
     public static final double LOOP_TIME = 0.13; // Seconds, 20ms + 110ms Spark Max Velocity Lag.
     public static final double MAX_SPEED = Units.feetToMeters(10.0); // Maximum speed of robot in meters per second, used to limit acceleration.
@@ -31,7 +31,6 @@ public final class Constants {
 
         public static final class ElevatorTravelTime {
             public static final double BOTTOM_TO_PICKUP = 0.5;
-            public static final double PICKUP_TO_TOP = 1.25;
             public static final double MAX_TRAVEL = 1.25;
         }
 
@@ -49,17 +48,14 @@ public final class Constants {
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
             public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0.00004, 0);
-            public static final int TOLERANCE = 25;
+            public static final int TOLERANCE = 20;
 
             public static final double MAX_VELOCITY = 1240; // Previously: 1240.
-            public static final double MAX_ACCELERATION = 5000; // Previously: 1715.
+            public static final double MAX_ACCELERATION = 5000; // Previously: 5000.
         }
 
         public static final class ArmTravelTime {
-            public static final double BOTTOM_TO_L2 = 0.75;
-            public static final double BOTTOM_TO_TOP = 1.25;
-            public static final double L2_TO_L3 = 0.75;
-            public static final double SCORE = 0.5;
+            public static final double SCORE = 0.4;
             public static final double MAX_TRAVEL = 1.25;
         }
 

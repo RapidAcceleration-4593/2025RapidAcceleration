@@ -57,7 +57,7 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
-    public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem, drivebase);
+    public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem);
     public final AutonUtils autonUtils = new AutonUtils(serializerSubsystem, drivebase);
     public final PoseNavigator poseNavigator = new PoseNavigator(armivatorCommands, autonUtils, drivebase);
 
@@ -110,7 +110,11 @@ public class RobotContainer {
             }));
 
         // Armivator Control.
-        driverController.rightTrigger().onTrue(armivatorCommands.scoreCoral());
+        driverController.rightTrigger()
+            .onTrue(Commands.sequence(
+                armivatorCommands.scoreCoral(),
+                drivebase.driveToDistance(-0.5)
+            ));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
         driverController.rightBumper().onTrue(poseNavigator.handleDashboardState());
@@ -141,7 +145,7 @@ public class RobotContainer {
     }
 
     /**
-     * Returns the autonomous command to run. This will be run in autonomous mode.
+     * Returns the autonomous command to run. This will be ran in autonomous mode.
      * @return The command to run in autonomous.
      */
     public Command getAutonomousCommand() {

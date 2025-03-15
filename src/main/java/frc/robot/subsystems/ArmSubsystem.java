@@ -105,7 +105,7 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     public void controlArmState() {
-        updateValues();
+        // updateValues();
 
         if (isManualControlEnabled()) {
             return;
@@ -287,6 +287,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /** Updates values to SmartDashboard/ShuffleBoard. */
+    @SuppressWarnings("unused")
     private void updateValues() {
         SmartDashboard.putBoolean("A-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("A-BotLS", isBottomLimitSwitchPressed());

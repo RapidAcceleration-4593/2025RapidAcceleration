@@ -118,17 +118,18 @@ public class PoseNavigator extends SubsystemBase {
      * @return The closest AprilTag Pose Offset.
      */
     public Pose2d calculateClosestReefPose() {
-        Optional<Pose3d> tagPoseOptional = aprilTagFieldLayout.getTagPose(getClosestReefTag());
-        if (tagPoseOptional.isEmpty()) return null;
-        
-        Pose2d tagPose = tagPoseOptional.get().toPose2d().plus(new Transform2d(0, -0.0508, new Rotation2d()));
+        return aprilTagFieldLayout.getTagPose(getClosestReefTag())
+            .map(tagPose -> {
+                Pose2d adjustedPose = tagPose.toPose2d().plus(new Transform2d(0, -0.0508, new Rotation2d()));
 
-        // Extrude the target pose straight off the face of the tag.
-        Rotation2d tagRotation = tagPose.getRotation();
-        Translation2d extrudedTranslation = tagPose.getTranslation()
-            .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
+                // Extrude the target pose straight off the face of the tag.
+                Rotation2d tagRotation = adjustedPose.getRotation();
+                Translation2d extrudedTranslation = adjustedPose.getTranslation()
+                    .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
 
-        return new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180)));
+                return new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180)));
+            })
+            .orElse(new Pose2d());
     }
 
     /**
@@ -171,8 +172,8 @@ public class PoseNavigator extends SubsystemBase {
         int index = 2 - (targetID - 25) % 3; // Maps 25->2, 26->1, 27->0, etc.
 
         return isRed 
-            ? (isTop ? autonUtils.RED_TOP_CHUTE[index] : autonUtils.RED_BOTTOM_CHUTE[index]) 
-            : (isTop ? autonUtils.BLUE_TOP_CHUTE[index] : autonUtils.BLUE_BOTTOM_CHUTE[index]);
+            ? (isTop ? autonUtils.RED_TOP_CHUTE[index] : autonUtils.RED_BOTTOM_CHUTE[index])
+            : isTop ? autonUtils.BLUE_TOP_CHUTE[index] : autonUtils.BLUE_BOTTOM_CHUTE[index];
     }
 
     /** 
@@ -187,9 +188,7 @@ public class PoseNavigator extends SubsystemBase {
             4, armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
         );
 
-        return Commands.select(commandMap, () ->
-            getTargetArmivatorState()
-        );
+        return Commands.select(commandMap, this::getTargetArmivatorState);
     }
 
     /**

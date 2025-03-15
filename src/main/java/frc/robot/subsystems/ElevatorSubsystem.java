@@ -110,7 +110,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     public void controlElevatorState() {
-        updateValues();
+        // updateValues();
 
         if (isManualControlEnabled()) {
             return;
@@ -288,6 +288,7 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /** Updates values to SmartDashboard/ShuffleBoard. */
+    @SuppressWarnings("unused")
     private void updateValues() {
         SmartDashboard.putBoolean("E-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("E-BotLS", isBottomLimitSwitchPressed());

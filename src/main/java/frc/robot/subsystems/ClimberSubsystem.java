@@ -12,7 +12,6 @@ import frc.robot.Constants.ClimberConstants;
 public class ClimberSubsystem extends SubsystemBase {
 
     private final SparkMax climberMotor = ClimberConstants.climberMotor;
-
     private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
@@ -21,7 +20,6 @@ public class ClimberSubsystem extends SubsystemBase {
      */
     public ClimberSubsystem() {
         config.idleMode(IdleMode.kBrake);
-
         climberMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
     
@@ -33,7 +31,7 @@ public class ClimberSubsystem extends SubsystemBase {
      * @param direction The direction to move the climber.
      */
     public void runClimber(boolean reversed) {
-        climberMotor.set(reversed ? ClimberConstants.CONTROL_SPEED : -ClimberConstants.CONTROL_SPEED);
+        climberMotor.set(reversed ? -ClimberConstants.CONTROL_SPEED : ClimberConstants.CONTROL_SPEED);
     }
 
     /** Stops the climber motor, putting it in brake mode. */
