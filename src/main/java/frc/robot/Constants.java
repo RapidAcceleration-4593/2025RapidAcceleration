@@ -22,15 +22,15 @@ public final class Constants {
 
     public static final class ElevatorConstants {
         public static final class ElevatorPIDConstants {
-            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.000475, 0.00001, 0); // TODO: Tune PID. Previously: 0.00055, 0, 0.
-            public static final int TOLERANCE = 30; // TODO: Adjust Tolerance.
+            public static final PIDConstants ELEVATOR_PID = new PIDConstants(0.000475, 0.00002, 0);
+            public static final int TOLERANCE = 100;
 
             public static final double MAX_VELOCITY = 23000; // Previously: 23000.
             public static final double MAX_ACCELERATION = 120000; // Previously: 120000.
         }
 
         public static final class ElevatorTravelTime {
-            public static final double BOTTOM_TO_PICKUP = 0.7;
+            public static final double BOTTOM_TO_PICKUP = 0.5;
             public static final double PICKUP_TO_TOP = 1.25;
             public static final double MAX_TRAVEL = 1.25;
         }
@@ -48,11 +48,11 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
-            public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0.000003, 0); // TODO: Tune PID. Previously: 0.008, 0, 0.
-            public static final int TOLERANCE = 15; // TODO: Adjust Tolerance.
+            public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0.00004, 0);
+            public static final int TOLERANCE = 25;
 
-            public static final double MAX_VELOCITY = 1600; // Previously: 1600.
-            public static final double MAX_ACCELERATION = 5000; // Previously: 9500.
+            public static final double MAX_VELOCITY = 1240; // Previously: 1240.
+            public static final double MAX_ACCELERATION = 5000; // Previously: 1715.
         }
 
         public static final class ArmTravelTime {
@@ -64,7 +64,7 @@ public final class Constants {
         }
 
         public static final int PLACE_ROTATION_AMOUNT = 225; // Previously: 250.
-        public static final double CONTROL_SPEED = 0.8;
+        public static final double CONTROL_SPEED = 1.0;
 
         public static final SparkMax armMotor = new SparkMax(5, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
@@ -77,7 +77,7 @@ public final class Constants {
         public static final SparkMax serializerMotor = new SparkMax(6, MotorType.kBrushless);
         public static final DigitalInput serializerSensor = new DigitalInput(4);
 
-        public static final double CONTROL_SPEED = 0.3;
+        public static final double CONTROL_SPEED = 0.4;
         public static final double MAX_TIMEOUT = 1.5;
     }
 

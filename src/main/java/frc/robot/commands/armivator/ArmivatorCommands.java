@@ -1,6 +1,7 @@
 package frc.robot.commands.armivator;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
@@ -10,6 +11,7 @@ import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.SwerveSubsystem;
 
 public class ArmivatorCommands {
     
@@ -19,10 +21,14 @@ public class ArmivatorCommands {
     /** ArmSubsystem Object. */
     private final ArmSubsystem arm;
 
+    /** SwerveSubsystem Object. */
+    private final SwerveSubsystem drivebase;
+
     /** Constructor for Armivator Commands. */
-    public ArmivatorCommands(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+    public ArmivatorCommands(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SwerveSubsystem drivebase) {
         this.elevator = elevatorSubsystem;
         this.arm = armSubsystem;
+        this.drivebase = drivebase;
     }
 
     /**
@@ -67,6 +73,13 @@ public class ArmivatorCommands {
      * @return A functional command to lower the arm setpoint.
      */
     public Command scoreCoral() {
+        return Commands.sequence(
+            new AdjustArmCommand(arm, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE),
+            drivebase.driveToDistance(-0.5)
+        );
+    }
+
+    public Command scoreCoralAuto() {
         return new AdjustArmCommand(arm, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE);
     }
 

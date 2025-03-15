@@ -42,7 +42,7 @@ public class ThreeCoralAuton extends AutonCommand {
                     armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
                     AutoBuilder.followPath(paths.get(0))
                 ),
-                armivatorCommands.scoreCoral(),
+                armivatorCommands.scoreCoralAuto(),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(1)),
                     Commands.sequence(
@@ -51,15 +51,12 @@ public class ThreeCoralAuton extends AutonCommand {
                     )
                 ),
                 utils.runSerializerCommand(SerializerConstants.MAX_TIMEOUT),
+                armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
                 Commands.parallel(
-                    armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
                     AutoBuilder.followPath(paths.get(2)),
-                    Commands.sequence(
-                        Commands.waitSeconds(0.5),
-                        armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
-                    )
+                    armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
                 ),
-                armivatorCommands.scoreCoral(),
+                armivatorCommands.scoreCoralAuto(),
                 Commands.parallel(
                     AutoBuilder.followPath(paths.get(3)),
                     Commands.sequence(
@@ -68,15 +65,12 @@ public class ThreeCoralAuton extends AutonCommand {
                     )
                 ),
                 utils.runSerializerCommand(SerializerConstants.MAX_TIMEOUT),
+                armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
                 Commands.parallel(
-                    armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
                     AutoBuilder.followPath(paths.get(4)),
-                    Commands.sequence(
-                        Commands.waitSeconds(0.5),
-                        armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
-                    )
+                    armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
                 ),
-                armivatorCommands.scoreCoral(),
+                armivatorCommands.scoreCoralAuto(),
                 Commands.parallel(
                     utils.driveBackward(),
                     Commands.sequence(

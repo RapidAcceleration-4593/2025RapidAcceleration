@@ -37,9 +37,12 @@ public class OneCoralAuton extends AutonCommand {
             Commands.sequence(
                 Commands.parallel(
                     armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
-                    AutoBuilder.followPath(paths.get(0))
+                    Commands.sequence(
+                        Commands.waitSeconds(2.0),
+                        AutoBuilder.followPath(paths.get(0))
+                    )
                 ),
-                armivatorCommands.scoreCoral(),
+                armivatorCommands.scoreCoralAuto(),
                 Commands.parallel(
                     utils.driveBackward(),
                     Commands.sequence(

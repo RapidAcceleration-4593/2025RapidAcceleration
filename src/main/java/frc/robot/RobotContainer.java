@@ -13,16 +13,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.RobotStates.Arm.ArmDirections;
 import frc.robot.Constants.RobotStates.Arm.ArmStates;
 import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
 import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
-import frc.robot.commands.arm.AdjustArmCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
@@ -60,7 +57,7 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
-    public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem);
+    public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem, drivebase);
     public final AutonUtils autonUtils = new AutonUtils(serializerSubsystem, drivebase);
     public final PoseNavigator poseNavigator = new PoseNavigator(armivatorCommands, autonUtils, drivebase);
 
@@ -113,7 +110,7 @@ public class RobotContainer {
             }));
 
         // Armivator Control.
-        driverController.rightTrigger().onTrue(new AdjustArmCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE));
+        driverController.rightTrigger().onTrue(armivatorCommands.scoreCoral());
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
         driverController.rightBumper().onTrue(poseNavigator.handleDashboardState());
