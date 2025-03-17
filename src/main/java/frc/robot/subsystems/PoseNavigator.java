@@ -22,8 +22,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ArmStates;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonUtils;
 

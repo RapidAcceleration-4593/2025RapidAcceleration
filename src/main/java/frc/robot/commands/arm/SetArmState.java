@@ -1,7 +1,7 @@
 package frc.robot.commands.arm;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.subsystems.ArmSubsystem;
 
 public class SetArmState extends Command {
@@ -17,7 +17,7 @@ public class SetArmState extends Command {
 
     @Override
     public void initialize() {
-        armSubsystem.setTargetArmState(armState);
+        armSubsystem.setArmState(armState);
     }
 
     @Override
@@ -27,7 +27,9 @@ public class SetArmState extends Command {
 
     @Override
     public boolean isFinished() {
-        return armSubsystem.atSetpoint();
+        return armSubsystem.atSetpoint() ||
+               (armSubsystem.isBottomLimitSwitchPressed() && armState == ArmStates.BOTTOM) ||
+               (armSubsystem.isTopLimitSwitchPressed() && armState == ArmStates.TOP);
     }
 
     @Override

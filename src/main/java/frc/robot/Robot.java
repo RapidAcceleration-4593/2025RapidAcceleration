@@ -20,7 +20,6 @@ public class Robot extends TimedRobot {
     private final RobotContainer m_robotContainer;
 
     private Command m_autonomousCommand;
-
     private Timer disabledTimer;
 
     public Robot() {

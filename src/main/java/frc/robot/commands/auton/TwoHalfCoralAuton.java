@@ -22,12 +22,12 @@ import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
-public class ThreeCoralAuton extends AutonCommand {
+public class TwoHalfCoralAuton extends AutonCommand {
 
     private final AutonUtils utils;
     private final List<PathPlannerPath> paths;
 
-    public ThreeCoralAuton(ArmivatorCommands armivatorCommands, AutonUtils utils, StartingPosition position) {
+    public TwoHalfCoralAuton(ArmivatorCommands armivatorCommands, AutonUtils utils, StartingPosition position) {
         this.utils = utils;
         this.paths = getAutonPaths(position);
 
@@ -59,23 +59,11 @@ public class ThreeCoralAuton extends AutonCommand {
                 AutoBuilder.followPath(paths.get(3)),
                 Commands.sequence(
                     Commands.waitSeconds(0.5),
-                    armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
+                    armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                 )
             ),
             armivatorCommands.runSerializerCommand().withTimeout(SerializerConstants.MAX_TIMEOUT),
-            armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.KAH_CHUNK),
-            Commands.parallel(
-                AutoBuilder.followPath(paths.get(4)),
-                armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
-            ),
-            armivatorCommands.scoreCoral(),
-            Commands.parallel(
-                utils.driveBackward(),
-                Commands.sequence(
-                    Commands.waitSeconds(0.75),
-                    armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
-                )
-            )
+            armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.KAH_CHUNK)
         );
     }
 

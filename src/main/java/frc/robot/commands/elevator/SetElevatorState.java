@@ -1,7 +1,7 @@
 package frc.robot.commands.elevator;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class SetElevatorState extends Command {
@@ -17,7 +17,7 @@ public class SetElevatorState extends Command {
 
     @Override
     public void initialize() {
-        elevatorSubsystem.setTargetElevatorState(elevatorState);
+        elevatorSubsystem.setElevatorState(elevatorState);
     }
 
     @Override
@@ -27,7 +27,9 @@ public class SetElevatorState extends Command {
 
     @Override
     public boolean isFinished() {
-        return elevatorSubsystem.atSetpoint();
+        return elevatorSubsystem.atSetpoint() ||
+               (elevatorSubsystem.isBottomLimitSwitchPressed() && elevatorState == ElevatorStates.BOTTOM) ||
+               (elevatorSubsystem.isTopLimitSwitchPressed() && elevatorState == ElevatorStates.TOP);
     }
 
     @Override

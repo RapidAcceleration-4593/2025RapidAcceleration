@@ -16,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 
 public class ElevatorSubsystem extends SubsystemBase {
 
@@ -35,7 +35,7 @@ public class ElevatorSubsystem extends SubsystemBase {
                                                                                     ElevatorPIDConstants.MAX_VELOCITY, 
                                                                                     ElevatorPIDConstants.MAX_ACCELERATION));
 
-    private static final double[] SETPOINTS = {-500, 3000, 12550}; // TODO: Adjust Setpoint Values. Previously: {-300, 2750, 12550}.
+    private static final double[] SETPOINTS = {-500, 3000, 12550};
 
     private final SparkMaxConfig leaderConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
@@ -46,8 +46,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      */
     private boolean manualControlEnabled = false;
 
-    private ElevatorStates targetElevatorState = ElevatorStates.BOTTOM;
-
+    private ElevatorStates simulatedState = ElevatorStates.BOTTOM;
 
     /**
      * Constructor for the ElevatorSubsystem class.
@@ -85,17 +84,30 @@ public class ElevatorSubsystem extends SubsystemBase {
      * Sets the target elevator position based on the given state.
      * @param state Desired elevator state.
      */
-    public void setTargetElevatorState(ElevatorStates state) {
+    public void setElevatorState(ElevatorStates state) {
         elevatorPID.setGoal(getElevatorState(state));
-        targetElevatorState = state;
+
+        if (Robot.isSimulation()) {
+            simulatedState = state;
+        }
     }
 
     /**
-     * Gets the elevator state based on the previously set goal.
+     * Gets the current elevator state based on the encoder values.
      * @return The current elevator state.
      */
-    public ElevatorStates getTargetElevatorState() {
-        return targetElevatorState;
+    public ElevatorStates getCurrentState() {
+        if (Robot.isSimulation())  {
+            return simulatedState;
+        }
+
+        if (getEncoderValue() <= SETPOINTS[0] + 500) {
+            return ElevatorStates.BOTTOM;
+        } else if (getEncoderValue() <= SETPOINTS[1] + 500) {
+            return ElevatorStates.PICKUP;
+        } else {
+            return ElevatorStates.TOP;
+        }
     }
 
 
@@ -110,7 +122,7 @@ public class ElevatorSubsystem extends SubsystemBase {
      * </ul>
      */
     public void controlElevatorState() {
-        // updateValues();
+        updateValues();
 
         if (isManualControlEnabled()) {
             return;
@@ -238,19 +250,6 @@ public class ElevatorSubsystem extends SubsystemBase {
         return elevatorPID.atGoal();
     }
 
-    /**
-     * Whether the elevator is at or above the PICKUP position. Use to coordinate elevator/arm movements.
-     * @return If the elevator at or above the PICKUP position.
-     */
-    public boolean isElevatorUp() {
-        if (Robot.isSimulation()) {
-            return targetElevatorState != ElevatorStates.BOTTOM;
-        }
-
-        return (atSetpoint() && targetElevatorState == ElevatorStates.PICKUP) ||      // At PICKUP.
-               (getEncoderValue() >= getElevatorState(ElevatorStates.PICKUP) - 500);  // Above PICKUP.
-    }
-
 
     /** ----- Miscellaneous Methods ----- */
 
@@ -288,12 +287,11 @@ public class ElevatorSubsystem extends SubsystemBase {
     }
 
     /** Updates values to SmartDashboard/ShuffleBoard. */
-    @SuppressWarnings("unused")
     private void updateValues() {
         SmartDashboard.putBoolean("E-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("E-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("E-Encoder", getEncoderValue());
         SmartDashboard.putNumber("E-Setpoint", getSetpoint());
-        SmartDashboard.putString("E-State", targetElevatorState.toString());
+        SmartDashboard.putString("E-State", getCurrentState().toString());
     }
 }

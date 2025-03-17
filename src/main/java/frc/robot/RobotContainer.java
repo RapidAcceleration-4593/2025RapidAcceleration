@@ -14,11 +14,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.RobotStates.Arm.ArmDirections;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
-import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorDirections;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ArmDirections;
+import frc.robot.Constants.RobotStates.ArmStates;
+import frc.robot.Constants.RobotStates.StartingPosition;
+import frc.robot.Constants.RobotStates.ElevatorDirections;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.ArmivatorCommands;
@@ -26,7 +26,7 @@ import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
-import frc.robot.commands.auton.ThreeCoralAuton;
+import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.climber.RunClimberCommand;
@@ -57,8 +57,8 @@ public class RobotContainer {
     public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
 
     // Util(s)
-    public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem);
-    public final AutonUtils autonUtils = new AutonUtils(serializerSubsystem, drivebase);
+    public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem, serializerSubsystem);
+    public final AutonUtils autonUtils = new AutonUtils(drivebase);
     public final PoseNavigator poseNavigator = new PoseNavigator(armivatorCommands, autonUtils, drivebase);
 
     // Controller(s)
@@ -151,7 +151,7 @@ public class RobotContainer {
             Map.entry("Left, Move Out", new MoveOutAuton(autonUtils, StartingPosition.LEFT)),
             Map.entry("Left, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
             Map.entry("Left, 2-Coral", new TwoCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
-            Map.entry("Left, 3-Coral", new ThreeCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 2.5-Coral", new TwoHalfCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
 
             Map.entry("Center, Move Out", new MoveOutAuton(autonUtils, StartingPosition.CENTER)),
             Map.entry("Center, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.CENTER)),
@@ -159,7 +159,7 @@ public class RobotContainer {
             Map.entry("Right, Move Out", new MoveOutAuton(autonUtils, StartingPosition.RIGHT)),
             Map.entry("Right, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.RIGHT)),
             Map.entry("Right, 2-Coral", new TwoCoralAuton(armivatorCommands, autonUtils, StartingPosition.RIGHT)),
-            Map.entry("Right, 3-Coral", new ThreeCoralAuton(armivatorCommands, autonUtils, StartingPosition.RIGHT))
+            Map.entry("Right, 2.5-Coral", new TwoHalfCoralAuton(armivatorCommands, autonUtils, StartingPosition.RIGHT))
         );
 
         return Commands.select(autonMap, () -> 

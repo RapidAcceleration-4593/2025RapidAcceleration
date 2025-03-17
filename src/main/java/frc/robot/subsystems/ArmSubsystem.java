@@ -16,8 +16,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPIDConstants;
-import frc.robot.Constants.RobotStates.Arm.ArmDirections;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
+import frc.robot.Constants.RobotStates.ArmStates;
 
 public class ArmSubsystem extends SubsystemBase {
 
@@ -34,7 +33,7 @@ public class ArmSubsystem extends SubsystemBase {
                                                                                 ArmPIDConstants.MAX_VELOCITY,
                                                                                 ArmPIDConstants.MAX_ACCELERATION));
 
-    private static final double[] SETPOINTS = {-20, 600, 875}; // TODO: Adjust Setpoint Values. Previously: {-20, 600, 900}.
+    private static final double[] SETPOINTS = {-20, 650, 875};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -44,7 +43,7 @@ public class ArmSubsystem extends SubsystemBase {
      */
     private boolean manualControlEnabled = false;
 
-    private ArmStates targetArmState = ArmStates.BOTTOM;
+    private ArmStates simulatedState = ArmStates.BOTTOM;
 
     /**
      * Constructor for the SwingArmSubsystem class.
@@ -80,17 +79,30 @@ public class ArmSubsystem extends SubsystemBase {
      * Sets the setpoint of the arm to the target state.
      * @param state The desired arm position.
      */
-    public void setTargetArmState(ArmStates state) {
+    public void setArmState(ArmStates state) {
         armPID.setGoal(getArmState(state));
-        targetArmState = state;
+
+        if (Robot.isSimulation()) {
+            simulatedState = state;
+        }
     }
 
     /**
-     * Gets the arm state based on the previously set goal.
+     * Gets the current arm state based on the encoder values.
      * @return The current arm state.
      */
-    public ArmStates getTargetArmState() {
-        return targetArmState;
+    public ArmStates getCurrentState() {
+        if (Robot.isSimulation()) {
+            return simulatedState;
+        }
+
+        if (getEncoderValue() <= SETPOINTS[0] + 100) {
+            return ArmStates.BOTTOM;
+        } else if (getEncoderValue() <= SETPOINTS[1] + 100) {
+            return ArmStates.L2;
+        } else {
+            return ArmStates.TOP;
+        }
     }
 
 
@@ -105,7 +117,7 @@ public class ArmSubsystem extends SubsystemBase {
      * </ul>
      */
     public void controlArmState() {
-        // updateValues();
+        updateValues();
 
         if (isManualControlEnabled()) {
             return;
@@ -231,25 +243,6 @@ public class ArmSubsystem extends SubsystemBase {
         return armPID.atGoal();
     }
 
-    /**
-     * Returns if the elevator is above the INTAKE position. This can be used to coordinate elevator/arm movements.
-     * Returns {@link ArmDirections#UNKNOWN} if it is unsure whether the arm is up or not.
-     * @return Is the elevator at or above the INTAKE position.
-     */
-    public ArmDirections isArmUp() {
-        if (Robot.isSimulation()) {
-            return (targetArmState == ArmStates.BOTTOM) ? ArmDirections.DOWN : ArmDirections.UP;
-        }
-
-        if (getEncoderValue() <= 50) {
-            return ArmDirections.DOWN;
-        } else if (getEncoderValue() >= 500) {
-            return ArmDirections.UP;
-        } else {
-            return ArmDirections.UNKNOWN;
-        }
-    }
-
 
     /** ----- Miscellaneous Methods ----- */
 
@@ -287,12 +280,11 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
     /** Updates values to SmartDashboard/ShuffleBoard. */
-    @SuppressWarnings("unused")
     private void updateValues() {
         SmartDashboard.putBoolean("A-TopLS", isTopLimitSwitchPressed());
         SmartDashboard.putBoolean("A-BotLS", isBottomLimitSwitchPressed());
         SmartDashboard.putNumber("A-Encoder", getEncoderValue());
         SmartDashboard.putNumber("A-Setpoint", getSetpoint());
-        SmartDashboard.putString("A-State", targetArmState.toString());
+        SmartDashboard.putString("A-State", getCurrentState().toString());
     }
 }

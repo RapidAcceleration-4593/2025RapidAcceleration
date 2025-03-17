@@ -14,9 +14,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.SerializerConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
-import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ArmStates;
+import frc.robot.Constants.RobotStates.StartingPosition;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.Robot;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonCommand;
@@ -48,8 +48,8 @@ public class TwoCoralAuton extends AutonCommand {
                     armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                 )
             ),
-            utils.runSerializerCommand(SerializerConstants.MAX_TIMEOUT),
-            armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.BOTTOM_TO_PICKUP),
+            armivatorCommands.runSerializerCommand().withTimeout(SerializerConstants.MAX_TIMEOUT),
+            armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.KAH_CHUNK),
             Commands.parallel(
                 AutoBuilder.followPath(paths.get(2)),
                 armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
@@ -69,15 +69,15 @@ public class TwoCoralAuton extends AutonCommand {
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return Map.of(
             StartingPosition.LEFT, List.of(
-                utils.loadPath("SideCoral-1"),
-                utils.loadPath("SideCoral-2"),
-                utils.loadPath("SideCoral-3")
+                utils.loadPath("LeftSideCoral-1"),
+                utils.loadPath("LeftSideCoral-2"),
+                utils.loadPath("LeftSideCoral-3")
             ),
             StartingPosition.CENTER, List.<PathPlannerPath>of(),
             StartingPosition.RIGHT, List.of(
-                utils.loadPath("SideCoral-1").mirrorPath(),
-                utils.loadPath("SideCoral-2").mirrorPath(),
-                utils.loadPath("SideCoral-3").mirrorPath()
+                utils.loadPath("RightSideCoral-1"),
+                utils.loadPath("RightSideCoral-2"),
+                utils.loadPath("RightSideCoral-3")
             )
         ).getOrDefault(position, List.<PathPlannerPath>of());
     } 

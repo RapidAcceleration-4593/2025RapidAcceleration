@@ -6,7 +6,7 @@ import com.pathplanner.lib.path.PathPlannerPath;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
+import frc.robot.Constants.RobotStates.StartingPosition;
 
 public abstract class AutonCommand extends SequentialCommandGroup {
     public abstract List<Pose2d> getAllPathPoses();

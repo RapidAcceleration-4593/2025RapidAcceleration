@@ -4,9 +4,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
-import frc.robot.Constants.RobotStates.Arm.ArmDirections;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ArmStates;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
@@ -54,28 +53,41 @@ public class SetArmivatorState extends Command {
     }
 
     private Command determineMovementSequence() {
-        boolean armUp = armSubsystem.isArmUp() == ArmDirections.UP;
-        boolean elevatorUp = elevatorSubsystem.isElevatorUp();
+        ElevatorStates currentElevatorState = elevatorSubsystem.getCurrentState();
+        ArmStates currentArmState = armSubsystem.getCurrentState();
 
-        boolean targetArmUp = targetArmState != ArmStates.BOTTOM;
-        boolean targetElevatorUp = targetElevatorState != ElevatorStates.BOTTOM;
+        boolean isElevatorUp = currentElevatorState != ElevatorStates.BOTTOM;
+        boolean isArmUp = currentArmState != ArmStates.BOTTOM;
+
+        boolean isTargetElevatorUp = targetElevatorState != ElevatorStates.BOTTOM;
+        boolean isTargetArmUp = targetArmState != ArmStates.BOTTOM;
 
         Command moveToPickup = new SetElevatorState(elevatorSubsystem, ElevatorStates.PICKUP).withTimeout(ElevatorTravelTime.MAX_TRAVEL);
-        Command moveArm = new SetArmState(armSubsystem, targetArmState).withTimeout(ArmTravelTime.MAX_TRAVEL);
         Command moveElevator = new SetElevatorState(elevatorSubsystem, targetElevatorState).withTimeout(ElevatorTravelTime.MAX_TRAVEL);
+        Command moveArm = new SetArmState(armSubsystem, targetArmState).withTimeout(ArmTravelTime.MAX_TRAVEL);
+
+        // Movement between BOTTOM and PICKUP. Only move the Elevator.
+        if (isElevatorUp != isTargetElevatorUp && currentArmState == targetArmState) {
+            return moveElevator;
+        }
+
+        // Movement between L2 and L3. Only move the Arm.
+        if (!isElevatorUp && !isTargetElevatorUp && isArmUp && isTargetArmUp && currentArmState != targetArmState) {
+            return moveArm;
+        }
 
         // Most Stable Sequence. Elevator moves to PICKUP, Arm goes to target, and Elevator moves to target.
-        // Sequence will always work, no matter the position of the Armivator.
-        if (armSubsystem.isArmUp() == ArmDirections.UNKNOWN ||          // Unknown Arm Position; use the safest sequence possible.
-            !elevatorUp && !targetElevatorUp && armUp != targetArmUp) { // Elevator at BOTTOM and target is BOTTOM; switch arm position.
+        if (!isElevatorUp && !isTargetElevatorUp && isArmUp != isTargetArmUp) { 
             return Commands.sequence(moveToPickup, moveArm, moveElevator);
         }
 
-        if (elevatorUp && !targetElevatorUp && armUp != targetArmUp) {  // Elevator at TOP and wants to go to BOTTOM.
+        // Elevator moves to PICKUP and Arm goes to target, then Elevator goes to target.
+        if (isElevatorUp && !isTargetElevatorUp && isArmUp != isTargetArmUp) {  
             return Commands.sequence(Commands.parallel(moveToPickup, moveArm), moveElevator);
         }
 
-        if (!elevatorUp && targetElevatorUp && armUp != targetArmUp) {  // Elevator at BOTTOM and wants to go to TOP.           
+        // Elevator moves to PICKUP, then Elevator goes to target and Arm goes to target.
+        if (!isElevatorUp && isTargetElevatorUp && !isArmUp && isTargetArmUp) {          
             return Commands.sequence(moveToPickup, Commands.parallel(moveElevator, moveArm));
         }
 

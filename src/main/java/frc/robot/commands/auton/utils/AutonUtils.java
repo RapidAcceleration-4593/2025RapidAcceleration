@@ -8,20 +8,15 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.SerializerSubsystem;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
-
-    /** Serializer Object. */
-    private final SerializerSubsystem serializerSubsystem;
 
     /** SwerveSubsystem Object. */
     private final SwerveSubsystem drivebase;
 
     /** Constructor for AutonUtils. */
-    public AutonUtils(SerializerSubsystem serializerSubsystem, SwerveSubsystem drivebase) {
-        this.serializerSubsystem = serializerSubsystem;
+    public AutonUtils(SwerveSubsystem drivebase) {
         this.drivebase = drivebase;
     }
 
@@ -36,28 +31,12 @@ public class AutonUtils {
     public Command resetOdometry(PathPlannerPath path) {
         return drivebase.runOnce(
             () -> {
-                RobotConfig config = getRobotConfig();
-
                 Pose2d pose = path
-                    .generateTrajectory(new ChassisSpeeds(), new Rotation2d(Math.PI), config)
+                    .generateTrajectory(new ChassisSpeeds(), new Rotation2d(Math.PI), getRobotConfig())
                     .getInitialPose();
-                    
-
-                if (drivebase.isRedAlliance()) {
-                    pose = FlippingUtil.flipFieldPose(pose);
-                }
     
-                drivebase.resetOdometry(pose);
+                drivebase.resetOdometry(drivebase.isRedAlliance() ? FlippingUtil.flipFieldPose(pose) : pose);
         });
-    }
-
-    /**
-     * Command to run the serializer for a set amount of time.
-     * @param timeout The amount of time to run the serializer.
-     * @return A Functional Command to run the serializer for a set amount of time.
-     */
-    public Command runSerializerCommand(double timeout) {
-        return serializerSubsystem.runSerializerCommand().withTimeout(timeout);
     }
 
     /**

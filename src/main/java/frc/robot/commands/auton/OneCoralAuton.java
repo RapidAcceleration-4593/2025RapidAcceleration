@@ -12,9 +12,9 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
-import frc.robot.Constants.RobotStates.Autonomous.StartingPosition;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ArmStates;
+import frc.robot.Constants.RobotStates.StartingPosition;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.Robot;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonCommand;
@@ -55,9 +55,9 @@ public class OneCoralAuton extends AutonCommand {
     @Override
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return Map.of(
-            StartingPosition.LEFT, List.of(utils.loadPath("SideCoral-1")),
+            StartingPosition.LEFT, List.of(utils.loadPath("LeftSideCoral-1")),
             StartingPosition.CENTER, List.of(utils.loadPath("CenterCoral-1")),
-            StartingPosition.RIGHT, List.of(utils.loadPath("SideCoral-1").mirrorPath())
+            StartingPosition.RIGHT, List.of(utils.loadPath("RightSideCoral-1"))
         ).getOrDefault(position, List.of());
     } 
 

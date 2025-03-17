@@ -3,13 +3,14 @@ package frc.robot.commands.armivator;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmTravelTime;
-import frc.robot.Constants.RobotStates.Arm.ArmStates;
-import frc.robot.Constants.RobotStates.Elevator.ElevatorStates;
+import frc.robot.Constants.RobotStates.ArmStates;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.AdjustArmCommand;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.SerializerSubsystem;
 
 public class ArmivatorCommands {
     
@@ -19,10 +20,14 @@ public class ArmivatorCommands {
     /** ArmSubsystem Object. */
     private final ArmSubsystem arm;
 
+    /** SerializerSubsystem Object. */
+    private final SerializerSubsystem serializer;
+
     /** Constructor for Armivator Commands. */
-    public ArmivatorCommands(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+    public ArmivatorCommands(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem, SerializerSubsystem serializerSubsystem) {
         this.elevator = elevatorSubsystem;
         this.arm = armSubsystem;
+        this.serializer = serializerSubsystem;
     }
 
     /**
@@ -68,6 +73,14 @@ public class ArmivatorCommands {
      */
     public Command scoreCoral() {
         return new AdjustArmCommand(arm, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE);
+    }
+
+    /**
+     * Command to run the serializer until the sensor is triggered.
+     * @return A functional command to run the serializer.
+     */
+    public Command runSerializerCommand() {
+        return serializer.runSerializerCommand();
     }
 
     /**

@@ -2,7 +2,7 @@ package frc.robot.commands.manual;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.Constants.RobotStates.Arm.ArmDirections;
+import frc.robot.Constants.RobotStates.ArmDirections;
 import frc.robot.subsystems.ArmSubsystem;
 
 public class ManualArmCommand extends Command {
