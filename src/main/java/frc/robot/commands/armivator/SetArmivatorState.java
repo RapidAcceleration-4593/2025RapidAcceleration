@@ -78,7 +78,7 @@ public class SetArmivatorState extends Command {
 
         // Most Stable Sequence. Elevator moves to PICKUP, Arm goes to target, and Elevator moves to target.
         if (!isElevatorUp && !isTargetElevatorUp && isArmUp != isTargetArmUp) { 
-            return Commands.sequence(moveToPickup, moveArm, moveElevator);
+            return Commands.sequence(moveToPickup, Commands.parallel(moveArm, Commands.sequence(Commands.waitSeconds(0.5), moveElevator)));
         }
 
         // Elevator moves to PICKUP and Arm goes to target, then Elevator goes to target.
