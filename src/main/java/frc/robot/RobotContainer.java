@@ -26,6 +26,7 @@ import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
+import frc.robot.commands.auton.ThreeCoralAuton;
 import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
@@ -152,6 +153,7 @@ public class RobotContainer {
             Map.entry("Left, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
             Map.entry("Left, 2-Coral", new TwoCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
             Map.entry("Left, 2.5-Coral", new TwoHalfCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
+            Map.entry("Left, 3-Coral", new ThreeCoralAuton(armivatorCommands, autonUtils, StartingPosition.LEFT)),
 
             Map.entry("Center, Move Out", new MoveOutAuton(autonUtils, StartingPosition.CENTER)),
             Map.entry("Center, 1-Coral", new OneCoralAuton(armivatorCommands, autonUtils, StartingPosition.CENTER)),

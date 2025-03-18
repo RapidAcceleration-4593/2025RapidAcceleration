@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Commands;
-import frc.robot.Constants.SerializerConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
@@ -37,18 +36,18 @@ public class ThreeCoralAuton extends AutonCommand {
 
         addCommands(
             Commands.parallel(
-                armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP),
+                armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.L2),
                 AutoBuilder.followPath(paths.get(0))
             ),
             armivatorCommands.scoreCoral(),
             Commands.parallel(
                 AutoBuilder.followPath(paths.get(1)),
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(0.3),
                     armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                 )
             ),
-            armivatorCommands.runSerializerCommand().withTimeout(SerializerConstants.MAX_TIMEOUT),
+            armivatorCommands.runSerializerCommand().withTimeout(1.0),
             armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.KAH_CHUNK),
             Commands.parallel(
                 AutoBuilder.followPath(paths.get(2)),
@@ -58,11 +57,11 @@ public class ThreeCoralAuton extends AutonCommand {
             Commands.parallel(
                 AutoBuilder.followPath(paths.get(3)),
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
-                    armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
+                    Commands.waitSeconds(0.3),
+                    armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                 )
             ),
-            armivatorCommands.runSerializerCommand().withTimeout(SerializerConstants.MAX_TIMEOUT),
+            armivatorCommands.runSerializerCommand().withTimeout(1.0),
             armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.KAH_CHUNK),
             Commands.parallel(
                 AutoBuilder.followPath(paths.get(4)),
@@ -72,7 +71,7 @@ public class ThreeCoralAuton extends AutonCommand {
             Commands.parallel(
                 utils.driveBackward(),
                 Commands.sequence(
-                    Commands.waitSeconds(0.75),
+                    Commands.waitSeconds(0.5),
                     armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                 )
             )
@@ -83,20 +82,14 @@ public class ThreeCoralAuton extends AutonCommand {
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return Map.of(
             StartingPosition.LEFT, List.of(
-                utils.loadPath("LeftSideCoral-1"),
-                utils.loadPath("LeftSideCoral-2"),
-                utils.loadPath("LeftSideCoral-3"),
-                utils.loadPath("LeftSideCoral-4"),
-                utils.loadPath("LeftSideCoral-5")
+                utils.loadPath("LeftThreeCoral-1"),
+                utils.loadPath("LeftThreeCoral-2"),
+                utils.loadPath("LeftThreeCoral-3"),
+                utils.loadPath("LeftThreeCoral-4"),
+                utils.loadPath("LeftThreeCoral-5")
             ),
             StartingPosition.CENTER, List.<PathPlannerPath>of(),
-            StartingPosition.RIGHT, List.of(
-                utils.loadPath("RightSideCoral-1"),
-                utils.loadPath("RightSideCoral-2"),
-                utils.loadPath("RightSideCoral-3"),
-                utils.loadPath("RightSideCoral-4"),
-                utils.loadPath("RightSideCoral-5")
-            )
+            StartingPosition.RIGHT, List.<PathPlannerPath>of()
         ).getOrDefault(position, List.<PathPlannerPath>of());
     } 
 

@@ -1,0 +1,70 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 5.032,
+        "y": 5.208
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 5.133448815610112,
+        "y": 5.436491001598106
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.204321808510639,
+        "y": 5.927027925531914
+      },
+      "prevControl": {
+        "x": 5.343693173786047,
+        "y": 5.68048012624419
+      },
+      "nextControl": {
+        "x": 4.893176757481396,
+        "y": 6.477443195117152
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.439,
+        "y": 7.234
+      },
+      "prevControl": {
+        "x": 2.494286600251379,
+        "y": 6.732052450213718
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [],
+  "constraintZones": [],
+  "pointTowardsZones": [],
+  "eventMarkers": [],
+  "globalConstraints": {
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": false
+  },
+  "goalEndState": {
+    "velocity": 0,
+    "rotation": -144.0
+  },
+  "reversed": false,
+  "folder": "LeftThreeCoral",
+  "idealStartingState": {
+    "velocity": 0.0,
+    "rotation": -119.99999999999999
+  },
+  "useDefaultConstraints": false
+}
