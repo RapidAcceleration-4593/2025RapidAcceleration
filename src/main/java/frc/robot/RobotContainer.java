@@ -20,6 +20,7 @@ import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.Constants.RobotStates.ElevatorDirections;
 import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
+import frc.robot.commands.arm.ScoreCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
@@ -102,8 +103,7 @@ public class RobotContainer {
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose()
-                );
+                    poseNavigator.selectTargetPose());
                 driveToPoseCommand.schedule();
             }))
             .onFalse(Commands.runOnce(() -> {
@@ -111,7 +111,7 @@ public class RobotContainer {
             }));
 
         // Armivator Control.
-        driverController.rightTrigger().onTrue(armivatorCommands.scoreCoral());
+        driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
         driverController.rightBumper().onTrue(poseNavigator.handleDashboardState());
