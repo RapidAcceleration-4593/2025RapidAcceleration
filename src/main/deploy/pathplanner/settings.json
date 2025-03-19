@@ -6,7 +6,6 @@
     "CenterCoral",
     "CenterMoveOut",
     "LeftCoral",
-    "LeftThreeCoral",
     "RightCoral",
     "SideMoveOut"
   ],
@@ -15,7 +14,7 @@
   "defaultMaxAccel": 2.0,
   "defaultMaxAngVel": 540.0,
   "defaultMaxAngAccel": 720.0,
-  "defaultNominalVoltage": 12.0,
+  "defaultNominalVoltage": 12.4,
   "robotMass": 58.967,
   "robotMOI": 6.883,
   "robotTrackwidth": 0.546,
