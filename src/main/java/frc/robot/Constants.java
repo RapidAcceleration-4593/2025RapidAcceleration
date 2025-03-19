@@ -47,7 +47,7 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
-            public static final PIDConstants ARM_PID = new PIDConstants(0.009, 0.00004, 0);
+            public static final PIDConstants ARM_PID = new PIDConstants(0.01, 0.0001, 0);
             public static final int TOLERANCE = 20;
 
             public static final double MAX_VELOCITY = 1240;

@@ -55,9 +55,9 @@ public class OneCoralAuton extends AutonCommand {
     @Override
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return Map.of(
-            StartingPosition.LEFT, List.of(utils.loadPath("LeftSideCoral-1")),
+            StartingPosition.LEFT, List.of(utils.loadPath("LeftCoral-1")),
             StartingPosition.CENTER, List.of(utils.loadPath("CenterCoral-1")),
-            StartingPosition.RIGHT, List.of(utils.loadPath("RightSideCoral-1"))
+            StartingPosition.RIGHT, List.of(utils.loadPath("RightCoral-1"))
         ).getOrDefault(position, List.of());
     } 
 

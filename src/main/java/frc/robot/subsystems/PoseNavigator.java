@@ -103,7 +103,8 @@ public class PoseNavigator extends SubsystemBase {
                         .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF + extraDistance, tagRotation));
 
                     // Add the extruded pose to the Pose2d List.
-                    poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))));
+                    // TODO: Why add 2 inches?
+                    poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))).plus(new Transform2d(0, 0.06, new Rotation2d())));
                 }
             });
         }

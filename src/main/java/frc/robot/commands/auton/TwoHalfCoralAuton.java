@@ -71,19 +71,19 @@ public class TwoHalfCoralAuton extends AutonCommand {
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
         return Map.of(
             StartingPosition.LEFT, List.of(
-                utils.loadPath("LeftSideCoral-1"),
-                utils.loadPath("LeftSideCoral-2"),
-                utils.loadPath("LeftSideCoral-3"),
-                utils.loadPath("LeftSideCoral-4"),
-                utils.loadPath("LeftSideCoral-5")
+                utils.loadPath("LeftCoral-1"),
+                utils.loadPath("LeftCoral-2"),
+                utils.loadPath("LeftCoral-3"),
+                utils.loadPath("LeftCoral-4"),
+                utils.loadPath("LeftCoral-5")
             ),
             StartingPosition.CENTER, List.<PathPlannerPath>of(),
             StartingPosition.RIGHT, List.of(
-                utils.loadPath("RightSideCoral-1"),
-                utils.loadPath("RightSideCoral-2"),
-                utils.loadPath("RightSideCoral-3"),
-                utils.loadPath("RightSideCoral-4"),
-                utils.loadPath("RightSideCoral-5")
+                utils.loadPath("RightCoral-1"),
+                utils.loadPath("RightCoral-2"),
+                utils.loadPath("RightCoral-3"),
+                utils.loadPath("RightCoral-4"),
+                utils.loadPath("RightCoral-5")
             )
         ).getOrDefault(position, List.<PathPlannerPath>of());
     } 
