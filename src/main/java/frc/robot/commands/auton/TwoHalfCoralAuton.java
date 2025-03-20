@@ -74,16 +74,14 @@ public class TwoHalfCoralAuton extends AutonCommand {
                 utils.loadPath("LeftCoral-1"),
                 utils.loadPath("LeftCoral-2"),
                 utils.loadPath("LeftCoral-3"),
-                utils.loadPath("LeftCoral-4"),
-                utils.loadPath("LeftCoral-5")
+                utils.loadPath("LeftCoral-4")
             ),
             StartingPosition.CENTER, List.<PathPlannerPath>of(),
             StartingPosition.RIGHT, List.of(
                 utils.loadPath("RightCoral-1"),
                 utils.loadPath("RightCoral-2"),
                 utils.loadPath("RightCoral-3"),
-                utils.loadPath("RightCoral-4"),
-                utils.loadPath("RightCoral-5")
+                utils.loadPath("RightCoral-4")
             )
         ).getOrDefault(position, List.<PathPlannerPath>of());
     } 
