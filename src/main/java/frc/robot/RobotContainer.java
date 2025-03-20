@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ArmDirections;
 import frc.robot.Constants.RobotStates.ArmStates;
@@ -102,7 +103,7 @@ public class RobotContainer {
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose());
+                    poseNavigator.selectTargetPose(), AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION);
                 driveToPoseCommand.schedule();
             }))
             .onFalse(Commands.runOnce(() -> {

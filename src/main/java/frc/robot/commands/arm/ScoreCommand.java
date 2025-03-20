@@ -11,7 +11,7 @@ public class ScoreCommand extends SequentialCommandGroup {
     public ScoreCommand(ArmSubsystem armSubsystem, SwerveSubsystem drivebase) {
         addCommands(
             new AdjustArmCommand(armSubsystem, -ArmConstants.PLACE_ROTATION_AMOUNT).withTimeout(ArmTravelTime.SCORE),
-            drivebase.driveToDistance(-0.6).withTimeout(0.75)
+            drivebase.driveToDistance(-0.75, 2.5, 2.25).withTimeout(0.8)
         );
     }
 }

@@ -8,6 +8,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.subsystems.SwerveSubsystem;
 
 public class AutonUtils {
@@ -44,7 +45,7 @@ public class AutonUtils {
      * @return A Deferred Command to drive backward from the current pose.
      */
     public Command driveBackward() {
-        return drivebase.driveToDistance(-0.75);
+        return drivebase.driveToDistance(-0.75, AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION);
     }
 
     /**

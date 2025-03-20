@@ -4,6 +4,7 @@ import java.util.Set;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -22,12 +23,12 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                     poseNavigator::isHighAlgae
                 ),
                 Commands.defer(
-                    () -> drivebase.driveToPose(poseNavigator.calculateClosestReefPose()),
+                    () -> drivebase.driveToPose(poseNavigator.calculateClosestReefPose(), AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION),
                     Set.of(drivebase)
                 )
             ),
             armivatorCommands.adjustArmSetpoint(230).withTimeout(0.5),
-            drivebase.driveToDistance(-0.75)
+            drivebase.driveToDistance(-0.75, 2.5, 2.0)
         );
     }
 }

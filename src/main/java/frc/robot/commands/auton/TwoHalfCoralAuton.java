@@ -44,7 +44,7 @@ public class TwoHalfCoralAuton extends AutonCommand {
             Commands.parallel(
                 AutoBuilder.followPath(paths.get(1)),
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
+                    Commands.waitSeconds(0.8),
                     armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
                 )
             ),
@@ -58,12 +58,10 @@ public class TwoHalfCoralAuton extends AutonCommand {
             Commands.parallel(
                 AutoBuilder.followPath(paths.get(3)),
                 Commands.sequence(
-                    Commands.waitSeconds(0.5),
-                    armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM)
+                    Commands.waitSeconds(0.8),
+                    armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
                 )
-            ),
-            armivatorCommands.runSerializerCommand().withTimeout(SerializerConstants.MAX_TIMEOUT),
-            armivatorCommands.setElevatorState(ElevatorStates.BOTTOM).withTimeout(ElevatorTravelTime.KAH_CHUNK)
+            )
         );
     }
 

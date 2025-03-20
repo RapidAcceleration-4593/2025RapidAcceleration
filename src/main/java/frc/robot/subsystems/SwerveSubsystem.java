@@ -171,10 +171,10 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command.
      */
-    public Command driveToPose(Pose2d pose) {
+    public Command driveToPose(Pose2d pose, double maxVelocity, double maxAcceleration) {
         // Create the constraints to use while pathfinding.
         PathConstraints constraints = new PathConstraints(
-            2.0, 1.75,
+            maxVelocity, maxAcceleration,
             swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands.
@@ -278,7 +278,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param distance Distance to drive.
      * @return A Command to drive the robot in robot-relative mode.
      */
-    public Command driveToDistance(double distance) {
+    public Command driveToDistance(double distance, double maxVelocity, double maxAcceleration) {
         return new DeferredCommand(() -> {
             Pose2d currentPose = getPose();
             Rotation2d currentRotation = currentPose.getRotation();
@@ -290,7 +290,7 @@ public class SwerveSubsystem extends SubsystemBase {
                 currentRotation
             );
 
-            return driveToPose(newPose);
+            return driveToPose(newPose, maxVelocity, maxAcceleration);
         }, Set.of(this));
     }
 
