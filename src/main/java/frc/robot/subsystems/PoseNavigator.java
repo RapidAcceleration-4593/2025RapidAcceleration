@@ -201,10 +201,15 @@ public class PoseNavigator extends SubsystemBase {
                (!drivebase.isRedAlliance() && (getClosestReefTag() == 18 || getClosestReefTag() == 20 || getClosestReefTag() == 22));
     }
 
+    /**
+     * Method to retrieve the selected pose via NetworkTables.
+     * @return
+     */
     private int getTargetDashboardPose() {
         return (int) SmartDashboard.getNumber("TargetDashboardPose", 1);
     }
 
+    /** Method to retrieve the selected armivator state via NetworkTables. */
     private int getTargetArmivatorState() {
         return (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
     }
