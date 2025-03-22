@@ -13,7 +13,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ArmDirections;
 import frc.robot.Constants.RobotStates.ArmStates;
@@ -61,7 +60,7 @@ public class RobotContainer {
     // Util(s)
     public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem, serializerSubsystem);
     public final AutonUtils autonUtils = new AutonUtils(drivebase);
-    public final PoseNavigator poseNavigator = new PoseNavigator(armivatorCommands, autonUtils, drivebase);
+    public final PoseNavigator poseNavigator = new PoseNavigator(armivatorCommands, drivebase);
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
@@ -102,8 +101,7 @@ public class RobotContainer {
         // Autonomous Drive Control.
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
-                driveToPoseCommand = drivebase.driveToPose(
-                    poseNavigator.selectTargetPose(), AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION);
+                driveToPoseCommand = poseNavigator.handleDashboardPoseState();
                 driveToPoseCommand.schedule();
             }))
             .onFalse(Commands.runOnce(() -> {
@@ -114,7 +112,7 @@ public class RobotContainer {
         driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
-        driverController.rightBumper().onTrue(poseNavigator.handleDashboardState());
+        driverController.rightBumper().onTrue(poseNavigator.handleDashboardArmivatorState());
 
         driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
 

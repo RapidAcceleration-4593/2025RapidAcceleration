@@ -75,33 +75,4 @@ public class AutonUtils {
             throw new RuntimeException("Failed to retrieve RobotConfig from Deploy Settings.", e);
         }
     }
-
-    /** Pose2d for Coral Station on bottom of blue alliance. */
-    public final Pose2d[] BLUE_BOTTOM_CHUTE = {
-        new Pose2d(0.708291, 1.303966, Rotation2d.fromDegrees(54)),
-        new Pose2d(1.117988, 1.006304, Rotation2d.fromDegrees(54)),
-        new Pose2d(1.527684, 0.708642, Rotation2d.fromDegrees(54))
-    };
-
-    /** Pose2d for Coral Station on top of blue alliance. */
-    public final Pose2d[] BLUE_TOP_CHUTE = {
-        new Pose2d(0.708291, 6.747834, Rotation2d.fromDegrees(-54)),
-        new Pose2d(1.117988, 7.045496, Rotation2d.fromDegrees(-54)),
-        new Pose2d(1.527684, 7.343158, Rotation2d.fromDegrees(-54))
-    };
-
-    /** Pose2d for Coral Station on bottom of red alliance. */
-    public final Pose2d[] RED_BOTTOM_CHUTE = flipFieldPoses(BLUE_BOTTOM_CHUTE);
-
-    /** Pose2d for Coral Station on top of red alliance. */
-    public final Pose2d[] RED_TOP_CHUTE = flipFieldPoses(BLUE_TOP_CHUTE);
-
-    /** Flip Pose2d locations on field for Coral Station (aka Acceleration Station) on red alliance. */
-    private Pose2d[] flipFieldPoses(Pose2d[] bluePoses) {
-        Pose2d[] redPoses = new Pose2d[bluePoses.length];
-        for (int i = 0; i < bluePoses.length; i++) {
-            redPoses[i] = FlippingUtil.flipFieldPose(bluePoses[i]);
-        }
-        return redPoses;
-    }
 }

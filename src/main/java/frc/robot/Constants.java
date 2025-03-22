@@ -93,7 +93,8 @@ public final class Constants {
         public static final double MAX_ACCELERATION = 1.75;
 
         public static final class DashboardAlignment {
-            public static final double DISTANCE_FROM_REEF = Units.inchesToMeters(17);
+            public static final double DISTANCE_AT_REEF = Units.inchesToMeters(17);
+            public static final double DISTANCE_AWAY_REEF = Units.inchesToMeters(50);
             public static final double BRANCH_OFFSET = Units.inchesToMeters(7);
         }
     }

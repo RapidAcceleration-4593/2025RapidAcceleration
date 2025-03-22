@@ -20,20 +20,18 @@ import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.armivator.ArmivatorCommands;
-import frc.robot.commands.auton.utils.AutonUtils;
 
 public class PoseNavigator extends SubsystemBase {
 
     /** ArmivatorCommands Object. */
     public final ArmivatorCommands armivatorCommands;
-
-    /** AutonUtils Class Object. */
-    private final AutonUtils autonUtils;
 
     /** SwerveSubsystem Class Object. */
     private final SwerveSubsystem drivebase;
@@ -48,9 +46,8 @@ public class PoseNavigator extends SubsystemBase {
      * Constructor for the PoseNavigator class.
      * Initializes the notifier that updates the SmartDashboard periodically.
      */
-    public PoseNavigator(ArmivatorCommands armivatorCommands, AutonUtils autonUtils, SwerveSubsystem drivebase) {
+    public PoseNavigator(ArmivatorCommands armivatorCommands, SwerveSubsystem drivebase) {
         this.armivatorCommands = armivatorCommands;
-        this.autonUtils = autonUtils;
         this.drivebase = drivebase;
 
         dashboardNotifier = new Notifier(this::updateDashboard);
@@ -67,20 +64,11 @@ public class PoseNavigator extends SubsystemBase {
     }
 
     /**
-     * Selects the target pose based on the current dashboard state and alliance side.
-     * @return The selected target {@link Pose2d} based on the current target dashboard pose.
-     */
-    public Pose2d selectTargetPose() {
-        int targetID = getTargetDashboardPose();
-        return (targetID > 24) ? selectChutePose(targetID) : calculateReefPose(targetID);
-    }
-
-    /**
      * Calculates the reef branch offsets and returns the specific target pose.
      * @param targetID The target pose ID (1-12).
      * @return A {@link Pose2d} corresponding to the given target ID.
      */
-    public Pose2d calculateReefPose(int targetID) {
+    public Pose2d calculateReefPose(int targetID, double distance) {
         List<Pose2d> poses = new ArrayList<>();
 
         // Start with tag 18, then proceed in counterclockwise order (18 -> 17 -> 22 -> 21 -> 20 -> 19).
@@ -100,10 +88,10 @@ public class PoseNavigator extends SubsystemBase {
                                                 tagRotation.plus(Rotation2d.fromDegrees(90))));
                     double extraDistance = getTargetArmivatorState() == 2 ? Units.inchesToMeters(8) : 0;
                     Translation2d extrudedTranslation = branchTranslation
-                        .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF + extraDistance, tagRotation));
+                        .plus(new Translation2d(distance + extraDistance, tagRotation));
 
                     // Add the extruded pose to the Pose2d List.
-                    poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))).plus(new Transform2d(0, 0.06, new Rotation2d())));
+                    poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))));
                 }
             });
         }
@@ -125,7 +113,7 @@ public class PoseNavigator extends SubsystemBase {
                 // Extrude the target pose straight off the face of the tag.
                 Rotation2d tagRotation = adjustedPose.getRotation();
                 Translation2d extrudedTranslation = adjustedPose.getTranslation()
-                    .plus(new Translation2d(DashboardAlignment.DISTANCE_FROM_REEF, tagRotation));
+                    .plus(new Translation2d(DashboardAlignment.DISTANCE_AT_REEF, tagRotation));
 
                 return new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180)));
             })
@@ -161,26 +149,11 @@ public class PoseNavigator extends SubsystemBase {
         return closestAprilTagId;
     }
 
-    /**
-     * Selects a chute pose based on the target ID.
-     * @param targetID The ID of the target chute.
-     * @return The selected Pose2d corresponding to the chute.
-     */
-    private Pose2d selectChutePose(int targetID) {
-        boolean isRed = targetID <= 30; // Red chutes = 25 to 30.
-        boolean isTop = (targetID - 25) % 6 < 3; // Top chutes are first three in each set.
-        int index = 2 - (targetID - 25) % 3; // Maps 25->2, 26->1, 27->0, etc.
-
-        return isRed 
-            ? (isTop ? autonUtils.RED_TOP_CHUTE[index] : autonUtils.RED_BOTTOM_CHUTE[index])
-            : isTop ? autonUtils.BLUE_TOP_CHUTE[index] : autonUtils.BLUE_BOTTOM_CHUTE[index];
-    }
-
     /** 
      * Handles the state of the armivator based on the value from the dashboard.
      * @return The command to run based on the dashboard selected state.
      */
-    public Command handleDashboardState() {
+    public Command handleDashboardArmivatorState() {
         Map<Integer, Command> commandMap = Map.of(
             1, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM),
             2, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.L2),
@@ -189,6 +162,30 @@ public class PoseNavigator extends SubsystemBase {
         );
 
         return Commands.select(commandMap, this::getTargetArmivatorState);
+    }
+
+    /** Handles the state of the autonomous navigation system based on the value from the dashboard.
+     * @return The command to run based on the dashboard selected state.
+     */
+    public Command handleDashboardPoseState() {
+        return new SequentialCommandGroup(
+            drivebase.driveToPose(
+                calculateReefPose(
+                    getTargetDashboardPose(),
+                    DashboardAlignment.DISTANCE_AWAY_REEF
+                ),
+                AutonConstants.MAX_VELOCITY,
+                AutonConstants.MAX_ACCELERATION
+            ),
+            drivebase.driveToPose(
+                calculateReefPose(
+                    getTargetDashboardPose(),
+                    DashboardAlignment.DISTANCE_AT_REEF
+                ),
+                AutonConstants.MAX_VELOCITY,
+                AutonConstants.MAX_ACCELERATION
+            )
+        );
     }
 
     /**
