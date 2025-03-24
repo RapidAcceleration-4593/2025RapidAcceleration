@@ -47,7 +47,7 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
-            public static final PIDConstants ARM_PID = new PIDConstants(0.01, 0.0001, 0);
+            public static final PIDConstants ARM_PID = new PIDConstants(0.008, 0.0004, 0);
             public static final int TOLERANCE = 20;
 
             public static final double MAX_VELOCITY = 1240;
@@ -95,7 +95,7 @@ public final class Constants {
         public static final class DashboardAlignment {
             public static final double DISTANCE_AT_REEF = Units.inchesToMeters(17);
             public static final double DISTANCE_AWAY_REEF = Units.inchesToMeters(50);
-            public static final double BRANCH_OFFSET = Units.inchesToMeters(7);
+            public static final double BRANCH_OFFSET = Units.inchesToMeters(6.5);
         }
     }
 

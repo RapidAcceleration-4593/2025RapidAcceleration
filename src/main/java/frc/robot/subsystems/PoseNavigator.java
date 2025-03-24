@@ -182,8 +182,8 @@ public class PoseNavigator extends SubsystemBase {
                     getTargetDashboardPose(),
                     DashboardAlignment.DISTANCE_AT_REEF
                 ),
-                AutonConstants.MAX_VELOCITY,
-                AutonConstants.MAX_ACCELERATION
+                2.25,
+                2.5
             )
         );
     }
