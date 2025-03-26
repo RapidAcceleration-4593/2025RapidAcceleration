@@ -111,6 +111,19 @@ public class RobotContainer {
 
         driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
 
+        // auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
+        // auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
+        // auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
+        // auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
+
+        // Serializer Control.
+        // auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
+        // auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
+
+        // Climber Control.
+        // driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
+        // driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
+
         // Manual Control.
         auxiliaryController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
 
