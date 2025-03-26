@@ -27,6 +27,7 @@ import frc.robot.commands.auton.OneCoralAuton;
 import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
+import frc.robot.commands.climber.RunClimberCommand;
 import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
@@ -121,8 +122,8 @@ public class RobotContainer {
         // auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
         // Climber Control.
-        // driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
-        // driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
+        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
+        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
 
         // Manual Control.
         auxiliaryController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));

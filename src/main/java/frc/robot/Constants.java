@@ -131,6 +131,6 @@ public final class Constants {
 
         public static final double DEADBAND = 0.1;
         public static final double TURN_CONSTANT = 6;
-        public static final double SCALE_TRANSLATION = 0.4;
+        public static final double SCALE_TRANSLATION = 0.5;
     }
 }
