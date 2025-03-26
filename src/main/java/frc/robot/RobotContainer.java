@@ -15,13 +15,10 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ArmDirections;
-import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.Constants.RobotStates.ElevatorDirections;
-import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
-import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
@@ -30,13 +27,11 @@ import frc.robot.commands.auton.OneCoralAuton;
 import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
-import frc.robot.commands.climber.RunClimberCommand;
 import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleManualControl;
 import frc.robot.commands.serializer.PickupCoralCommand;
-import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClimberSubsystem;
@@ -115,19 +110,6 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(poseNavigator.handleDashboardArmivatorState());
 
         driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
-
-        auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
-        auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
-        auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
-        auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
-
-        // Serializer Control.
-        auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
-        auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
-
-        // Climber Control.
-        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
-        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
 
         // Manual Control.
         auxiliaryController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));

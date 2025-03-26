@@ -89,8 +89,8 @@ public final class Constants {
 
         public static final boolean DRIVE_WITH_VISION = true;
 
-        public static final double MAX_VELOCITY = 2.0;
-        public static final double MAX_ACCELERATION = 1.75;
+        public static final double MAX_VELOCITY = 1.5;
+        public static final double MAX_ACCELERATION = 1.0;
 
         public static final class DashboardAlignment {
             public static final double DISTANCE_AT_REEF = Units.inchesToMeters(17);
@@ -131,6 +131,6 @@ public final class Constants {
 
         public static final double DEADBAND = 0.1;
         public static final double TURN_CONSTANT = 6;
-        public static final double SCALE_TRANSLATION = 1.0;
+        public static final double SCALE_TRANSLATION = 0.4;
     }
 }
