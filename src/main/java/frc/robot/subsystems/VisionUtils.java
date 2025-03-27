@@ -217,7 +217,7 @@ public class VisionUtils {
     }
 
     /** Camera Enum to select each camera. */
-    enum Cameras {
+    public enum Cameras {
         /** AprilTag Cameras. */
         OV9782_Colored_1("Arducam_OV9782_Colored_1",
                 new Rotation3d(0, Units.degreesToRadians(15), 0),

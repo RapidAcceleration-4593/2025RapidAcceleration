@@ -15,6 +15,7 @@ import com.pathplanner.lib.path.PathConstraints;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
@@ -22,17 +23,24 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
+import frc.robot.subsystems.VisionUtils.Cameras;
 
 import java.io.File;
 import java.util.function.Supplier;
+
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
+
+import java.util.Optional;
 import java.util.Set;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
+import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -185,6 +193,72 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
+    public Rotation2d getAprilTagYaw() {
+        Pose2d aprilTagPose = VisionUtils.getAprilTagPose(17, new Transform2d());
+        Translation2d relativeTrl = aprilTagPose.relativeTo(getPose()).getTranslation();
+        return new Rotation2d(relativeTrl.getX(), relativeTrl.getY()).plus(swerveDrive.getOdometryHeading());
+    }
+
+    /**
+     * Aim the robot at the speaker.
+     *
+     * @param tolerance Tolerance in degrees.
+     * @return Command to turn the robot to the speaker.
+     */
+    public Command aimAtAprilTag(double tolerance) {
+        SwerveController controller = swerveDrive.getSwerveController();
+        return run(
+            () -> {
+            drive(ChassisSpeeds.fromFieldRelativeSpeeds(0,
+                                                        0,
+                                                        controller.headingCalculate(getHeading().getRadians(),
+                                                                                    getAprilTagYaw().getRadians()),
+                                                        getHeading())
+                );
+            }).until(() -> Math.abs(getAprilTagYaw().minus(getHeading()).getDegrees()) < tolerance);
+    }
+
+    public Command driveToPose(Pose2d targetPose) {
+        return run(() -> {
+            Pose2d currentPose = swerveDrive.getPose();
+            Translation2d deltaTranslation = targetPose.getTranslation().minus(currentPose.getTranslation());
+            double distanceToTarget = deltaTranslation.getNorm();
+
+            double velocity = Math.min(distanceToTarget, 2.25);
+
+            Translation2d normalizedTranslation = deltaTranslation.times(1 / distanceToTarget).times(velocity);
+
+            drive(normalizedTranslation, 0, true);
+
+            aimAtAprilTag(1.0).schedule();
+        }).until(() -> {
+            Pose2d currentPose = swerveDrive.getPose();
+            return currentPose.getTranslation().getDistance(targetPose.getTranslation()) < 0.01;
+        });
+    }
+
+    public void drive(Translation2d translation, double rotation, boolean fieldRelative) {
+        swerveDrive.drive(translation,
+                        rotation,
+                        fieldRelative,
+                        false); // Open loop is disabled since it shouldn't be used most of the time.
+    }
+
+    public Command aimAtTarget(Cameras camera) {
+        return run(() -> {
+        Optional<PhotonPipelineResult> resultO = camera.getBestResult();
+        if (resultO.isPresent()) {
+            var result = resultO.get();
+            if (result.hasTargets()) {
+                drive(getTargetSpeeds(0,
+                                        0,
+                                        Rotation2d.fromDegrees(result.getBestTarget()
+                                                                    .getYaw())));
+                }
+            }
+        });
+    }
+
     /**
      * Drive the robot given a chassis field oriented velocity. 
      * @param velocity Velocity according to the field.
@@ -292,6 +366,46 @@ public class SwerveSubsystem extends SubsystemBase {
 
             return driveToPose(newPose, maxVelocity, maxAcceleration);
         }, Set.of(this));
+    }
+
+    public Command followAprilTag(int tagID) {
+        for (Cameras camera : Cameras.values()) {
+            PhotonTrackedTarget target = visionUtils.getTargetFromId(tagID, camera);
+            if (target != null) {
+                Pose2d tagPose = VisionUtils.getAprilTagPose(target.getFiducialId(), new Transform2d(new Translation2d(1, 0), Rotation2d.kPi));
+                return driveToPose(tagPose);
+            }
+        }
+
+        return Commands.none();
+    }
+
+    /**
+     * Drive according to the chassis robot oriented velocity.
+     *
+     * @param velocity Robot oriented {@link ChassisSpeeds}
+     */
+    public void drive(ChassisSpeeds velocity) {
+        swerveDrive.drive(velocity);
+    }
+
+    /**
+     * Get the chassis speeds based on controller input of 1 joystick and one angle. Control the robot at an offset of
+     * 90deg.
+     *
+     * @param xInput X joystick input for the robot to move in the X direction.
+     * @param yInput Y joystick input for the robot to move in the Y direction.
+     * @param angle  The angle in as a {@link Rotation2d}.
+     * @return {@link ChassisSpeeds} which can be sent to the Swerve Drive.
+     */
+    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
+        Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
+
+        return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
+                                                            scaledInputs.getY(),
+                                                            angle.getRadians(),
+                                                            getHeading().getRadians(),
+                                                            Constants.MAX_SPEED);
     }
 
     /**

@@ -15,12 +15,15 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ArmDirections;
+import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.Constants.RobotStates.ElevatorDirections;
+import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
+import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
@@ -95,7 +98,7 @@ public class RobotContainer {
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
         // Autonomous Drive Control.
-        driverController.leftTrigger()
+        auxiliaryController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = poseNavigator.handleDashboardPoseState();
                 driveToPoseCommand.schedule();
@@ -104,35 +107,44 @@ public class RobotContainer {
                 driveToPoseCommand.cancel();
             }));
 
+        driverController.leftTrigger()
+            .whileTrue(Commands.runOnce(() -> {
+                driveToPoseCommand = drivebase.followAprilTag(17);
+                driveToPoseCommand.schedule();
+            }))
+            .onFalse(Commands.runOnce(() -> {
+                driveToPoseCommand.cancel();
+            }));
+
         // Armivator Control.
-        driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
+        auxiliaryController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
-        driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
-        driverController.rightBumper().onTrue(poseNavigator.handleDashboardArmivatorState());
+        auxiliaryController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
+        auxiliaryController.rightBumper().onTrue(poseNavigator.handleDashboardArmivatorState());
 
-        driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
+        auxiliaryController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
 
-        // auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
-        // auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
-        // auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
-        // auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
+        driverController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
+        driverController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
+        driverController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
+        driverController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
         // Serializer Control.
         // auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
         // auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
         // Climber Control.
-        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
-        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
+        driverController.leftBumper().whileTrue(new RunClimberCommand(climberSubsystem, false));
+        driverController.rightBumper().whileTrue(new RunClimberCommand(climberSubsystem, true));
 
         // Manual Control.
-        auxiliaryController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
+        driverController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));
 
-        auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.UP));
-        auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.DOWN));
+        driverController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.UP));
+        driverController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.DOWN));
 
-        auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.UP));
-        auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.DOWN));
+        driverController.x().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.UP));
+        driverController.b().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.DOWN));
     }
 
     /**
