@@ -10,7 +10,6 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Robot;
@@ -21,7 +20,6 @@ import frc.robot.Constants.RobotStates.ArmStates;
 public class ArmSubsystem extends SubsystemBase {
 
     private final SparkMax armMotor = ArmConstants.armMotor;
-    private final Encoder armEncoder = ArmConstants.armEncoder;
 
     private final DigitalInput topLimitSwitch = ArmConstants.topLimitSwitch;
     private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
@@ -33,7 +31,7 @@ public class ArmSubsystem extends SubsystemBase {
                                                                                 ArmPIDConstants.MAX_VELOCITY,
                                                                                 ArmPIDConstants.MAX_ACCELERATION));
 
-    private static final double[] SETPOINTS = {-20, 620, 875};
+    private static final double[] SETPOINTS = {-80, 2480, 3500};
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 
@@ -51,6 +49,7 @@ public class ArmSubsystem extends SubsystemBase {
      */
     public ArmSubsystem() {
         config.idleMode(IdleMode.kBrake);
+        config.alternateEncoder.countsPerRevolution(1).setSparkMaxDataPortConfig();
 
         armMotor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         
@@ -219,12 +218,12 @@ public class ArmSubsystem extends SubsystemBase {
      * @return The current encoder value of the arm.
      */
     public double getEncoderValue() {
-        return armEncoder.get();
+        return armMotor.getAlternateEncoder().getPosition();
     }
 
     /** Resets the arm encoder. */
     public void resetEncoder() {
-        armEncoder.reset();
+        armMotor.getAlternateEncoder().setPosition(0);
     }
 
     /**

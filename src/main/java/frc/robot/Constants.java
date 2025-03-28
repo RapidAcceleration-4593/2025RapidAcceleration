@@ -47,8 +47,8 @@ public final class Constants {
 
     public static final class ArmConstants {
         public static final class ArmPIDConstants {
-            public static final PIDConstants ARM_PID = new PIDConstants(0.008, 0.0004, 0);
-            public static final int TOLERANCE = 20;
+            public static final PIDConstants ARM_PID = new PIDConstants(0.001, 0, 0);
+            public static final int TOLERANCE = 60;
 
             public static final double MAX_VELOCITY = 1240;
             public static final double MAX_ACCELERATION = 5000;
@@ -63,7 +63,6 @@ public final class Constants {
         public static final double CONTROL_SPEED = 1.0;
 
         public static final SparkMax armMotor = new SparkMax(5, MotorType.kBrushless);
-        public static final Encoder armEncoder = new Encoder(0, 1);
 
         public static final DigitalInput topLimitSwitch = new DigitalInput(2);
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(3);
