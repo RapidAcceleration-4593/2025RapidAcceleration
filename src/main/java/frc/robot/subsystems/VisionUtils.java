@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
+
 import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonCamera;
 import org.photonvision.PhotonPoseEstimator;
@@ -88,6 +90,29 @@ public class VisionUtils {
             throw new RuntimeException("Cannot get AprilTag " + aprilTag + " from field " + fieldLayout.toString());
         }
     }
+
+    public Optional<PhotonTrackedTarget> getDetectedObject() {
+        return Cameras.OV9281_Monochrome.getBestResult()
+            .filter(result -> result.hasTargets())
+            .map(PhotonPipelineResult::getBestTarget);
+    }
+
+    public Optional<Pose2d> getDetectedObjectPose(double distance) {
+        return getDetectedObject().map(target -> {
+            Transform3d cameraToTarget = target.getBestCameraToTarget();
+            Translation3d translation = cameraToTarget.getTranslation();
+            Rotation2d rotation = cameraToTarget.getRotation().toRotation2d();
+            
+            Pose2d objectPoseInCamera = new Pose2d(translation.getX(), translation.getY(), rotation);
+            Transform2d robotToCameraOffset = new Transform2d(new Translation2d(Units.inchesToMeters(10), 0), new Rotation2d());
+            Pose2d objectPoseInRobot = objectPoseInCamera.transformBy(robotToCameraOffset.inverse());
+
+            Transform2d objectTransformFromRobot = new Transform2d(objectPoseInRobot.getTranslation(), objectPoseInRobot.getRotation())
+                .plus(new Transform2d(new Translation2d(distance, 0), Rotation2d.kPi));
+            return currentPose.get().transformBy(objectTransformFromRobot);
+        });
+    }
+    
 
     /**
      * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.
@@ -187,6 +212,7 @@ public class VisionUtils {
             try {
                 Desktop.getDesktop().browse(new URI("http://localhost:1182/"));
                 Desktop.getDesktop().browse(new URI("http://localhost:1184/"));
+                Desktop.getDesktop().browse(new URI("http://localhost:1186/"));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -231,14 +257,14 @@ public class VisionUtils {
                 new Translation3d(Units.inchesToMeters(10),
                                   Units.inchesToMeters(9),
                                   Units.inchesToMeters(18)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
-        // OV9281_Monochrome("Arducam_OV9281_Monochrome",
-        //         new Rotation3d(0, Units.degreesToRadians(0), 0),
-        //         new Translation3d(Units.inchesToMeters(0.0),
-        //                           Units.inchesToMeters(0.0),
-        //                           Units.inchesToMeters(0.0)),
-        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1))
+        OV9281_Monochrome("Arducam_OV9281_Monochrome",
+                new Rotation3d(0, Units.degreesToRadians(0), 0),
+                new Translation3d(Units.inchesToMeters(10),
+                                  Units.inchesToMeters(0),
+                                  Units.inchesToMeters(10)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Latency alert to use when high latency is detected. */
         public final Alert latencyAlert;
@@ -297,7 +323,7 @@ public class VisionUtils {
             if (Robot.isSimulation()) {
                 SimCameraProperties cameraProp = new SimCameraProperties();
                 // A 640 x 480 camera with a 100 degree diagonal FOV.
-                cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(100));
+                cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
                 // Approximate detection noise with average and standard deviation error in pixels.
                 cameraProp.setCalibError(0.25, 0.08);
                 // Set the camera image capture framerate (Note: this is limited by robot loop rate).

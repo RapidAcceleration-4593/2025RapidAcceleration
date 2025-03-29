@@ -91,8 +91,11 @@ public class RobotContainer {
         DriverStation.silenceJoystickConnectionWarning(true);
 
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
-        elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
-        armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
+
+        if (!Robot.isSimulation()) {
+            elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
+            armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
+        }
     }
 
     private void configureBindings() {
@@ -102,6 +105,15 @@ public class RobotContainer {
         driverController.leftTrigger()
             .whileTrue(Commands.runOnce(() -> {
                 driveToPoseCommand = poseNavigator.handleDashboardPoseState();
+                driveToPoseCommand.schedule();
+            }))
+            .onFalse(Commands.runOnce(() -> {
+                driveToPoseCommand.cancel();
+            }));
+
+        driverController.a()
+            .whileTrue(Commands.runOnce(() -> {
+                driveToPoseCommand = drivebase.handleDetectedObject();
                 driveToPoseCommand.schedule();
             }))
             .onFalse(Commands.runOnce(() -> {

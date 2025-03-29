@@ -22,6 +22,7 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
@@ -30,7 +31,7 @@ import java.io.File;
 import java.util.function.Supplier;
 import java.util.Set;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveControllerConfiguration;
@@ -45,7 +46,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
 
     /** PhotonVision class to keep an accurate odometry. */
-    private VisionUtils visionUtils;
+    public VisionUtils visionUtils;
 
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
@@ -183,6 +184,30 @@ public class SwerveSubsystem extends SubsystemBase {
             constraints,
             edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec.
         );
+    }
+
+    public Command handleDetectedObject() {
+        if (visionUtils.getDetectedObject().isPresent()) {
+            return new SequentialCommandGroup(
+                driveToPose(
+                    visionUtils.getDetectedObjectPose(Units.inchesToMeters(40)).get(),
+                    AutonConstants.MAX_VELOCITY,
+                    AutonConstants.MAX_ACCELERATION
+                ),
+                driveToPose(
+                    visionUtils.getDetectedObjectPose(0).get(),
+                    AutonConstants.MAX_VELOCITY,
+                    AutonConstants.MAX_ACCELERATION
+                )
+            );
+        }
+
+        return Commands.none();
+    }
+    
+
+    public void drive(ChassisSpeeds velocity) {
+        swerveDrive.drive(velocity);
     }
 
     /**
