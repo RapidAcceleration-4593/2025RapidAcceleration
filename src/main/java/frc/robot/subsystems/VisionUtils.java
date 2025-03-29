@@ -10,7 +10,6 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -92,27 +91,10 @@ public class VisionUtils {
     }
 
     public Optional<PhotonTrackedTarget> getDetectedObject() {
-        return Cameras.OV9281_Monochrome.getBestResult()
+        return Cameras.OV9782_Colored_1.getBestResult()
             .filter(result -> result.hasTargets())
             .map(PhotonPipelineResult::getBestTarget);
     }
-
-    public Optional<Pose2d> getDetectedObjectPose(double distance) {
-        return getDetectedObject().map(target -> {
-            Transform3d cameraToTarget = target.getBestCameraToTarget();
-            Translation3d translation = cameraToTarget.getTranslation();
-            Rotation2d rotation = cameraToTarget.getRotation().toRotation2d();
-            
-            Pose2d objectPoseInCamera = new Pose2d(translation.getX(), translation.getY(), rotation);
-            Transform2d robotToCameraOffset = new Transform2d(new Translation2d(Units.inchesToMeters(10), 0), new Rotation2d());
-            Pose2d objectPoseInRobot = objectPoseInCamera.transformBy(robotToCameraOffset.inverse());
-
-            Transform2d objectTransformFromRobot = new Transform2d(objectPoseInRobot.getTranslation(), objectPoseInRobot.getRotation())
-                .plus(new Transform2d(new Translation2d(distance, 0), Rotation2d.kPi));
-            return currentPose.get().transformBy(objectTransformFromRobot);
-        });
-    }
-    
 
     /**
      * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.
@@ -257,14 +239,14 @@ public class VisionUtils {
                 new Translation3d(Units.inchesToMeters(10),
                                   Units.inchesToMeters(9),
                                   Units.inchesToMeters(18)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
-
-        OV9281_Monochrome("Arducam_OV9281_Monochrome",
-                new Rotation3d(0, Units.degreesToRadians(0), 0),
-                new Translation3d(Units.inchesToMeters(10),
-                                  Units.inchesToMeters(0),
-                                  Units.inchesToMeters(10)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
+
+        // OV9281_Monochrome("Arducam_OV9281_Monochrome",
+        //         new Rotation3d(0, Units.degreesToRadians(0), 0),
+        //         new Translation3d(Units.inchesToMeters(10),
+        //                           Units.inchesToMeters(0),
+        //                           Units.inchesToMeters(10)),
+        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Latency alert to use when high latency is detected. */
         public final Alert latencyAlert;

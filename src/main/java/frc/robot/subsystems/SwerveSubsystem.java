@@ -29,9 +29,9 @@ import frc.robot.Constants.AutonConstants;
 
 import java.io.File;
 import java.util.function.Supplier;
+
 import java.util.Set;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveControllerConfiguration;
@@ -187,22 +187,32 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command handleDetectedObject() {
-        if (visionUtils.getDetectedObject().isPresent()) {
-            return new SequentialCommandGroup(
-                driveToPose(
-                    visionUtils.getDetectedObjectPose(Units.inchesToMeters(40)).get(),
-                    AutonConstants.MAX_VELOCITY,
-                    AutonConstants.MAX_ACCELERATION
-                ),
-                driveToPose(
-                    visionUtils.getDetectedObjectPose(0).get(),
-                    AutonConstants.MAX_VELOCITY,
-                    AutonConstants.MAX_ACCELERATION
-                )
-            );
-        }
+        return aimAtTarget();
+    }
 
-        return Commands.none();
+    public Command aimAtTarget() {
+        SwerveController controller = swerveDrive.getSwerveController();
+        return run(() -> {
+            if (visionUtils.getDetectedObject().isPresent()) {
+                drive(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        // controller.headingCalculate(
+                        //     -visionUtils.getDetectedObject().get().getPitch() * (Math.PI / 180),
+                        //     Units.degreesToRadians(-3)
+                        // ) * 3.5,
+                        0,
+                        0,
+                        controller.headingCalculate(
+                            visionUtils.getDetectedObject().get().getYaw() * (Math.PI / 180),
+                            Units.degreesToRadians(0)
+                        ) * 2.0,
+                        getHeading()
+                    )
+                );
+            } else {
+                Commands.none();
+            }
+        });
     }
     
 
