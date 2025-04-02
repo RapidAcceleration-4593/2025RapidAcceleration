@@ -30,6 +30,9 @@ import frc.robot.Constants.AutonConstants;
 import java.io.File;
 import java.util.function.Supplier;
 
+import org.photonvision.targeting.PhotonTrackedTarget;
+
+import java.util.Optional;
 import java.util.Set;
 import edu.wpi.first.wpilibj2.command.DeferredCommand;
 import swervelib.SwerveController;
@@ -187,23 +190,26 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command handleDetectedObject() {
-        return aimAtTarget();
+        return aimAtObject();
+        // return new SequentialCommandGroup(
+        //     aimAtObject(),
+        //     driveToObject()
+        // );
     }
 
-    public Command aimAtTarget() {
+    public Command aimAtObject() {
         SwerveController controller = swerveDrive.getSwerveController();
+        Optional<PhotonTrackedTarget> detectedObject = visionUtils.getDetectedObject();
+        
         return run(() -> {
-            if (visionUtils.getDetectedObject().isPresent()) {
+            if (detectedObject.isPresent()) {
+                PhotonTrackedTarget target = detectedObject.get();
                 drive(
                     ChassisSpeeds.fromFieldRelativeSpeeds(
-                        // controller.headingCalculate(
-                        //     -visionUtils.getDetectedObject().get().getPitch() * (Math.PI / 180),
-                        //     Units.degreesToRadians(-3)
-                        // ) * 3.5,
                         0,
                         0,
                         controller.headingCalculate(
-                            visionUtils.getDetectedObject().get().getYaw() * (Math.PI / 180),
+                            target.getYaw() * (Math.PI / 180),
                             Units.degreesToRadians(0)
                         ) * 2.0,
                         getHeading()
@@ -212,8 +218,43 @@ public class SwerveSubsystem extends SubsystemBase {
             } else {
                 Commands.none();
             }
+        }).until(() -> {
+            if (visionUtils.getDetectedObject().isPresent()) {
+                return Math.abs(visionUtils.getDetectedObject().get().getYaw()) < 0.1;
+            }
+            return true;
         });
     }
+
+    public Command driveToObject() {
+        SwerveController controller = swerveDrive.getSwerveController();
+        return run(() -> {
+            Optional<PhotonTrackedTarget> detectedObject = visionUtils.getDetectedObject();
+            if (detectedObject.isPresent()) {
+                PhotonTrackedTarget target = detectedObject.get();
+                drive(
+                    ChassisSpeeds.fromFieldRelativeSpeeds(
+                        controller.headingCalculate(
+                            target.getArea(),
+                            18
+                        ) * 0.5,
+                        0,
+                        0,
+                        getHeading()
+                    )
+                );
+            } else {
+                // Handle no object case
+                Commands.none();
+            }
+        }).until(() -> {
+            // Safely handle when no object is detected by checking the presence first
+            return visionUtils.getDetectedObject()
+                .map(target -> controller.headingCalculate(target.getArea(), 18) < 0.001)
+                .orElse(true); // If no object, treat as "finished" by returning true
+        });
+    }
+    
     
 
     public void drive(ChassisSpeeds velocity) {

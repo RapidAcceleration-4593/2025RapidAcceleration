@@ -91,9 +91,17 @@ public class VisionUtils {
     }
 
     public Optional<PhotonTrackedTarget> getDetectedObject() {
-        return Cameras.OV9782_Colored_1.getBestResult()
-            .filter(result -> result.hasTargets())
-            .map(PhotonPipelineResult::getBestTarget);
+        Optional<PhotonPipelineResult> resultOptional = Cameras.OV9782_Colored_1.getBestResult();
+
+        if (resultOptional.isPresent()) {
+            PhotonPipelineResult result = resultOptional.get();
+
+            if (result.hasTargets()) {
+                return Optional.of(result.getBestTarget());
+            }
+        }
+
+        return Optional.empty();
     }
 
     /**
