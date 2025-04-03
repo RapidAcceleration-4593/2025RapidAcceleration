@@ -53,6 +53,9 @@ public class VisionUtils {
     /** Field from {@link swervelib.SwerveDrive#field} */
     private Field2d field2d;
 
+    private PhotonCamera objectDetectionCamera = new PhotonCamera("OV9782_Colored_1");
+    private PhotonCameraSim objectDetectionCameraSim = new PhotonCameraSim(objectDetectionCamera);
+
     /**
      * Constructor for the VisionUtils class.
      * @param currentPose Current pose supplier, should reference {@link SwerveDrive#getPose()}
@@ -69,6 +72,7 @@ public class VisionUtils {
             for (Cameras camera : Cameras.values()) {
                 camera.addToVisionSim(visionSim);
             }
+            visionSim.addCamera(objectDetectionCameraSim, new Transform3d(new Translation3d(Units.inchesToMeters(10), Units.inchesToMeters(-9), Units.inchesToMeters(18)), new Rotation3d(0, Units.degreesToRadians(15), 0)));
 
             // openSimCameraViews();
         }
@@ -90,20 +94,32 @@ public class VisionUtils {
         }
     }
 
-    public Optional<PhotonTrackedTarget> getDetectedObject() {
-        Optional<PhotonPipelineResult> resultOptional = Cameras.OV9782_Colored_1.getBestResult();
-
-        if (resultOptional.isPresent()) {
-            PhotonPipelineResult result = resultOptional.get();
-
-            if (result.hasTargets()) {
-                return Optional.of(result.getBestTarget());
-            }
-        }
-
-        return Optional.empty();
+    public Optional<PhotonPipelineResult> getLatestObjectResult() {
+        List<PhotonPipelineResult> results = objectDetectionCamera.getAllUnreadResults();
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(results.size() - 1));
     }
 
+    public Optional<double[]> getDetectedObjectInfo() {
+        Optional<PhotonPipelineResult> latestResult = getLatestObjectResult();
+    
+        if (latestResult.isPresent() && latestResult.get().hasTargets()) {
+            PhotonTrackedTarget target = latestResult.get().getBestTarget();
+    
+            double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
+                Units.inchesToMeters(19),
+                0,
+                -Units.degreesToRadians(15),
+                Units.degreesToRadians(target.getPitch())
+            );
+
+            double cameraToTargetYaw = target.getYaw();
+    
+            return Optional.of(new double[] { distanceToObject, cameraToTargetYaw });
+        }
+    
+        return Optional.empty();
+    }
+    
     /**
      * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.
      * @param swerveDrive {@link SwerveDrive} instance.
@@ -234,13 +250,12 @@ public class VisionUtils {
 
     /** Camera Enum to select each camera. */
     enum Cameras {
-        /** AprilTag Cameras. */
-        OV9782_Colored_1("Arducam_OV9782_Colored_1",
-                new Rotation3d(0, Units.degreesToRadians(15), 0),
-                new Translation3d(Units.inchesToMeters(10),
-                                  Units.inchesToMeters(-9),
-                                  Units.inchesToMeters(18)),
-                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        // OV9782_Colored_1("Arducam_OV9782_Colored_1",
+        //         new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(0)),
+        //         new Translation3d(Units.inchesToMeters(10),
+        //                           Units.inchesToMeters(-9),
+        //                           Units.inchesToMeters(18)),
+        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
         OV9782_Colored_2("Arducam_OV9782_Colored_2",
                 new Rotation3d(0, Units.degreesToRadians(15), 0),
@@ -250,10 +265,10 @@ public class VisionUtils {
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         // OV9281_Monochrome("Arducam_OV9281_Monochrome",
-        //         new Rotation3d(0, Units.degreesToRadians(0), 0),
+        //         new Rotation3d(0, Units.degreesToRadians(15), 0),
         //         new Translation3d(Units.inchesToMeters(10),
-        //                           Units.inchesToMeters(0),
-        //                           Units.inchesToMeters(10)),
+        //                           Units.inchesToMeters(-9),
+        //                           Units.inchesToMeters(18)),
         //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Latency alert to use when high latency is detected. */

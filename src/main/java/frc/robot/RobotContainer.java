@@ -113,7 +113,7 @@ public class RobotContainer {
 
         driverController.a()
             .whileTrue(Commands.runOnce(() -> {
-                driveToPoseCommand = drivebase.handleDetectedObject();
+                driveToPoseCommand = drivebase.driveToDetectedObject();
                 driveToPoseCommand.schedule();
             }))
             .onFalse(Commands.runOnce(() -> {
