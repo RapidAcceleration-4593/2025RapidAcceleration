@@ -188,35 +188,18 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command driveToDetectedObject() {
-        SwerveController controller = swerveDrive.getSwerveController();
+        Optional<Pose2d> detectedObjectInformation = visionUtils.getDetectedObjectPose(getPose());
 
-        return Commands.run(() -> {
-            Optional<double[]> detectedObjectInformation = visionUtils.getDetectedObjectInfo();
+        if (detectedObjectInformation.isPresent()) {
+            System.out.println("Driving to pose!");
+            return driveToPose(
+                detectedObjectInformation.get(),
+                AutonConstants.MAX_VELOCITY,
+                AutonConstants.MAX_ACCELERATION
+            );
+        }
 
-            if (detectedObjectInformation.isPresent()) {
-                double objectDistance = detectedObjectInformation.get()[0];
-
-                double objectYaw = detectedObjectInformation.get()[1];
-                Rotation2d adjustedYaw = Rotation2d.fromDegrees(objectYaw);
-
-                System.out.println("Distance: " + objectDistance);
-
-                drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-                    controller.headingCalculate(
-                        objectDistance,
-                        0.5
-                    ),
-                    0,
-                    controller.headingCalculate(
-                        adjustedYaw.getRadians(),
-                        0
-                    ) * 2.0,
-                    getHeading()
-                ));
-
-                drive(getTargetSpeeds(0, 0, new Rotation2d()));
-            }
-        });
+        return Commands.none();
     }
 
 

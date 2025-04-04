@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Transform3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
@@ -53,9 +54,6 @@ public class VisionUtils {
     /** Field from {@link swervelib.SwerveDrive#field} */
     private Field2d field2d;
 
-    private PhotonCamera objectDetectionCamera = new PhotonCamera("OV9782_Colored_1");
-    private PhotonCameraSim objectDetectionCameraSim = new PhotonCameraSim(objectDetectionCamera);
-
     /**
      * Constructor for the VisionUtils class.
      * @param currentPose Current pose supplier, should reference {@link SwerveDrive#getPose()}
@@ -72,7 +70,6 @@ public class VisionUtils {
             for (Cameras camera : Cameras.values()) {
                 camera.addToVisionSim(visionSim);
             }
-            visionSim.addCamera(objectDetectionCameraSim, new Transform3d(new Translation3d(Units.inchesToMeters(10), Units.inchesToMeters(-9), Units.inchesToMeters(18)), new Rotation3d(0, Units.degreesToRadians(15), 0)));
 
             // openSimCameraViews();
         }
@@ -94,27 +91,29 @@ public class VisionUtils {
         }
     }
 
-    public Optional<PhotonPipelineResult> getLatestObjectResult() {
-        List<PhotonPipelineResult> results = objectDetectionCamera.getAllUnreadResults();
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(results.size() - 1));
-    }
-
-    public Optional<double[]> getDetectedObjectInfo() {
-        Optional<PhotonPipelineResult> latestResult = getLatestObjectResult();
+    public Optional<Pose2d> getDetectedObjectPose(Pose2d currentPose) {
+        Optional<PhotonPipelineResult> latestResult = Cameras.OV9782_Colored_1.getLatestResult();
     
         if (latestResult.isPresent() && latestResult.get().hasTargets()) {
             PhotonTrackedTarget target = latestResult.get().getBestTarget();
     
             double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
-                Units.inchesToMeters(19),
+                Units.inchesToMeters(18),
                 0,
                 -Units.degreesToRadians(15),
                 Units.degreesToRadians(target.getPitch())
             );
 
-            double cameraToTargetYaw = target.getYaw();
+            // Translation2d cameraToTarget = PhotonUtils.estimateCameraToTargetTranslation(
+            //     distanceToObject,
+            //     Rotation2d.fromDegrees(target.getYaw())
+            // );
+
+            Pose2d targetPose = currentPose.plus(new Transform2d(new Translation2d(
+                distanceToObject, 0), new Rotation2d()
+            ));
     
-            return Optional.of(new double[] { distanceToObject, cameraToTargetYaw });
+            return Optional.of(targetPose);
         }
     
         return Optional.empty();
@@ -250,12 +249,12 @@ public class VisionUtils {
 
     /** Camera Enum to select each camera. */
     enum Cameras {
-        // OV9782_Colored_1("Arducam_OV9782_Colored_1",
-        //         new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(0)),
-        //         new Translation3d(Units.inchesToMeters(10),
-        //                           Units.inchesToMeters(-9),
-        //                           Units.inchesToMeters(18)),
-        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
+        OV9782_Colored_1("Arducam_OV9782_Colored_1",
+                new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(0)),
+                new Translation3d(Units.inchesToMeters(10),
+                                  Units.inchesToMeters(-9),
+                                  Units.inchesToMeters(18)),
+                VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
         OV9782_Colored_2("Arducam_OV9782_Colored_2",
                 new Rotation3d(0, Units.degreesToRadians(15), 0),
