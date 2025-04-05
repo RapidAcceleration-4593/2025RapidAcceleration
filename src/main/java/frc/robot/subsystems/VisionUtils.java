@@ -98,20 +98,23 @@ public class VisionUtils {
             PhotonTrackedTarget target = latestResult.get().getBestTarget();
     
             double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
-                Units.inchesToMeters(18),
-                0,
+                Units.inchesToMeters(20),
+                Units.inchesToMeters(8),
                 -Units.degreesToRadians(15),
                 Units.degreesToRadians(target.getPitch())
+                
             );
 
-            // Translation2d cameraToTarget = PhotonUtils.estimateCameraToTargetTranslation(
-            //     distanceToObject,
-            //     Rotation2d.fromDegrees(target.getYaw())
-            // );
-
-            Pose2d targetPose = currentPose.plus(new Transform2d(new Translation2d(
-                distanceToObject, 0), new Rotation2d()
+            Pose2d targetPose = currentPose.plus(new Transform2d(
+                new Translation2d(distanceToObject, 0),
+                // Rotation2d.fromDegrees(-target.getYaw())
+                new Rotation2d()
             ));
+
+            System.out.println("Target: " + target.getFiducialId());
+            System.out.println("Current Pose" + currentPose);
+            System.out.println("Target Pose: " + targetPose);
+            System.out.println("Distance to Object: " + distanceToObject);
     
             return Optional.of(targetPose);
         }
@@ -326,8 +329,8 @@ public class VisionUtils {
 
             if (Robot.isSimulation()) {
                 SimCameraProperties cameraProp = new SimCameraProperties();
-                // A 640 x 480 camera with a 100 degree diagonal FOV.
-                cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(100));
+                // A 640 x 480 camera with a 70 degree diagonal FOV.
+                cameraProp.setCalibration(640, 480, Rotation2d.fromDegrees(70));
                 // Approximate detection noise with average and standard deviation error in pixels.
                 cameraProp.setCalibError(0.25, 0.08);
                 // Set the camera image capture framerate (Note: this is limited by robot loop rate).
