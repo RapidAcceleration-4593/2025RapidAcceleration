@@ -97,24 +97,27 @@ public class VisionUtils {
         if (latestResult.isPresent() && latestResult.get().hasTargets()) {
             PhotonTrackedTarget target = latestResult.get().getBestTarget();
     
+            // Calculate the distance to the target object using your existing method
             double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
                 Units.inchesToMeters(20),
-                Units.inchesToMeters(8),
+                Units.inchesToMeters(2),
                 -Units.degreesToRadians(15),
-                Units.degreesToRadians(target.getPitch())
-                
+                -Units.degreesToRadians(target.getPitch())
             );
 
-            Pose2d targetPose = currentPose.plus(new Transform2d(
-                new Translation2d(distanceToObject, 0),
-                // Rotation2d.fromDegrees(-target.getYaw())
-                new Rotation2d()
-            ));
+            Rotation2d currentRotation = currentPose.getRotation();
+            double objectYaw = target.getYaw();
 
-            System.out.println("Target: " + target.getFiducialId());
-            System.out.println("Current Pose" + currentPose);
-            System.out.println("Target Pose: " + targetPose);
-            System.out.println("Distance to Object: " + distanceToObject);
+            double hypotenuse = distanceToObject / Math.cos(objectYaw);
+            double globalRotation = currentRotation.getDegrees() - objectYaw;
+            
+            double xOffset = hypotenuse * Math.cos(globalRotation);
+            double yOffset = hypotenuse * Math.sin(globalRotation);
+
+            double xTranslation = currentPose.getX() + xOffset;
+            double yTranslation = currentPose.getY() + yOffset;
+
+            Pose2d targetPose = new Pose2d(new Translation2d(xTranslation, yTranslation), Rotation2d.fromDegrees(globalRotation));
     
             return Optional.of(targetPose);
         }

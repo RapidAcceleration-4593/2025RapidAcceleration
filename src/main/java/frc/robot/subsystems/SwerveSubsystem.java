@@ -188,12 +188,12 @@ public class SwerveSubsystem extends SubsystemBase {
     }
 
     public Command driveToDetectedObject() {
-        Optional<Pose2d> detectedObjectInformation = visionUtils.getDetectedObjectPose(getPose());
+        Optional<Pose2d> finalPose = visionUtils.getDetectedObjectPose(getPose());
 
-        if (detectedObjectInformation.isPresent()) {
+        if (finalPose.isPresent()) {
             System.out.println("Driving to pose!");
             return driveToPose(
-                detectedObjectInformation.get(),
+                finalPose.get(),
                 AutonConstants.MAX_VELOCITY,
                 AutonConstants.MAX_ACCELERATION
             );
