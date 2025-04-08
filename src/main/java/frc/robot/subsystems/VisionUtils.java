@@ -91,33 +91,33 @@ public class VisionUtils {
         }
     }
 
+    /**
+     * Get the pose of an object detected by the camera.
+     * @param currentPose The current pose of the robot.
+     * @return The pose of the detected object, or an empty optional if no object was detected.
+     */
     public Optional<Pose2d> getDetectedObjectPose(Pose2d currentPose) {
         Optional<PhotonPipelineResult> latestResult = Cameras.OV9782_Colored_1.getLatestResult();
     
         if (latestResult.isPresent() && latestResult.get().hasTargets()) {
             PhotonTrackedTarget target = latestResult.get().getBestTarget();
     
-            // Calculate the distance to the target object using your existing method
             double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
-                Units.inchesToMeters(20),
-                Units.inchesToMeters(2),
-                -Units.degreesToRadians(15),
-                -Units.degreesToRadians(target.getPitch())
+                Units.inchesToMeters(18),
+                Units.inchesToMeters(12.5),
+                Units.degreesToRadians(-15),
+                Units.degreesToRadians(target.getPitch())
             );
 
-            Rotation2d currentRotation = currentPose.getRotation();
             double objectYaw = target.getYaw();
+            double globalRotation = currentPose.getRotation().getDegrees() - objectYaw;
 
-            double hypotenuse = distanceToObject / Math.cos(objectYaw);
-            double globalRotation = currentRotation.getDegrees() - objectYaw;
-            
-            double xOffset = hypotenuse * Math.cos(globalRotation);
-            double yOffset = hypotenuse * Math.sin(globalRotation);
-
-            double xTranslation = currentPose.getX() + xOffset;
-            double yTranslation = currentPose.getY() + yOffset;
+            double xTranslation = currentPose.getX() + (distanceToObject * Math.cos(Math.toRadians(globalRotation)));
+            double yTranslation = currentPose.getY() + (distanceToObject * Math.sin(Math.toRadians(globalRotation)));
 
             Pose2d targetPose = new Pose2d(new Translation2d(xTranslation, yTranslation), Rotation2d.fromDegrees(globalRotation));
+
+            System.out.println("Distance: " + distanceToObject);
     
             return Optional.of(targetPose);
         }

@@ -31,10 +31,9 @@ import java.io.File;
 import java.util.function.Supplier;
 import java.util.Optional;
 import java.util.Set;
-import edu.wpi.first.wpilibj2.command.DeferredCommand;
+import edu.wpi.first.wpilibj2.command.DeferredCommand; 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
-import swervelib.math.SwerveMath;
 import swervelib.parser.SwerveControllerConfiguration;
 import swervelib.parser.SwerveDriveConfiguration;
 import swervelib.parser.SwerveParser;
@@ -187,6 +186,10 @@ public class SwerveSubsystem extends SubsystemBase {
         );
     }
 
+    /**
+     * Drive to a detected object using the vision system.
+     * @return A command to drive to the detected object.
+     */
     public Command driveToDetectedObject() {
         Optional<Pose2d> finalPose = visionUtils.getDetectedObjectPose(getPose());
 
@@ -200,21 +203,6 @@ public class SwerveSubsystem extends SubsystemBase {
         }
 
         return Commands.none();
-    }
-
-
-    public ChassisSpeeds getTargetSpeeds(double xInput, double yInput, Rotation2d angle) {
-        Translation2d scaledInputs = SwerveMath.cubeTranslation(new Translation2d(xInput, yInput));
-        return swerveDrive.swerveController.getTargetSpeeds(scaledInputs.getX(),
-                                                            scaledInputs.getY(),
-                                                            angle.getRadians(),
-                                                            getHeading().getRadians(),
-                                                            Constants.MAX_SPEED);
-    }
-
-
-    public void drive(ChassisSpeeds velocity) {
-        swerveDrive.drive(velocity);
     }
 
     /**
