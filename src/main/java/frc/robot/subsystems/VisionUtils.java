@@ -54,6 +54,8 @@ public class VisionUtils {
     /** Field from {@link swervelib.SwerveDrive#field} */
     private Field2d field2d;
 
+    private PhotonCamera objectDetectionCamera;
+
     /**
      * Constructor for the VisionUtils class.
      * @param currentPose Current pose supplier, should reference {@link SwerveDrive#getPose()}
@@ -62,6 +64,8 @@ public class VisionUtils {
     public VisionUtils(Supplier<Pose2d> currentPose, Field2d field) {
         this.currentPose = currentPose;
         this.field2d = field;
+
+        objectDetectionCamera = new PhotonCamera("Arducam_OV9782_Colored_1");
 
         if (Robot.isSimulation()) {
             visionSim = new VisionSystemSim("Vision");
@@ -92,32 +96,42 @@ public class VisionUtils {
     }
 
     /**
+     * Get the latest result from the camera.
+     * @return The latest result from the camera, or an empty optional if no result is available.
+     */
+    public Optional<PhotonPipelineResult> getLatestResult() {
+        List<PhotonPipelineResult> resultsList = objectDetectionCamera.getAllUnreadResults();
+        return resultsList.isEmpty() ? Optional.empty() : Optional.of(resultsList.get(0));
+    }
+
+    /**
      * Get the pose of an object detected by the camera.
      * @param currentPose The current pose of the robot.
      * @return The pose of the detected object, or an empty optional if no object was detected.
      */
     public Optional<Pose2d> getDetectedObjectPose(Pose2d currentPose) {
-        Optional<PhotonPipelineResult> latestResult = Cameras.OV9782_Colored_1.getLatestResult();
+        Optional<PhotonPipelineResult> latestResult = getLatestResult();
     
         if (latestResult.isPresent() && latestResult.get().hasTargets()) {
             PhotonTrackedTarget target = latestResult.get().getBestTarget();
     
             double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
-                Units.inchesToMeters(18),
-                Units.inchesToMeters(12.5),
-                Units.degreesToRadians(-15),
+                Units.inchesToMeters(35),
+                Units.inchesToMeters(2.25),
+                Units.degreesToRadians(-20),
                 Units.degreesToRadians(target.getPitch())
             );
 
             double objectYaw = target.getYaw();
-            double globalRotation = currentPose.getRotation().getDegrees() - objectYaw;
+            double globalRotation = (currentPose.getRotation().getDegrees() + 180) - objectYaw;
 
             double xTranslation = currentPose.getX() + (distanceToObject * Math.cos(Math.toRadians(globalRotation)));
             double yTranslation = currentPose.getY() + (distanceToObject * Math.sin(Math.toRadians(globalRotation)));
 
             Pose2d targetPose = new Pose2d(new Translation2d(xTranslation, yTranslation), Rotation2d.fromDegrees(globalRotation));
 
-            System.out.println("Distance: " + distanceToObject);
+            System.out.println("Target Pose: " + targetPose);
+            System.out.println("Target Distance: " + distanceToObject);
     
             return Optional.of(targetPose);
         }
@@ -255,26 +269,19 @@ public class VisionUtils {
 
     /** Camera Enum to select each camera. */
     enum Cameras {
-        OV9782_Colored_1("Arducam_OV9782_Colored_1",
+        OV9782_Colored_1("Arducam_OV9281_Monochrome",
                 new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(0)),
                 new Translation3d(Units.inchesToMeters(10),
                                   Units.inchesToMeters(-9),
-                                  Units.inchesToMeters(18)),
+                                  Units.inchesToMeters(19.5)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
         OV9782_Colored_2("Arducam_OV9782_Colored_2",
                 new Rotation3d(0, Units.degreesToRadians(15), 0),
                 new Translation3d(Units.inchesToMeters(10),
                                   Units.inchesToMeters(9),
-                                  Units.inchesToMeters(18)),
+                                  Units.inchesToMeters(19.5)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
-
-        // OV9281_Monochrome("Arducam_OV9281_Monochrome",
-        //         new Rotation3d(0, Units.degreesToRadians(15), 0),
-        //         new Translation3d(Units.inchesToMeters(10),
-        //                           Units.inchesToMeters(-9),
-        //                           Units.inchesToMeters(18)),
-        //         VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1));
 
         /** Latency alert to use when high latency is detected. */
         public final Alert latencyAlert;
