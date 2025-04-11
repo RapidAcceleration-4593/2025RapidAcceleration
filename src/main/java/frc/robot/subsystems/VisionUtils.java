@@ -65,7 +65,7 @@ public class VisionUtils {
         this.currentPose = currentPose;
         this.field2d = field;
 
-        objectDetectionCamera = new PhotonCamera("Arducam_OV9782_Colored_1");
+        objectDetectionCamera = new PhotonCamera("Arducam_OV9782_Colored_2");
 
         if (Robot.isSimulation()) {
             visionSim = new VisionSystemSim("Vision");
@@ -116,9 +116,9 @@ public class VisionUtils {
             PhotonTrackedTarget target = latestResult.get().getBestTarget();
     
             double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
-                Units.inchesToMeters(35),
+                Units.inchesToMeters(30),
                 Units.inchesToMeters(2.25),
-                Units.degreesToRadians(-20),
+                Units.degreesToRadians(-25),
                 Units.degreesToRadians(target.getPitch())
             );
 
@@ -128,7 +128,7 @@ public class VisionUtils {
             double xTranslation = currentPose.getX() + (distanceToObject * Math.cos(Math.toRadians(globalRotation)));
             double yTranslation = currentPose.getY() + (distanceToObject * Math.sin(Math.toRadians(globalRotation)));
 
-            Pose2d targetPose = new Pose2d(new Translation2d(xTranslation, yTranslation), Rotation2d.fromDegrees(globalRotation));
+            Pose2d targetPose = new Pose2d(new Translation2d(xTranslation, yTranslation), Rotation2d.fromDegrees(globalRotation).plus(Rotation2d.kPi));
 
             System.out.println("Target Pose: " + targetPose);
             System.out.println("Target Distance: " + distanceToObject);
@@ -276,7 +276,7 @@ public class VisionUtils {
                                   Units.inchesToMeters(19.5)),
                 VecBuilder.fill(4, 4, 8), VecBuilder.fill(0.5, 0.5, 1)),
 
-        OV9782_Colored_2("Arducam_OV9782_Colored_2",
+        OV9782_Colored_2("Arducam_OV9782_Colored_1",
                 new Rotation3d(0, Units.degreesToRadians(15), 0),
                 new Translation3d(Units.inchesToMeters(10),
                                   Units.inchesToMeters(9),
