@@ -30,8 +30,9 @@ import frc.robot.commands.auton.OneCoralAuton;
 import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
-import frc.robot.commands.climber.RunClimberCommand;
 import frc.robot.commands.elevator.ControlElevatorState;
+import frc.robot.commands.intake.RunIntakeCommand;
+import frc.robot.commands.intake.StoreCoralCommand;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleManualControl;
@@ -39,7 +40,7 @@ import frc.robot.commands.serializer.PickupCoralCommand;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.ClimberSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 import frc.robot.subsystems.SerializerSubsystem;
@@ -55,7 +56,7 @@ public class RobotContainer {
     public final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     public final ArmSubsystem armSubsystem = new ArmSubsystem();
     public final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
-    public final ClimberSubsystem climberSubsystem = new ClimberSubsystem();
+    public final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
 
     // Util(s)
     public final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem, serializerSubsystem);
@@ -137,9 +138,11 @@ public class RobotContainer {
         auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
         auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
 
-        // Climber Control.
-        driverController.povUp().whileTrue(new RunClimberCommand(climberSubsystem, false));
-        driverController.povDown().whileTrue(new RunClimberCommand(climberSubsystem, true));
+        // Intake Control.
+        driverController.povUp().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
+        driverController.povDown().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
+
+        driverController.povRight().whileTrue(new StoreCoralCommand(intakeSubsystem));
 
         // Manual Control.
         auxiliaryController.back().onTrue(new ToggleManualControl(elevatorSubsystem, armSubsystem));

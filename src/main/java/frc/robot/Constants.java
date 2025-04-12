@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import swervelib.math.Matter;
 
 public final class Constants {
@@ -77,10 +78,11 @@ public final class Constants {
         public static final double MAX_TIMEOUT = 1.75;
     }
 
-    public static final class ClimberConstants {
-        public static final SparkMax climberMotor = new SparkMax(4, MotorType.kBrushless);
+    public static final class IntakeConstants {
+        public static final SparkMax leftIntakeMotor = new SparkMax(2, MotorType.kBrushless);
+        public static final PWMSparkMax rightIntakeMotor = new PWMSparkMax(0);
         
-        public static final double CONTROL_SPEED = 1.0;
+        public static final double CONTROL_SPEED = 0.5;
     }
 
     public static final class AutonConstants {
