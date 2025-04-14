@@ -2,6 +2,7 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.Constants.IntakeConstants;
 
 public class RunIntakeCommand extends Command {
     
@@ -16,7 +17,10 @@ public class RunIntakeCommand extends Command {
 
     @Override
     public void execute() {
-        intakeSubsystem.runIntake(intakeReversed);
+        intakeSubsystem.setIntakeSpeed(
+            intakeReversed ? -IntakeConstants.INTAKE_SPEED : IntakeConstants.INTAKE_SPEED,
+            intakeReversed ? -IntakeConstants.INTAKE_SPEED : IntakeConstants.INTAKE_SPEED
+        );
     }
 
     @Override

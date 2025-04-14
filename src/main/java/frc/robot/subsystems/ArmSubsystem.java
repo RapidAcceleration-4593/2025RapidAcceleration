@@ -38,7 +38,7 @@ public class ArmSubsystem extends SubsystemBase {
     private final SparkMaxConfig config = new SparkMaxConfig();
 
     /**
-     * Returns if the elevator is solely in manual mode.
+     * Returns if the arm is solely in manual mode.
      * PID is completely disabled. Access only through {@link #isManualControlEnabled()}.
      */
     private boolean manualControlEnabled = false;
@@ -106,7 +106,7 @@ public class ArmSubsystem extends SubsystemBase {
     }
 
 
-    /** ----- Arm State system ----- */
+    /** ----- Arm State System ----- */
 
     /**
      * Controls arm movement based on limit switch inputs and encoder feedback.

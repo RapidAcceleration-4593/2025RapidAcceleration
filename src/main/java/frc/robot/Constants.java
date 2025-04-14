@@ -12,7 +12,6 @@ import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
-import edu.wpi.first.wpilibj.motorcontrol.PWMSparkMax;
 import swervelib.math.Matter;
 
 public final class Constants {
@@ -79,10 +78,21 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final SparkMax leftIntakeMotor = new SparkMax(2, MotorType.kBrushless);
-        public static final PWMSparkMax rightIntakeMotor = new PWMSparkMax(0);
+        public static final class IntakePIDConstants {
+            public static final PIDConstants INTAKE_PID = new PIDConstants(0.0, 0.0, 0.0);
+            public static final int TOLERANCE = 10;
+        }
+
+        public static final SparkMax innerIntakeMotor = new SparkMax(0, MotorType.kBrushless);
+        public static final SparkMax outerIntakeMotor = new SparkMax(0, MotorType.kBrushless);
+
+        public static final SparkMax leaderDeployMotor = new SparkMax(0, MotorType.kBrushless);
+        public static final SparkMax followerDeployMotor = new SparkMax(0, MotorType.kBrushless);
+
+        public static final Encoder intakeEncoder = new Encoder(0, 0);
         
-        public static final double CONTROL_SPEED = 0.5;
+        public static final double INTAKE_SPEED = 0.5;
+        public static final double DEPLOY_SPEED = 0.75;
     }
 
     public static final class AutonConstants {
@@ -120,6 +130,14 @@ public final class Constants {
 
         public enum StartingPosition {
             LEFT, CENTER, RIGHT
+        }
+
+        public enum IntakeStates {
+            IN, L1, OUT
+        }
+
+        public enum IntakeDirections {
+            UP, DOWN
         }
     }
 

@@ -4,12 +4,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 
-public class ToggleManualControl extends Command {
+public class ToggleArmivatorManualControl extends Command {
     
     private final ElevatorSubsystem elevatorSubsystem;
     private final ArmSubsystem armSubsystem;
 
-    public ToggleManualControl(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
+    public ToggleArmivatorManualControl(ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         this.elevatorSubsystem = elevatorSubsystem;
         this.armSubsystem = armSubsystem;
     }

@@ -2,24 +2,23 @@ package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.Constants.IntakeConstants;
 
-public class StoreCoralCommand extends Command {
+public class ControlIntakeState extends Command {
     
     private final IntakeSubsystem intakeSubsystem;
 
-    public StoreCoralCommand(IntakeSubsystem subsystem) {
+    public ControlIntakeState(IntakeSubsystem subsystem) {
         this.intakeSubsystem = subsystem;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
-        intakeSubsystem.setIntakeSpeed(IntakeConstants.INTAKE_SPEED, -IntakeConstants.INTAKE_SPEED);
+        intakeSubsystem.controlIntakeState();
     }
 
     @Override
-    public void end(boolean interrupted) {
-        intakeSubsystem.stopIntake();
+    public boolean isFinished() {
+        return false;
     }
 }
