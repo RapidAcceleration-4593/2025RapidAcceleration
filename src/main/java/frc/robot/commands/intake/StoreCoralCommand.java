@@ -15,7 +15,7 @@ public class StoreCoralCommand extends Command {
 
     @Override
     public void execute() {
-        intakeSubsystem.setIntakeSpeed(IntakeConstants.INTAKE_SPEED, -IntakeConstants.INTAKE_SPEED);
+        intakeSubsystem.setIntakeSpeed(-IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SPEED);
     }
 
     @Override

@@ -32,7 +32,6 @@ import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.elevator.ControlElevatorState;
-import frc.robot.commands.intake.ControlIntakeState;
 import frc.robot.commands.intake.RunIntakeCommand;
 import frc.robot.commands.intake.StoreCoralCommand;
 import frc.robot.commands.manual.ManualArmCommand;
@@ -98,7 +97,7 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
-        intakeSubsystem.setDefaultCommand(new ControlIntakeState(intakeSubsystem));
+        // intakeSubsystem.setDefaultCommand(new ControlIntakeState(intakeSubsystem));
     }
 
     private void configureBindings() {

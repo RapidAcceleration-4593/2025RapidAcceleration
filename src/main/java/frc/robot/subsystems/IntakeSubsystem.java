@@ -7,13 +7,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.wpilibj.Encoder;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakePIDConstants;
 import frc.robot.Constants.RobotStates.IntakeStates;
-
 
 public class IntakeSubsystem extends SubsystemBase {
 
@@ -23,8 +22,6 @@ public class IntakeSubsystem extends SubsystemBase {
     private final SparkMax leaderDeployMotor = IntakeConstants.leaderDeployMotor;
     private final SparkMax followerDeployMotor = IntakeConstants.followerDeployMotor;
 
-    private final Encoder intakeEncoder = IntakeConstants.intakeEncoder;
-
     private final PIDController intakePID = new PIDController(IntakePIDConstants.INTAKE_PID.kP,
                                                               IntakePIDConstants.INTAKE_PID.kI,
                                                               IntakePIDConstants.INTAKE_PID.kD);
@@ -33,6 +30,8 @@ public class IntakeSubsystem extends SubsystemBase {
 
     private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
+
+    private final Timer stallTimer = new Timer();
 
     /**
      * Returns if the elevator is solely in manual mode.
@@ -56,6 +55,7 @@ public class IntakeSubsystem extends SubsystemBase {
         followerDeployMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         intakePID.setTolerance(IntakePIDConstants.TOLERANCE);
+        resetEncoder();
     }
     
 
@@ -128,7 +128,15 @@ public class IntakeSubsystem extends SubsystemBase {
      * @return True if the motor is stalled, false otherwise.
      */
     private boolean isMotorStalled() {
-        return intakeEncoder.getRate() != leaderDeployMotor.get();
+        if (leaderDeployMotor.getOutputCurrent() >= IntakeConstants.STALL_CURRENT) {
+            stallTimer.start();
+            if (stallTimer.hasElapsed(0.5)) {
+                return true;
+            }
+        }
+        stallTimer.stop();
+        stallTimer.reset();
+        return false;
     }
 
     /**
@@ -136,7 +144,12 @@ public class IntakeSubsystem extends SubsystemBase {
      * @return The current encoder value of the intake.
      */
     public double getEncoderValue() {
-        return intakeEncoder.get();
+        // return leaderDeployMotor.getAlternateEncoder().getPosition();
+        return 0;
+    }
+
+    public void resetEncoder() {
+        // leaderDeployMotor.getAlternateEncoder().setPosition(0);
     }
 
      /**
@@ -171,9 +184,9 @@ public class IntakeSubsystem extends SubsystemBase {
      * @param outer The speed to set the outer intake motor to.
      * @param inner The speed to set the inner intake motor to.
      */
-    public void setIntakeSpeed(double outer, double inner) {
-        outerIntakeMotor.set(-outer);
+    public void setIntakeSpeed(double inner, double outer) {
         innerIntakeMotor.set(-inner);
+        outerIntakeMotor.set(outer);
     }
 
     /** Stops the deploy motors. */
@@ -206,5 +219,6 @@ public class IntakeSubsystem extends SubsystemBase {
     /** Updates values to SmartDashboard/ShuffleBoard. */
     private void updateValues() {
         SmartDashboard.putNumber("I-Encoder", getEncoderValue());
+        SmartDashboard.putBoolean("I-Stalled", isMotorStalled());
     }
 }
