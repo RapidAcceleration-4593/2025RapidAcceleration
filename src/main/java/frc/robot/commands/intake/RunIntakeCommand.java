@@ -18,8 +18,8 @@ public class RunIntakeCommand extends Command {
     @Override
     public void execute() {
         intakeSubsystem.setIntakeSpeed(
-            intakeReversed ? -IntakeConstants.INTAKE_SPEED : IntakeConstants.INTAKE_SPEED,
-            intakeReversed ? -IntakeConstants.INTAKE_SPEED : IntakeConstants.INTAKE_SPEED
+            intakeReversed ? -IntakeConstants.INTAKE_SPEED / 2 : IntakeConstants.INTAKE_SPEED,
+            intakeReversed ? -IntakeConstants.INTAKE_SPEED / 2 : IntakeConstants.INTAKE_SPEED
         );
     }
 

@@ -21,7 +21,7 @@ public class AdjustArmCommand extends Command {
 
     @Override
     public void execute() {
-        armSubsystem.controlArmState();
+        armSubsystem.controlStates();
     }
 
     @Override

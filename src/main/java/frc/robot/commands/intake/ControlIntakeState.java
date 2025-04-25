@@ -14,7 +14,7 @@ public class ControlIntakeState extends Command {
 
     @Override
     public void execute() {
-        intakeSubsystem.controlIntakeState();
+        intakeSubsystem.controlStates();
     }
 
     @Override

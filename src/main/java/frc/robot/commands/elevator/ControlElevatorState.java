@@ -14,7 +14,7 @@ public class ControlElevatorState extends Command {
     
     @Override
     public void execute() {
-        elevatorSubsystem.controlElevatorState();
+        elevatorSubsystem.controlStates();
     }
 
     @Override

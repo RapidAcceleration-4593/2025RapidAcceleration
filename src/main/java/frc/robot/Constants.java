@@ -34,7 +34,7 @@ public final class Constants {
             public static final double KAH_CHUNK = 0.4;
         }
 
-        public static final double CONTROL_SPEED = 0.6;
+        public static final double CONTROL_SPEED = 0.5;
 
         public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
         public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
@@ -60,7 +60,7 @@ public final class Constants {
         }
 
         public static final int PLACE_ROTATION_AMOUNT = 225; // Previously: 225.
-        public static final double CONTROL_SPEED = 1.0;
+        public static final double CONTROL_SPEED = 0.5;
 
         public static final SparkMax armMotor = new SparkMax(8, MotorType.kBrushless);
         public static final Encoder armEncoder = new Encoder(0, 1);
@@ -69,18 +69,13 @@ public final class Constants {
         public static final DigitalInput bottomLimitSwitch = new DigitalInput(3);
     }
 
-    public static final class SerializerConstants {
-        public static final SparkMax serializerMotor = new SparkMax(3, MotorType.kBrushless);
-        public static final DigitalInput serializerSensor = new DigitalInput(4);
-
-        public static final double CONTROL_SPEED = 0.4;
-        public static final double MAX_TIMEOUT = 1.75;
-    }
-
     public static final class IntakeConstants {
         public static final class IntakePIDConstants {
             public static final PIDConstants INTAKE_PID = new PIDConstants(0.0, 0.0, 0.0);
             public static final int TOLERANCE = 0;
+
+            public static final double MAX_VELOCITY = 0;
+            public static final double MAX_ACCELERATION = 0;
         }
 
         public static final SparkMax innerIntakeMotor = new SparkMax(7, MotorType.kBrushless);
@@ -90,9 +85,17 @@ public final class Constants {
         public static final SparkMax followerDeployMotor = new SparkMax(5, MotorType.kBrushless);
 
         public static final double INTAKE_SPEED = 0.5;
-        public static final double DEPLOY_SPEED = 0.5;
+        public static final double DEPLOY_SPEED = 0.25;
 
         public static final int STALL_CURRENT = 20;
+    }
+
+    public static final class SerializerConstants {
+        public static final SparkMax serializerMotor = new SparkMax(3, MotorType.kBrushless);
+        public static final DigitalInput serializerSensor = new DigitalInput(4);
+
+        public static final double CONTROL_SPEED = 0.4;
+        public static final double MAX_TIMEOUT = 1.75;
     }
 
     public static final class AutonConstants {

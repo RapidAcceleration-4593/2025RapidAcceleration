@@ -17,12 +17,12 @@ public class SetArmState extends Command {
 
     @Override
     public void initialize() {
-        armSubsystem.setArmState(armState);
+        armSubsystem.setControlState(armState);
     }
 
     @Override
     public void execute() {
-        armSubsystem.controlArmState();
+        armSubsystem.controlStates();
     }
 
     @Override

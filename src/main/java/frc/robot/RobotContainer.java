@@ -24,6 +24,7 @@ import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.ArmivatorCommands;
+import frc.robot.commands.armivator.PickupCoralCommand;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
@@ -39,7 +40,6 @@ import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ManualIntakeCommand;
 import frc.robot.commands.manual.ToggleArmivatorManualControl;
 import frc.robot.commands.manual.ToggleIntakeManualControl;
-import frc.robot.commands.serializer.PickupCoralCommand;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
@@ -113,19 +113,28 @@ public class RobotContainer {
                 driveToPoseCommand.cancel();
             }));
 
-        driverController.a()
-            .whileTrue(Commands.runOnce(() -> {
-                driveToPoseCommand = drivebase.driveToDetectedObject();
-                driveToPoseCommand.schedule();
-            }))
-            .onFalse(Commands.runOnce(() -> {
-                driveToPoseCommand.cancel();
-            }));
+        // driverController.a()
+        //     .whileTrue(Commands.runOnce(() -> {
+        //         driveToPoseCommand = drivebase.driveToDetectedObject();
+        //         driveToPoseCommand.schedule();
+        //     }))
+        //     .onFalse(Commands.runOnce(() -> {
+        //         driveToPoseCommand.cancel();
+        //     }));
+
+        // driverController.x()
+        //     .whileTrue(Commands.runOnce(() -> {
+        //         driveToPoseCommand = drivebase.driveToPose(poseNavigator.calculateClosestReefPose(), AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION);
+        //         driveToPoseCommand.schedule();
+        //     }))
+        //     .onFalse(Commands.runOnce(() -> {
+        //         driveToPoseCommand.cancel();
+        //     }));
 
         // Armivator Control.
         driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
-        driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem));
+        driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem, intakeSubsystem));
         driverController.rightBumper().onTrue(poseNavigator.handleDashboardArmivatorState());
 
         driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
