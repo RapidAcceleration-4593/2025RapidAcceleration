@@ -15,14 +15,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ArmDirections;
-import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.Constants.RobotStates.ElevatorDirections;
-import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.Constants.RobotStates.IntakeDirections;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
-import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.armivator.HandleDashboardState;
 import frc.robot.commands.armivator.PickupCoralCommand;
@@ -33,7 +30,6 @@ import frc.robot.commands.auton.OneCoralAuton;
 import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
-import frc.robot.commands.drivebase.DriveToClosestReef;
 import frc.robot.commands.drivebase.DriveToDashboardPose;
 import frc.robot.commands.drivebase.DriveToDetectedObject;
 import frc.robot.commands.elevator.ControlElevatorState;
@@ -44,12 +40,11 @@ import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ManualIntakeCommand;
 import frc.robot.commands.manual.ToggleArmivatorManualControl;
 import frc.robot.commands.manual.ToggleIntakeManualControl;
-import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.SwerveSubsystem;
+import frc.robot.subsystems.utils.PoseNavigator;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
-import frc.robot.subsystems.PoseNavigator;
 import frc.robot.subsystems.SerializerSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -102,39 +97,45 @@ public class RobotContainer {
     }
 
     private void configureBindings() {
-        driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
+        driverController.start().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
-        // Autonomous Navigation.
+        /* --- Autonomous Navigation --- */
         driverController.leftTrigger().whileTrue(new DriveToDashboardPose(drivebase, poseNavigator));
         driverController.a().whileTrue(new DriveToDetectedObject(drivebase));
-        driverController.b().whileTrue(new DriveToClosestReef(drivebase, poseNavigator));
+        driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
 
-        // Armivator Control.
+
+        /* --- Armivator Control --- */
         driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem, intakeSubsystem));
         driverController.rightBumper().onTrue(new HandleDashboardState(armivatorCommands, poseNavigator));
 
-        driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
+        // auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
+        // auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
+        // auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
+        // auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
-        auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
-        auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
-        auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
-        auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
-        // Serializer Control.
-        auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false, false));
-        auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true, false));
+        /* --- Intake Control --- */
+        auxiliaryController.leftTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
+        auxiliaryController.rightTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
 
-        // Intake Control.
-        driverController.povRight().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
-        driverController.povLeft().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
+        // auxiliaryController.povUp().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.IN));
+        // auxiliaryController.povRight().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.L1));
+        // auxiliaryController.povDown().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.OUT));
 
-        driverController.y().whileTrue(new StoreCoralCommand(intakeSubsystem));
+        auxiliaryController.leftBumper().whileTrue(new StoreCoralCommand(intakeSubsystem));
 
-        // Manual Control.
-        auxiliaryController.back().onTrue(new ToggleArmivatorManualControl(elevatorSubsystem, armSubsystem));
+
+        /* --- Serializer Control --- */
+        // auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false, false));
+        // auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true, false));
+
+
+        /* --- Manual Control --- */
         auxiliaryController.start().onTrue(new ToggleIntakeManualControl(intakeSubsystem));
+        auxiliaryController.back().onTrue(new ToggleArmivatorManualControl(elevatorSubsystem, armSubsystem));
 
         auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.UP));
         auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.DOWN));

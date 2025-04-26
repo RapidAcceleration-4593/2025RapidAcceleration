@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPIDConstants;
 import frc.robot.Constants.RobotStates.ArmStates;
-import frc.robot.subsystems.control.ControlSubsystem;
+import frc.robot.subsystems.utils.ControlSubsystem;
 
 public class ArmSubsystem extends ControlSubsystem<ArmStates> {
 

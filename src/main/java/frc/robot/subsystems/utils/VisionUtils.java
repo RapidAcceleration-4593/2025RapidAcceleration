@@ -1,4 +1,4 @@
-package frc.robot.subsystems;
+package frc.robot.subsystems.utils;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -52,9 +52,9 @@ public class VisionUtils {
     private Supplier<Pose2d> currentPose;
 
     /** Field from {@link swervelib.SwerveDrive#field} */
-    private Field2d field2d;
+    private final Field2d field2d;
 
-    private PhotonCamera objectDetectionCamera;
+    private final PhotonCamera objectDetectionCamera;
 
     /**
      * Constructor for the VisionUtils class.

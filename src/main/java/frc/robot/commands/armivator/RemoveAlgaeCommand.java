@@ -7,7 +7,7 @@ import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.drivebase.DriveToClosestReef;
 import frc.robot.commands.drivebase.DriveToDistance;
 import frc.robot.subsystems.SwerveSubsystem;
-import frc.robot.subsystems.PoseNavigator;
+import frc.robot.subsystems.utils.PoseNavigator;
 
 public class RemoveAlgaeCommand extends SequentialCommandGroup {
     

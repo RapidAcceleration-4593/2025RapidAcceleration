@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakePIDConstants;
 import frc.robot.Constants.RobotStates.IntakeStates;
-import frc.robot.subsystems.control.ControlSubsystem;
+import frc.robot.subsystems.utils.ControlSubsystem;
 
 public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     

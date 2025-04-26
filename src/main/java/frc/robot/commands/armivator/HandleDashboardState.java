@@ -4,7 +4,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.ElevatorStates;
-import frc.robot.subsystems.PoseNavigator;
+import frc.robot.subsystems.utils.PoseNavigator;
 
 public class HandleDashboardState extends Command {
 

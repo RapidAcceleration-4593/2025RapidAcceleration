@@ -12,7 +12,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.RobotStates.ElevatorStates;
-import frc.robot.subsystems.control.ControlSubsystem;
+import frc.robot.subsystems.utils.ControlSubsystem;
 
 public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
     
