@@ -11,7 +11,6 @@ import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPIDConstants;
 import frc.robot.Constants.RobotStates.ArmStates;
@@ -61,10 +60,6 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
 
     @Override
     public ArmStates getCurrentState() {
-        if (Robot.isSimulation()) {
-            return currentState;
-        }
-
         if (getEncoderValue() <= SETPOINTS[0] + 100) {
             return ArmStates.BOTTOM;
         } else if (getEncoderValue() <= SETPOINTS[1] + 100) {
@@ -93,40 +88,68 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
         }
     }
 
+    /**
+     * Handles the logic when the top limit switch is pressed.
+     * <ol>
+     * <li>Stops the motors if the setpoint is greater than the encoder value.</li>
+     * <li>Sets the setpoint to the encoder value.</li>
+     * </ol>
+     */
     private void handleTopLimitSwitchPressed() {
         if (getSetpoint() >= getEncoderValue()) {
             stopMotors();
             setSetpoint(getEncoderValue());
-            // resetSetpoint(getEncoderValue());
         } else {
             controlOutput();
         }
     }
 
+    /**
+     * Handles the logic when the bottom limit switch is pressed.
+     * <ol>
+     * <li>Resets the encoder.</li>
+     * <li>Stops the motors if the setpoint is less than zero.</li>
+     * <li>Sets the setpoint to zero.</li>
+     * </ol>
+     */
     private void handleBottomLimitSwitchPressed() {
         resetEncoder();
                     
         if (getSetpoint() <= 0) {
             stopMotors();
             setSetpoint(0);
-            // resetSetpoint(0);
         } else {
             controlOutput();
         }
     }
 
+    /**
+     * Checks if the top limit switch is pressed.
+     * @return Whether the top limit switch is pressed.
+     */
     public boolean isTopLimitSwitchPressed() {
         return !topLimitSwitch.get();
     }
 
+    /**
+     * Checks if the bottom limit switch is pressed.
+     * @return Whether the bottom limit switch is pressed.
+     */
     public boolean isBottomLimitSwitchPressed() {
         return !bottomLimitSwitch.get();
     }
 
+    /**
+     * Sets the motor speeds for the arm.
+     * @param speed The speed of the arm motor.
+     */
     public void setMotorSpeeds(double speed) {
         motor.set(speed);
     }
 
+    /**
+     * Stops the arm motors.
+     */
     public void stopMotors() {
         motor.stopMotor();
     }

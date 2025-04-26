@@ -22,14 +22,25 @@ public class SerializerSubsystem extends SubsystemBase {
         motor.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     }
 
+    /**
+     * Sets the motor speeds for the serializer.
+     * @param speed The speed of the serializer motor.
+     */
     public void setMotorSpeeds(boolean reversed) {
         motor.set(reversed ? SerializerConstants.CONTROL_SPEED : -SerializerConstants.CONTROL_SPEED);
     }
 
+    /**
+     * Stops the intake deploy motors.
+     */
     public void stopMotors() {
         motor.stopMotor();
     }
 
+    /**
+     * Distance sensor to detect if coral is present.
+     * @return Whether the coral is detected.
+     */
     public boolean isCoralDetected() {
         return !sensor.get();
     }

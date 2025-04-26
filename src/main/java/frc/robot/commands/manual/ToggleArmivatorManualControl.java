@@ -19,8 +19,8 @@ public class ToggleArmivatorManualControl extends Command {
         elevatorSubsystem.setManualControl(!elevatorSubsystem.isManualControlEnabled());
         armSubsystem.setManualControl(!armSubsystem.isManualControlEnabled());
 
-        elevatorSubsystem.resetSetpoint(elevatorSubsystem.getEncoderValue());
-        armSubsystem.resetSetpoint(armSubsystem.getEncoderValue());
+        elevatorSubsystem.setSetpoint(elevatorSubsystem.getEncoderValue());
+        armSubsystem.setSetpoint(armSubsystem.getEncoderValue());
     }
 
     @Override

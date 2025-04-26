@@ -46,7 +46,7 @@ public class PoseNavigator extends SubsystemBase {
         this.drivebase = drivebase;
 
         dashboardNotifier = new Notifier(this::updateDashboard);
-        dashboardNotifier.startPeriodic(0.2); // Run periodically, 200ms.
+        dashboardNotifier.startPeriodic(0.2);
     }
 
     /**
@@ -66,18 +66,14 @@ public class PoseNavigator extends SubsystemBase {
     public Pose2d calculateReefPose(int targetID, double distance) {
         List<Pose2d> poses = new ArrayList<>();
 
-        // Start with tag 18, then proceed in counterclockwise order (18 -> 17 -> 22 -> 21 -> 20 -> 19).
         int[] tagOrder = {18, 17, 22, 21, 20, 19};
 
-        // Iterate through each AprilTag in order.
         for (int tagID : tagOrder) {
             aprilTagFieldLayout.getTagPose(tagID).ifPresent(tagPose3d -> {
                 Pose2d tagPose = tagPose3d.toPose2d();
                 Rotation2d tagRotation = tagPose.getRotation();
 
-                // Iterate over the branch offsets (-1 for left, +1 for right).
                 for (double offset : new double[]{-1, 1}) {
-                    // Calculate the branch translation and extrusion from face.
                     Translation2d branchTranslation = tagPose.getTranslation()
                         .plus(new Translation2d(offset * DashboardAlignment.BRANCH_OFFSET, 
                                                 tagRotation.plus(Rotation2d.fromDegrees(90))));
@@ -85,13 +81,11 @@ public class PoseNavigator extends SubsystemBase {
                     Translation2d extrudedTranslation = branchTranslation
                         .plus(new Translation2d(distance + extraDistance, tagRotation));
 
-                    // Add the extruded pose to the Pose2d List.
                     poses.add(new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180))));
                 }
             });
         }
 
-        // Retrieve the requested pose and flip if on red alliance.
         Pose2d finalPose = poses.get(targetID - 1);
         return drivebase.isRedAlliance() ? FlippingUtil.flipFieldPose(finalPose) : finalPose;
     }
@@ -105,7 +99,6 @@ public class PoseNavigator extends SubsystemBase {
             .map(tagPose -> {
                 Pose2d adjustedPose = tagPose.toPose2d().plus(new Transform2d(0, -0.0508, new Rotation2d()));
 
-                // Extrude the target pose straight off the face of the tag.
                 Rotation2d tagRotation = adjustedPose.getRotation();
                 Translation2d extrudedTranslation = adjustedPose.getTranslation()
                     .plus(new Translation2d(DashboardAlignment.DISTANCE_AT_REEF, tagRotation));
@@ -124,7 +117,6 @@ public class PoseNavigator extends SubsystemBase {
         double minDistance = Double.MAX_VALUE;
         boolean isRedAlliance = drivebase.isRedAlliance();
 
-        // Determine which tags to search based on alliance.
         int startTag = isRedAlliance ? 6 : 17;
         int endTag = isRedAlliance ? 11 : 22;
 

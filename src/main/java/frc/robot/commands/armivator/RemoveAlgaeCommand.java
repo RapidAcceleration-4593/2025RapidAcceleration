@@ -24,7 +24,7 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                 new DriveToClosestReef(drivebase, poseNavigator)
             ),
             armivatorCommands.adjustArmSetpoint(230).withTimeout(0.5),
-            new DriveToDistance(drivebase, -0.75)
+            new DriveToDistance(drivebase, -0.75).withTimeout(0.8)
         );
     }
 }

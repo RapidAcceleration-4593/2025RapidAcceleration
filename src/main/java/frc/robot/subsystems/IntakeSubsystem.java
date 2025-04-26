@@ -8,7 +8,6 @@ import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakePIDConstants;
@@ -24,8 +23,6 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     private final SparkMax outerIntakeMotor = IntakeConstants.outerIntakeMotor;
 
     private static final double[] SETPOINTS = {0, 1000, 3200};
-
-    private final Timer stallTimer = new Timer();
 
     private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig coastConfig = new SparkMaxConfig();
@@ -76,7 +73,13 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
 
     @Override
     public IntakeStates getCurrentState() {
-        return currentState;
+        if (getEncoderValue() <= SETPOINTS[0] + 500) {
+            return IntakeStates.IN;
+        } else if (getEncoderValue() <= SETPOINTS[1] + 500) {
+            return IntakeStates.L1;
+        } else {
+            return IntakeStates.OUT;
+        }
     }
 
     @Override
@@ -87,40 +90,56 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
             return;
         }
 
-        if (isMotorStalled()) {
+        if (shouldCoast()) {
             stopMotors();
-            setSetpoint(getEncoderValue());
         } else {
             controlOutput();
         }
     }
 
-    private boolean isMotorStalled() {
-        if (leaderDeployMotor.getOutputCurrent() < IntakeConstants.STALL_CURRENT) {
-            stallTimer.reset();
-            return false;
-        }
-
-        if (!stallTimer.isRunning()) {
-            stallTimer.start();
-        }
-
-        return stallTimer.hasElapsed(0.5);
+    @Override
+    public void controlOutput() {
+        double output = controller.calculate(getEncoderValue(), getSetpoint());
+        setMotorSpeeds(output);
     }
 
+    /**
+     * Checks if the current state is IN or OUT.
+     * @return Whether the intake deployment motors should coast to the setpoint.
+     */
+    private boolean shouldCoast() {
+        return (getCurrentState() == IntakeStates.IN) ||
+               (getCurrentState() == IntakeStates.OUT);
+    }
+
+    /**
+     * Sets the motor speeds for the intake deployment.
+     * @param speed The speed of the deploy intake motors.
+     */
     public void setMotorSpeeds(double speed) {
         leaderDeployMotor.set(-speed);
     }
 
+    /**
+     * Stops the intake deploy motors.
+     */
+    public void stopMotors() {
+        leaderDeployMotor.stopMotor();
+    }
+
+    /**
+     * Sets the speed of the intake motors.
+     * @param inner The speed of the inner intake motor.
+     * @param outer The speed of the outer intake motor.
+     */
     public void setIntakeSpeed(double inner, double outer) {
         innerIntakeMotor.set(-inner);
         outerIntakeMotor.set(outer);
     }
 
-    public void stopMotors() {
-        leaderDeployMotor.stopMotor();
-    }
-
+    /**
+     * Stops the intake motors.
+     */
     public void stopIntake() {
         innerIntakeMotor.stopMotor();
         outerIntakeMotor.stopMotor();
@@ -139,6 +158,5 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     @Override
     protected void updateValues() {
         SmartDashboard.putNumber("I-Encoder", getEncoderValue());
-        SmartDashboard.putBoolean("I-Stalled", isMotorStalled());
     }
 }

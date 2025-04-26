@@ -45,7 +45,7 @@ public class AutonUtils {
      * @return A Deferred Command to drive backward from the current pose.
      */
     public Command driveBackward() {
-        return new DriveToDistance(drivebase, -0.75);
+        return new DriveToDistance(drivebase, -0.75).withTimeout(0.8);
     }
 
     /**

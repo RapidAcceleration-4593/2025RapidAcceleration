@@ -54,6 +54,7 @@ public class VisionUtils {
     /** Field from {@link swervelib.SwerveDrive#field} */
     private final Field2d field2d;
 
+    /** Camera for object detection. */
     private final PhotonCamera objectDetectionCamera;
 
     /**
@@ -138,7 +139,7 @@ public class VisionUtils {
     
         return Optional.empty();
     }
-    
+
     /**
      * Update the pose estimation inside of {@link SwerveDrive} with all of the given poses.
      * @param swerveDrive {@link SwerveDrive} instance.
