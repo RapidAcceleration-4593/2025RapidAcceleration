@@ -71,21 +71,10 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
         }
 
         if (isMotorStalled()) {
-            stopDeploy();
+            stopMotors();
             setSetpoint(getEncoderValue());
         } else {
             controlOutput();
-        }
-    }
-
-    @Override
-    public void controlOutput() {
-        double output = controller.calculate(getEncoderValue());
-
-        if (atSetpoint()) {
-            stopDeploy();
-        } else {
-            setDeploySpeed(output);
         }
     }
 
@@ -100,7 +89,7 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
         return stallTimer.hasElapsed(0.5);
     }
 
-    public void setDeploySpeed(double speed) {
+    public void setMotorSpeeds(double speed) {
         leaderDeployMotor.set(speed);
     }
 
@@ -109,7 +98,7 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
         outerIntakeMotor.set(outer);
     }
 
-    public void stopDeploy() {
+    public void stopMotors() {
         leaderDeployMotor.stopMotor();
     }
 

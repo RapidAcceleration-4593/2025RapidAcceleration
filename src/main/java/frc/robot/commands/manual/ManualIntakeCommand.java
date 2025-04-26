@@ -26,12 +26,12 @@ public class ManualIntakeCommand extends Command {
             ? IntakeConstants.DEPLOY_SPEED
             : -IntakeConstants.DEPLOY_SPEED;
 
-        intakeSubsystem.setDeploySpeed(speed);
+        intakeSubsystem.setMotorSpeeds(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
-        intakeSubsystem.stopDeploy();
+        intakeSubsystem.stopMotors();
     }
 
     @Override

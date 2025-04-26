@@ -29,7 +29,9 @@ public abstract class ControlSubsystem<ControlStates extends Enum<ControlStates>
     public abstract ControlStates getCurrentState();
 
     public abstract void controlStates();
-    public abstract void controlOutput();
+
+    public abstract void stopMotors();
+    public abstract void setMotorSpeeds(double speed);
 
     public abstract double getEncoderValue();
     public abstract void resetEncoder();
@@ -39,6 +41,16 @@ public abstract class ControlSubsystem<ControlStates extends Enum<ControlStates>
     public void setControlState(ControlStates state) {
         this.currentState = state;
         setSetpoint(getStateSetpoint(state));
+    }
+
+    public void controlOutput() {
+        double output = controller.calculate(getEncoderValue(), getSetpoint());
+    
+        if (atSetpoint()) {
+            stopMotors();
+        } else {
+            setMotorSpeeds(output);
+        }
     }
     
     public void setSetpoint(double setpoint) {

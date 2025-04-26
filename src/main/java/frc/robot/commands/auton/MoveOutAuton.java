@@ -17,8 +17,8 @@ import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 
 public class MoveOutAuton extends AutonCommand {
-    private AutonUtils utils;
 
+    private final AutonUtils utils;
     private final List<PathPlannerPath> paths;
 
     public MoveOutAuton(AutonUtils utils, StartingPosition position) {

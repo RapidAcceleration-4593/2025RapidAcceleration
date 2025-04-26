@@ -11,6 +11,7 @@ import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.commands.auton.utils.AutonCommand;
 
 public class NoneAuton extends AutonCommand {
+    
     public NoneAuton() {
         addCommands(Commands.none());
     }

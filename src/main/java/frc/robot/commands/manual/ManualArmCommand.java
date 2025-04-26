@@ -27,7 +27,7 @@ public class ManualArmCommand extends Command {
         }
 
         if (isLimitSwitchPressed()) {
-            armSubsystem.stopMotor();
+            armSubsystem.stopMotors();
             return;
         }
 
@@ -35,12 +35,12 @@ public class ManualArmCommand extends Command {
             ? ArmConstants.CONTROL_SPEED
             : -ArmConstants.CONTROL_SPEED;
 
-        armSubsystem.setMotorSpeed(speed);
+        armSubsystem.setMotorSpeeds(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
-        armSubsystem.stopMotor();
+        armSubsystem.stopMotors();
     }
 
     @Override

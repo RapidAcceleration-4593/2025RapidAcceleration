@@ -86,17 +86,6 @@ public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
         }
     }
 
-    @Override
-    public void controlOutput() {
-        double output = controller.calculate(getEncoderValue(), getSetpoint());
-
-        if (atSetpoint()) {
-            stopMotors();
-        } else {
-            setMotorSpeeds(output);
-        }
-    }
-
     private void handleTopLimitSwitchPressed() {
         if (getSetpoint() >= getEncoderValue()) {
             stopMotors();

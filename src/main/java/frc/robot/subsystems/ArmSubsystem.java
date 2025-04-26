@@ -73,7 +73,7 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
         }
 
         if (isTopLimitSwitchPressed() && isBottomLimitSwitchPressed()) {
-            stopMotor();
+            stopMotors();
         } else if (isTopLimitSwitchPressed()) {
             handleTopLimitSwitchPressed();
         } else if (isBottomLimitSwitchPressed()) {
@@ -83,20 +83,9 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
         }
     }
 
-    @Override
-    public void controlOutput() {
-        double output = controller.calculate(getEncoderValue(), getSetpoint());
-        
-        if (atSetpoint()) {
-            stopMotor();
-        } else {
-            setMotorSpeed(output);
-        }
-    }
-
     private void handleTopLimitSwitchPressed() {
         if (getSetpoint() >= getEncoderValue()) {
-            stopMotor();
+            stopMotors();
             resetSetpoint(getEncoderValue());
         } else {
             controlOutput();
@@ -107,7 +96,7 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
         resetEncoder();
                     
         if (getSetpoint() <= 0) {
-            stopMotor();
+            stopMotors();
             resetSetpoint(0);
         } else {
             controlOutput();
@@ -122,11 +111,11 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
         return !bottomLimitSwitch.get();
     }
 
-    public void setMotorSpeed(double speed) {
+    public void setMotorSpeeds(double speed) {
         motor.set(speed);
     }
 
-    public void stopMotor() {
+    public void stopMotors() {
         motor.stopMotor();
     }
 

@@ -31,6 +31,6 @@ public class AdjustArmCommand extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        armSubsystem.stopMotor();
+        armSubsystem.stopMotors();
     }
 }

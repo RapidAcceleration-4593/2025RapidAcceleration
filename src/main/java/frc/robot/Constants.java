@@ -59,7 +59,7 @@ public final class Constants {
             public static final double SCORE = 0.4;
         }
 
-        public static final int PLACE_ROTATION_AMOUNT = 225; // Previously: 225.
+        public static final int PLACE_ROTATION_AMOUNT = 225;
         public static final double CONTROL_SPEED = 0.5;
 
         public static final SparkMax armMotor = new SparkMax(8, MotorType.kBrushless);
@@ -85,6 +85,7 @@ public final class Constants {
         public static final SparkMax followerDeployMotor = new SparkMax(5, MotorType.kBrushless);
 
         public static final double INTAKE_SPEED = 0.5;
+        public static final double OUTTAKE_SPEED = 0.25;
         public static final double DEPLOY_SPEED = 0.25;
 
         public static final int STALL_CURRENT = 20;

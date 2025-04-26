@@ -7,19 +7,19 @@ import frc.robot.Constants.IntakeConstants;
 public class RunIntakeCommand extends Command {
     
     private final IntakeSubsystem intakeSubsystem;
-    private final boolean intakeReversed;
+    private final boolean isInverted;
 
-    public RunIntakeCommand(IntakeSubsystem subsystem, boolean reversed) {
+    public RunIntakeCommand(IntakeSubsystem subsystem, boolean isInverted) {
         this.intakeSubsystem = subsystem;
-        this.intakeReversed = reversed;
+        this.isInverted = isInverted;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
         intakeSubsystem.setIntakeSpeed(
-            intakeReversed ? -IntakeConstants.INTAKE_SPEED / 2 : IntakeConstants.INTAKE_SPEED,
-            intakeReversed ? -IntakeConstants.INTAKE_SPEED / 2 : IntakeConstants.INTAKE_SPEED
+            isInverted ? -IntakeConstants.OUTTAKE_SPEED : IntakeConstants.INTAKE_SPEED,
+            isInverted ? -IntakeConstants.OUTTAKE_SPEED : IntakeConstants.INTAKE_SPEED
         );
     }
 
