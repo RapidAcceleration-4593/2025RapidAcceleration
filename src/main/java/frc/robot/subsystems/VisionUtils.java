@@ -123,7 +123,7 @@ public class VisionUtils {
             );
 
             double objectYaw = target.getYaw();
-            double globalRotation = (currentPose.getRotation().getDegrees() + 180) - objectYaw;
+            double globalRotation = currentPose.getRotation().getDegrees() + 180 - objectYaw;
 
             double xTranslation = currentPose.getX() + (distanceToObject * Math.cos(Math.toRadians(globalRotation)));
             double yTranslation = currentPose.getY() + (distanceToObject * Math.sin(Math.toRadians(globalRotation)));

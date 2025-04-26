@@ -48,7 +48,7 @@ public class MoveOutAuton extends AutonCommand {
 
     @Override
     public List<Pose2d> getAllPathPoses() {
-        return paths.subList(0, 0).stream()
+        return paths.stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
             .collect(Collectors.toList());

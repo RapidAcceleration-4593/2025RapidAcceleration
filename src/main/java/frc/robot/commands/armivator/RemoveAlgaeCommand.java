@@ -1,12 +1,11 @@
 package frc.robot.commands.armivator;
 
-import java.util.Set;
-
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.ElevatorStates;
+import frc.robot.commands.drivebase.DriveToClosestReef;
+import frc.robot.commands.drivebase.DriveToDistance;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.PoseNavigator;
 
@@ -22,13 +21,10 @@ public class RemoveAlgaeCommand extends SequentialCommandGroup {
                     armivatorCommands.adjustArmSetpoint(-210).withTimeout(0.5),
                     poseNavigator::isHighAlgae
                 ),
-                Commands.defer(
-                    () -> drivebase.driveToPose(poseNavigator.calculateClosestReefPose(), AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION),
-                    Set.of(drivebase)
-                )
+                new DriveToClosestReef(drivebase, poseNavigator)
             ),
             armivatorCommands.adjustArmSetpoint(230).withTimeout(0.5),
-            drivebase.driveToDistance(-0.75, 2.5, 2.0)
+            new DriveToDistance(drivebase, -0.75)
         );
     }
 }

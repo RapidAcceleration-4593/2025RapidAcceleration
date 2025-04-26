@@ -9,10 +9,10 @@ public class RunIntakeCommand extends Command {
     private final IntakeSubsystem intakeSubsystem;
     private final boolean isInverted;
 
-    public RunIntakeCommand(IntakeSubsystem subsystem, boolean isInverted) {
-        this.intakeSubsystem = subsystem;
+    public RunIntakeCommand(IntakeSubsystem intake, boolean isInverted) {
+        this.intakeSubsystem = intake;
         this.isInverted = isInverted;
-        addRequirements(subsystem);
+        addRequirements(intake);
     }
 
     @Override

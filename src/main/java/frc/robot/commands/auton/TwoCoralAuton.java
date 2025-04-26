@@ -2,7 +2,6 @@ package frc.robot.commands.auton;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -67,19 +66,34 @@ public class TwoCoralAuton extends AutonCommand {
 
     @Override
     protected List<PathPlannerPath> getAutonPaths(StartingPosition position) {
-        return Map.of(
-            StartingPosition.LEFT, List.of(
+        return switch (position) {
+            case LEFT -> List.of(
                 utils.loadPath("LeftCoral-1"),
                 utils.loadPath("LeftCoral-2"),
                 utils.loadPath("LeftCoral-3")
-            ),
-            StartingPosition.CENTER, List.<PathPlannerPath>of(),
-            StartingPosition.RIGHT, List.of(
+            );
+            case CENTER -> List.of();
+            case RIGHT -> List.of(
                 utils.loadPath("RightCoral-1"),
                 utils.loadPath("RightCoral-2"),
                 utils.loadPath("RightCoral-3")
-            )
-        ).getOrDefault(position, List.<PathPlannerPath>of());
+            );
+        };
+
+
+        // return Map.of(
+        //     StartingPosition.LEFT, List.of(
+        //         utils.loadPath("LeftCoral-1"),
+        //         utils.loadPath("LeftCoral-2"),
+        //         utils.loadPath("LeftCoral-3")
+        //     ),
+        //     StartingPosition.CENTER, List.<PathPlannerPath>of(),
+        //     StartingPosition.RIGHT, List.of(
+        //         utils.loadPath("RightCoral-1"),
+        //         utils.loadPath("RightCoral-2"),
+        //         utils.loadPath("RightCoral-3")
+        //     )
+        // ).getOrDefault(position, List.<PathPlannerPath>of());
     } 
 
     @Override

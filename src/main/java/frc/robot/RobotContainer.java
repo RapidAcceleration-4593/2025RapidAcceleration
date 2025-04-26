@@ -24,6 +24,7 @@ import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
 import frc.robot.commands.armivator.SetArmivatorState;
 import frc.robot.commands.armivator.ArmivatorCommands;
+import frc.robot.commands.armivator.HandleDashboardState;
 import frc.robot.commands.armivator.PickupCoralCommand;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
 import frc.robot.commands.auton.MoveOutAuton;
@@ -32,6 +33,9 @@ import frc.robot.commands.auton.OneCoralAuton;
 import frc.robot.commands.auton.TwoHalfCoralAuton;
 import frc.robot.commands.auton.TwoCoralAuton;
 import frc.robot.commands.auton.utils.AutonUtils;
+import frc.robot.commands.drivebase.DriveToClosestReef;
+import frc.robot.commands.drivebase.DriveToDashboardPose;
+import frc.robot.commands.drivebase.DriveToDetectedObject;
 import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.intake.RunIntakeCommand;
 import frc.robot.commands.intake.StoreCoralCommand;
@@ -64,14 +68,11 @@ public class RobotContainer {
     // Util(s)
     private final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem, serializerSubsystem);
     private final AutonUtils autonUtils = new AutonUtils(drivebase);
-    private final PoseNavigator poseNavigator = new PoseNavigator(armivatorCommands, drivebase);
+    private final PoseNavigator poseNavigator = new PoseNavigator(drivebase, armivatorCommands);
 
     // Controller(s)
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
     private final CommandXboxController auxiliaryController = new CommandXboxController(OperatorConstants.AUXILIARY_CONTROLLER_PORT);
-
-    /** DriveToPoseCommand for Acceleration Station Dashboard. */
-    private Command driveToPoseCommand = Commands.none();
 
     /** Converts driver input into a field-relative ChassisSpeeds that is controller by angular velocity. */
     SwerveInputStream driveAngularVelocity = SwerveInputStream.of(drivebase.getSwerveDrive(),
@@ -103,39 +104,16 @@ public class RobotContainer {
     private void configureBindings() {
         driverController.back().onTrue(Commands.runOnce(drivebase::zeroGyro));
 
-        // Autonomous Drive Control.
-        driverController.leftTrigger()
-            .whileTrue(Commands.runOnce(() -> {
-                driveToPoseCommand = poseNavigator.handleDashboardPoseState();
-                driveToPoseCommand.schedule();
-            }))
-            .onFalse(Commands.runOnce(() -> {
-                driveToPoseCommand.cancel();
-            }));
-
-        // driverController.a()
-        //     .whileTrue(Commands.runOnce(() -> {
-        //         driveToPoseCommand = drivebase.driveToDetectedObject();
-        //         driveToPoseCommand.schedule();
-        //     }))
-        //     .onFalse(Commands.runOnce(() -> {
-        //         driveToPoseCommand.cancel();
-        //     }));
-
-        // driverController.x()
-        //     .whileTrue(Commands.runOnce(() -> {
-        //         driveToPoseCommand = drivebase.driveToPose(poseNavigator.calculateClosestReefPose(), AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION);
-        //         driveToPoseCommand.schedule();
-        //     }))
-        //     .onFalse(Commands.runOnce(() -> {
-        //         driveToPoseCommand.cancel();
-        //     }));
+        // Autonomous Navigation.
+        driverController.leftTrigger().whileTrue(new DriveToDashboardPose(drivebase, poseNavigator));
+        driverController.a().whileTrue(new DriveToDetectedObject(drivebase));
+        driverController.b().whileTrue(new DriveToClosestReef(drivebase, poseNavigator));
 
         // Armivator Control.
         driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem, intakeSubsystem));
-        driverController.rightBumper().onTrue(poseNavigator.handleDashboardArmivatorState());
+        driverController.rightBumper().onTrue(new HandleDashboardState(armivatorCommands, poseNavigator));
 
         driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
 
@@ -145,14 +123,14 @@ public class RobotContainer {
         auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
         // Serializer Control.
-        auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false));
-        auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true));
+        auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false, false));
+        auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true, false));
 
         // Intake Control.
-        driverController.y().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
-        driverController.a().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
+        driverController.povRight().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
+        driverController.povLeft().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
 
-        driverController.b().whileTrue(new StoreCoralCommand(intakeSubsystem));
+        driverController.y().whileTrue(new StoreCoralCommand(intakeSubsystem));
 
         // Manual Control.
         auxiliaryController.back().onTrue(new ToggleArmivatorManualControl(elevatorSubsystem, armSubsystem));

@@ -1,5 +1,5 @@
 {
-  "robotWidth": 0.8636,
+  "robotWidth": 0.864,
   "robotLength": 0.914,
   "holonomicMode": true,
   "pathFolders": [
@@ -34,5 +34,7 @@
   "brModuleY": -0.268,
   "bumperOffsetX": 0.0508,
   "bumperOffsetY": 0.0,
-  "robotFeatures": []
+  "robotFeatures": [
+    "{\"name\":\"Rectangle\",\"type\":\"rounded_rect\",\"data\":{\"center\":{\"x\":-0.545,\"y\":0.0},\"size\":{\"width\":0.864,\"length\":0.275},\"borderRadius\":0.05,\"strokeWidth\":0.02,\"filled\":false}}"
+  ]
 }

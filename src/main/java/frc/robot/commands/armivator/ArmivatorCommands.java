@@ -8,6 +8,7 @@ import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.AdjustArmCommand;
 import frc.robot.commands.arm.SetArmState;
 import frc.robot.commands.elevator.SetElevatorState;
+import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.SerializerSubsystem;
@@ -80,7 +81,7 @@ public class ArmivatorCommands {
      * @return A functional command to run the serializer.
      */
     public Command runSerializerCommand() {
-        return serializer.runSerializerCommand();
+        return new RunSerializerCommand(serializer, false, true);
     }
 
     /**

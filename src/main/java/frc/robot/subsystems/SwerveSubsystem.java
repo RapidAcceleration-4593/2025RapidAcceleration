@@ -22,16 +22,12 @@ import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.AutonConstants;
 
 import java.io.File;
 import java.util.function.Supplier;
-import java.util.Optional;
-import java.util.Set;
-import edu.wpi.first.wpilibj2.command.DeferredCommand; 
 import swervelib.SwerveController;
 import swervelib.SwerveDrive;
 import swervelib.parser.SwerveControllerConfiguration;
@@ -172,6 +168,17 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param pose Target {@link Pose2d} to go to.
      * @return PathFinding command.
      */
+    public Command driveToPose(Pose2d pose) {
+        return driveToPose(pose, AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION);
+    }
+
+    /**
+     * Use PathPlanner Path finding to go to a point on the field.
+     * @param pose Target {@link Pose2d} to go to.
+     * @param maxVelocity Maximum velocity to use.
+     * @param maxAcceleration Maximum acceleration to use.
+     * @return PathFinding command.
+     */
     public Command driveToPose(Pose2d pose, double maxVelocity, double maxAcceleration) {
         // Create the constraints to use while pathfinding.
         PathConstraints constraints = new PathConstraints(
@@ -182,27 +189,8 @@ public class SwerveSubsystem extends SubsystemBase {
         return AutoBuilder.pathfindToPose(
             pose,
             constraints,
-            edu.wpi.first.units.Units.MetersPerSecond.of(0) // Goal end velocity in meters/sec.
+            0
         );
-    }
-
-    /**
-     * Drive to a detected object using the vision system.
-     * @return A command to drive to the detected object.
-     */
-    public Command driveToDetectedObject() {
-        Optional<Pose2d> finalPose = visionUtils.getDetectedObjectPose(getPose());
-
-        if (finalPose.isPresent()) {
-            System.out.println("Driving to pose!");
-            return driveToPose(
-                finalPose.get(),
-                AutonConstants.MAX_VELOCITY,
-                AutonConstants.MAX_ACCELERATION
-            );
-        }
-
-        return Commands.none();
     }
 
     /**
@@ -291,27 +279,6 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Rotation2d getHeading() {
         return getPose().getRotation();
-    }
-
-    /**
-     * Command to drive the robot in robot-relative mode.
-     * @param distance Distance to drive.
-     * @return A Command to drive the robot in robot-relative mode.
-     */
-    public Command driveToDistance(double distance, double maxVelocity, double maxAcceleration) {
-        return new DeferredCommand(() -> {
-            Pose2d currentPose = getPose();
-            Rotation2d currentRotation = currentPose.getRotation();
-
-            Pose2d newPose = new Pose2d(
-                currentPose.getTranslation()
-                    .plus(new Translation2d(distance, 0)
-                    .rotateBy(currentRotation)),
-                currentRotation
-            );
-
-            return driveToPose(newPose, maxVelocity, maxAcceleration);
-        }, Set.of(this));
     }
 
     /**

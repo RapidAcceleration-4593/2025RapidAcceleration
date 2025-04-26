@@ -1,8 +1,8 @@
 package frc.robot.subsystems;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import com.pathplanner.lib.util.FlippingUtil;
@@ -18,23 +18,17 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants.AutonConstants;
 import frc.robot.Constants.AutonConstants.DashboardAlignment;
-import frc.robot.Constants.RobotStates.ArmStates;
-import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.armivator.ArmivatorCommands;
 
 public class PoseNavigator extends SubsystemBase {
 
+    /** SwerveSubsystem Class Object. */
+     private final SwerveSubsystem drivebase;
+
     /** ArmivatorCommands Object. */
     public final ArmivatorCommands armivatorCommands;
-
-    /** SwerveSubsystem Class Object. */
-    private final SwerveSubsystem drivebase;
 
     /** Notifier for Custom Dashboard. */
     private final Notifier dashboardNotifier;
@@ -46,7 +40,7 @@ public class PoseNavigator extends SubsystemBase {
      * Constructor for the PoseNavigator class.
      * Initializes the notifier that updates the SmartDashboard periodically.
      */
-    public PoseNavigator(ArmivatorCommands armivatorCommands, SwerveSubsystem drivebase) {
+    public PoseNavigator(SwerveSubsystem drivebase, ArmivatorCommands armivatorCommands) {
         this.armivatorCommands = armivatorCommands;
         this.drivebase = drivebase;
 
@@ -149,65 +143,22 @@ public class PoseNavigator extends SubsystemBase {
         return closestAprilTagId;
     }
 
-    /** 
-     * Handles the state of the armivator based on the value from the dashboard.
-     * @return The command to run based on the dashboard selected state.
-     */
-    public Command handleDashboardArmivatorState() {
-        Map<Integer, Command> commandMap = Map.of(
-            1, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM),
-            2, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.L2),
-            3, armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.TOP),
-            4, armivatorCommands.setArmivatorState(ElevatorStates.TOP, ArmStates.TOP)
-        );
-
-        return Commands.select(commandMap, this::getTargetArmivatorState);
-    }
-
-    /** Handles the state of the autonomous navigation system based on the value from the dashboard.
-     * @return The command to run based on the dashboard selected state.
-     */
-    public Command handleDashboardPoseState() {
-        return new SequentialCommandGroup(
-            drivebase.driveToPose(
-                calculateReefPose(
-                    getTargetDashboardPose(),
-                    DashboardAlignment.DISTANCE_AWAY_REEF
-                ),
-                AutonConstants.MAX_VELOCITY,
-                AutonConstants.MAX_ACCELERATION
-            ),
-            drivebase.driveToPose(
-                calculateReefPose(
-                    getTargetDashboardPose(),
-                    DashboardAlignment.DISTANCE_AT_REEF
-                ),
-                2.25,
-                2.5
-            )
-        );
-    }
-
     /**
      * Returns whether the closest tag ID to the robot pose contains a high algae.
      * @return Whether the closest tag ID contains a high algae.
      */
     public boolean isHighAlgae() {
-        // Determine if the closest tag has a high algae.
-        return (drivebase.isRedAlliance() && (getClosestReefTag() == 7 || getClosestReefTag() == 9 || getClosestReefTag() == 11)) ||
-               (!drivebase.isRedAlliance() && (getClosestReefTag() == 18 || getClosestReefTag() == 20 || getClosestReefTag() == 22));
+        return (drivebase.isRedAlliance() && Arrays.asList(7, 9, 11).contains(getClosestReefTag())) ||
+               (!drivebase.isRedAlliance() && Arrays.asList(18, 20, 22).contains(getClosestReefTag()));
     }
 
-    /**
-     * Method to retrieve the selected pose via NetworkTables.
-     * @return
-     */
-    private int getTargetDashboardPose() {
+    /** Method to retrieve the selected pose via NetworkTables. */
+    public int getTargetDashboardPose() {
         return (int) SmartDashboard.getNumber("TargetDashboardPose", 1);
     }
 
     /** Method to retrieve the selected armivator state via NetworkTables. */
-    private int getTargetArmivatorState() {
+    public int getTargetArmivatorState() {
         return (int) SmartDashboard.getNumber("TargetArmivatorState", 1);
     }
 }

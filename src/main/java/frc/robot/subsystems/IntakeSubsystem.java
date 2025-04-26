@@ -8,7 +8,6 @@ import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakePIDConstants;
 import frc.robot.Constants.RobotStates.IntakeStates;
@@ -84,7 +83,9 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
             return false;
         }
 
-        if (!stallTimer.isRunning()) stallTimer.start();
+        if (!stallTimer.isRunning()) {
+            stallTimer.start();
+        }
 
         return stallTimer.hasElapsed(0.5);
     }
@@ -107,28 +108,15 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
         outerIntakeMotor.stopMotor();
     }
 
-    // TODO: Find better way of implementation.
-    public Command runIntakeCommand() {
-        return runOnce(() -> {
-            setIntakeSpeed(IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SPEED);
-        });
-    }
-
-    // TODO: Find better way of implementation.
-    public Command stopIntakeCommand() {
-        return runOnce(() -> {
-            stopIntake();
-        });
-    }
-
     @Override
     public double getEncoderValue() {
-        return leaderDeployMotor.getAlternateEncoder().getPosition();
+        // return leaderDeployMotor.getAlternateEncoder().getPosition();
+        return 0;
     }
 
     @Override
     public void resetEncoder() {
-        leaderDeployMotor.getAlternateEncoder().setPosition(0);
+        // leaderDeployMotor.getAlternateEncoder().setPosition(0);
     }
 
     @Override
