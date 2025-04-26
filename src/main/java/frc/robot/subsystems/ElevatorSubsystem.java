@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
-import java.util.List;
-
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -12,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.RobotStates.ElevatorStates;
+import frc.robot.Robot;
 import frc.robot.subsystems.utils.ControlSubsystem;
 
 public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
@@ -26,6 +29,9 @@ public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
 
     private static final double[] SETPOINTS = {-500, 3750, 12550};
 
+    private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
+    private final SparkMaxConfig followerConfig = new SparkMaxConfig();
+
     public ElevatorSubsystem() {
         super(
             new ProfiledPIDController(
@@ -39,8 +45,12 @@ public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
             )
         );
 
-        applyBrakeConfig(List.of(leaderMotor, followerMotor));
-        applyFollowerConfig(leaderMotor, followerMotor, true);
+        brakeConfig.idleMode(IdleMode.kBrake);
+        followerConfig.follow(leaderMotor, true);
+
+        leaderMotor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerMotor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         controller.setTolerance(ElevatorPIDConstants.TOLERANCE);
         controller.reset(0);
@@ -58,6 +68,10 @@ public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
 
     @Override
     public ElevatorStates getCurrentState() {
+        if (Robot.isSimulation()) {
+            return currentState;
+        }
+
         if (getEncoderValue() <= SETPOINTS[0] + 500) {
             return ElevatorStates.BOTTOM;
         } else if (getEncoderValue() <= SETPOINTS[1] + 500) {
@@ -89,7 +103,8 @@ public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
     private void handleTopLimitSwitchPressed() {
         if (getSetpoint() >= getEncoderValue()) {
             stopMotors();
-            resetSetpoint(getEncoderValue());
+            setSetpoint(getEncoderValue());
+            // resetSetpoint(getEncoderValue());
         } else {
             controlOutput();
         }
@@ -100,7 +115,8 @@ public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
 
         if (getSetpoint() <= 0) {
             stopMotors();
-            resetSetpoint(0);
+            setSetpoint(0);
+            // resetSetpoint(0);
         } else {
             controlOutput();
         }

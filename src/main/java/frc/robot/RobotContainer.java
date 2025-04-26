@@ -18,6 +18,7 @@ import frc.robot.Constants.RobotStates.ArmDirections;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.Constants.RobotStates.ElevatorDirections;
 import frc.robot.Constants.RobotStates.IntakeDirections;
+import frc.robot.Constants.RobotStates.IntakeStates;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
 import frc.robot.commands.armivator.ArmivatorCommands;
@@ -33,7 +34,9 @@ import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.DriveToDashboardPose;
 import frc.robot.commands.drivebase.DriveToDetectedObject;
 import frc.robot.commands.elevator.ControlElevatorState;
+import frc.robot.commands.intake.ControlIntakeState;
 import frc.robot.commands.intake.RunIntakeCommand;
+import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.intake.StoreCoralCommand;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
@@ -93,7 +96,7 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
-        // intakeSubsystem.setDefaultCommand(new ControlIntakeState(intakeSubsystem));
+        intakeSubsystem.setDefaultCommand(new ControlIntakeState(intakeSubsystem));
     }
 
     private void configureBindings() {
@@ -121,9 +124,9 @@ public class RobotContainer {
         auxiliaryController.leftTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
         auxiliaryController.rightTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
 
-        // auxiliaryController.povUp().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.IN));
-        // auxiliaryController.povRight().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.L1));
-        // auxiliaryController.povDown().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.OUT));
+        auxiliaryController.povUp().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.IN));
+        auxiliaryController.povRight().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.L1));
+        auxiliaryController.povDown().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.OUT));
 
         auxiliaryController.leftBumper().whileTrue(new StoreCoralCommand(intakeSubsystem));
 

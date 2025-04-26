@@ -1,14 +1,17 @@
 package frc.robot.subsystems;
 
-import java.util.List;
-
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Robot;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPIDConstants;
 import frc.robot.Constants.RobotStates.ArmStates;
@@ -24,6 +27,8 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
 
     private static final double[] SETPOINTS = {-20, 620, 875};
 
+    private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
+
     public ArmSubsystem() {
         super(
             new ProfiledPIDController(
@@ -37,7 +42,8 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
             )
         );
 
-        applyBrakeConfig(List.of(motor));
+        brakeConfig.idleMode(IdleMode.kBrake);
+        motor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         controller.setTolerance(ArmPIDConstants.TOLERANCE);
         controller.reset(0);
@@ -55,6 +61,10 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
 
     @Override
     public ArmStates getCurrentState() {
+        if (Robot.isSimulation()) {
+            return currentState;
+        }
+
         if (getEncoderValue() <= SETPOINTS[0] + 100) {
             return ArmStates.BOTTOM;
         } else if (getEncoderValue() <= SETPOINTS[1] + 100) {
@@ -86,7 +96,8 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
     private void handleTopLimitSwitchPressed() {
         if (getSetpoint() >= getEncoderValue()) {
             stopMotors();
-            resetSetpoint(getEncoderValue());
+            setSetpoint(getEncoderValue());
+            // resetSetpoint(getEncoderValue());
         } else {
             controlOutput();
         }
@@ -97,7 +108,8 @@ public class ArmSubsystem extends ControlSubsystem<ArmStates> {
                     
         if (getSetpoint() <= 0) {
             stopMotors();
-            resetSetpoint(0);
+            setSetpoint(0);
+            // resetSetpoint(0);
         } else {
             controlOutput();
         }

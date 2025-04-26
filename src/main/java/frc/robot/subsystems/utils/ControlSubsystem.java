@@ -84,9 +84,4 @@ public abstract class ControlSubsystem<ControlStates extends Enum<ControlStates>
             motor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         }
     }
-
-    public void applyFollowerConfig(SparkMax leaderMotor, SparkMax followerMotor, boolean isInverted) {
-        followerConfig.follow(leaderMotor, isInverted);
-        leaderMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    }
 }

@@ -1,8 +1,10 @@
 package frc.robot.subsystems;
 
-import java.util.List;
-
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
@@ -21,9 +23,14 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     private final SparkMax innerIntakeMotor = IntakeConstants.innerIntakeMotor;
     private final SparkMax outerIntakeMotor = IntakeConstants.outerIntakeMotor;
 
-    private static final double[] SETPOINTS = {0, 0, 0};
+    private static final double[] SETPOINTS = {0, 1000, 3200};
 
     private final Timer stallTimer = new Timer();
+
+    private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
+    private final SparkMaxConfig coastConfig = new SparkMaxConfig();
+    private final SparkMaxConfig followerConfig = new SparkMaxConfig();
+    private final SparkMaxConfig encoderConfig = new SparkMaxConfig();
 
     public IntakeSubsystem() {
         super(
@@ -38,9 +45,20 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
             )
         );
 
-        applyBrakeConfig(List.of(leaderDeployMotor, followerDeployMotor, innerIntakeMotor, outerIntakeMotor));
-        applyFollowerConfig(leaderDeployMotor, followerDeployMotor, true);
-    
+        brakeConfig.idleMode(IdleMode.kBrake);
+        coastConfig.idleMode(IdleMode.kCoast);
+        followerConfig.follow(leaderDeployMotor, true);
+        encoderConfig.alternateEncoder.countsPerRevolution(1).setSparkMaxDataPortConfig();
+
+        leaderDeployMotor.configure(coastConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerDeployMotor.configure(coastConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        innerIntakeMotor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        outerIntakeMotor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+        leaderDeployMotor.configure(encoderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        followerDeployMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
         controller.setTolerance(IntakePIDConstants.TOLERANCE);
         controller.reset(0);
         resetEncoder();
@@ -91,7 +109,7 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     }
 
     public void setMotorSpeeds(double speed) {
-        leaderDeployMotor.set(speed);
+        leaderDeployMotor.set(-speed);
     }
 
     public void setIntakeSpeed(double inner, double outer) {
@@ -110,13 +128,12 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
 
     @Override
     public double getEncoderValue() {
-        // return leaderDeployMotor.getAlternateEncoder().getPosition();
-        return 0;
+        return leaderDeployMotor.getAlternateEncoder().getPosition();
     }
 
     @Override
     public void resetEncoder() {
-        // leaderDeployMotor.getAlternateEncoder().setPosition(0);
+        leaderDeployMotor.getAlternateEncoder().setPosition(0);
     }
 
     @Override

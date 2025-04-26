@@ -71,11 +71,11 @@ public final class Constants {
 
     public static final class IntakeConstants {
         public static final class IntakePIDConstants {
-            public static final PIDConstants INTAKE_PID = new PIDConstants(0.0, 0.0, 0.0);
-            public static final int TOLERANCE = 0;
+            public static final PIDConstants INTAKE_PID = new PIDConstants(0.001, 0.0, 0.0);
+            public static final int TOLERANCE = 10;
 
-            public static final double MAX_VELOCITY = 0;
-            public static final double MAX_ACCELERATION = 0;
+            public static final double MAX_VELOCITY = 1000;
+            public static final double MAX_ACCELERATION = 1500;
         }
 
         public static final SparkMax innerIntakeMotor = new SparkMax(7, MotorType.kBrushless);
