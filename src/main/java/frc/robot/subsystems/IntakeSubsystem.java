@@ -16,11 +16,11 @@ import frc.robot.subsystems.utils.ControlSubsystem;
 
 public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     
-    private final SparkMax leaderDeployMotor = IntakeConstants.leaderDeployMotor;
-    private final SparkMax followerDeployMotor = IntakeConstants.followerDeployMotor;
+    private final SparkMax leaderDeployMotor = IntakeConstants.LEFT_DEPLOY_MOTOR;
+    private final SparkMax followerDeployMotor = IntakeConstants.RIGHT_DEPLOY_MOTOR;
 
-    private final SparkMax innerIntakeMotor = IntakeConstants.innerIntakeMotor;
-    private final SparkMax outerIntakeMotor = IntakeConstants.outerIntakeMotor;
+    private final SparkMax innerIntakeMotor = IntakeConstants.RIGHT_INTAKE_MOTOR;
+    private final SparkMax outerIntakeMotor = IntakeConstants.LEFT_INTAKE_MOTOR;
 
     private static final double[] SETPOINTS = {0, 1000, 3200};
 
@@ -121,7 +121,7 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     public boolean isCurrentSpikeDetected() {
         double current = outerIntakeMotor.getOutputCurrent();
 
-        if (Math.abs(current - lastCurrent) > IntakeConstants.SPIKE_CURRENT) {
+        if (Math.abs(current - lastCurrent) > IntakeConstants.CURRENT_SPIKE) {
             lastCurrent = current;
             return true;
         }

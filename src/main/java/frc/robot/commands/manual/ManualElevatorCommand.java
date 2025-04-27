@@ -2,15 +2,15 @@ package frc.robot.commands.manual;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ElevatorConstants;
-import frc.robot.Constants.RobotStates.ElevatorDirections;
+import frc.robot.Constants.RobotStates.ControlDirections;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 public class ManualElevatorCommand extends Command {
     
     private final ElevatorSubsystem elevatorSubsystem;
-    private final ElevatorDirections direction;
+    private final ControlDirections direction;
 
-    public ManualElevatorCommand(ElevatorSubsystem subsystem, ElevatorDirections direction) {
+    public ManualElevatorCommand(ElevatorSubsystem subsystem, ControlDirections direction) {
         this.elevatorSubsystem = subsystem;
         this.direction = direction;
         addRequirements(elevatorSubsystem);
@@ -31,7 +31,7 @@ public class ManualElevatorCommand extends Command {
             return;
         }
 
-        double speed = (direction == ElevatorDirections.UP)
+        double speed = (direction == ControlDirections.UP)
             ? ElevatorConstants.CONTROL_SPEED
             : -ElevatorConstants.CONTROL_SPEED;
 
@@ -49,7 +49,7 @@ public class ManualElevatorCommand extends Command {
     }
 
     private boolean isLimitSwitchPressed() {
-        return (direction == ElevatorDirections.UP)
+        return (direction == ControlDirections.UP)
             ? elevatorSubsystem.isTopLimitSwitchPressed()
             : elevatorSubsystem.isBottomLimitSwitchPressed();
     }

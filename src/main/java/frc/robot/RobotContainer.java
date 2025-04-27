@@ -14,10 +14,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
-import frc.robot.Constants.RobotStates.ArmDirections;
+import frc.robot.Constants.RobotStates.ControlDirections;
 import frc.robot.Constants.RobotStates.StartingPosition;
-import frc.robot.Constants.RobotStates.ElevatorDirections;
-import frc.robot.Constants.RobotStates.IntakeDirections;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
 import frc.robot.commands.armivator.ArmivatorCommands;
@@ -121,14 +119,14 @@ public class RobotContainer {
         auxiliaryController.back().onTrue(new ToggleIntakeManualControl(intakeSubsystem));
         auxiliaryController.start().onTrue(new ToggleArmivatorManualControl(elevatorSubsystem, armSubsystem));
 
-        auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.UP));
-        auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ElevatorDirections.DOWN));
+        auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ControlDirections.UP));
+        auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ControlDirections.DOWN));
 
-        auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.UP));
-        auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ArmDirections.DOWN));
+        auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ControlDirections.UP));
+        auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ControlDirections.DOWN));
 
-        auxiliaryController.povUp().whileTrue(new ManualIntakeCommand(intakeSubsystem, IntakeDirections.UP));
-        auxiliaryController.povDown().whileTrue(new ManualIntakeCommand(intakeSubsystem, IntakeDirections.DOWN));
+        auxiliaryController.povUp().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.UP));
+        auxiliaryController.povDown().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.DOWN));
 
         /* --- Unused Controls --- */
         // auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));

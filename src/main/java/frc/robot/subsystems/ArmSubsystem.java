@@ -18,11 +18,11 @@ import frc.robot.subsystems.utils.ControlSubsystem;
 
 public class ArmSubsystem extends ControlSubsystem<ArmStates> {
 
-    private final SparkMax motor = ArmConstants.armMotor;
-    private final Encoder encoder = ArmConstants.armEncoder;
+    private final SparkMax motor = ArmConstants.ARM_MOTOR;
+    private final Encoder encoder = ArmConstants.ARM_ENCODER;
 
-    private final DigitalInput topLimitSwitch = ArmConstants.topLimitSwitch;
-    private final DigitalInput bottomLimitSwitch = ArmConstants.bottomLimitSwitch;
+    private final DigitalInput topLimitSwitch = ArmConstants.TOP_LIMIT_SWITCH;
+    private final DigitalInput bottomLimitSwitch = ArmConstants.BOTTOM_LIMIT_SWITCH;
 
     private static final double[] SETPOINTS = {-20, 620, 875};
 

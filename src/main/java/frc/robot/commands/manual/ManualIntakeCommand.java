@@ -2,15 +2,15 @@ package frc.robot.commands.manual;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Constants.RobotStates.IntakeDirections;
+import frc.robot.Constants.RobotStates.ControlDirections;
 import frc.robot.subsystems.IntakeSubsystem;
 
 public class ManualIntakeCommand extends Command {
 
     private final IntakeSubsystem intakeSubsystem;
-    private final IntakeDirections direction;
+    private final ControlDirections direction;
 
-    public ManualIntakeCommand(IntakeSubsystem subsystem, IntakeDirections direction) {
+    public ManualIntakeCommand(IntakeSubsystem subsystem, ControlDirections direction) {
         this.intakeSubsystem = subsystem;
         this.direction = direction;
         addRequirements(intakeSubsystem);
@@ -22,7 +22,7 @@ public class ManualIntakeCommand extends Command {
             return;
         }
 
-        double speed = (direction == IntakeDirections.UP)
+        double speed = (direction == ControlDirections.UP)
             ? IntakeConstants.DEPLOY_SPEED
             : -IntakeConstants.DEPLOY_SPEED;
 

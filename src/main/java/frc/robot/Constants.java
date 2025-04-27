@@ -36,13 +36,13 @@ public final class Constants {
 
         public static final double CONTROL_SPEED = 0.5;
 
-        public static final SparkMax leftElevatorMotor = new SparkMax(1, MotorType.kBrushless);
-        public static final SparkMax rightElevatorMotor = new SparkMax(6, MotorType.kBrushless);
+        public static final SparkMax LEFT_ELEVATOR_MOTOR = new SparkMax(1, MotorType.kBrushless);
+        public static final SparkMax RIGHT_ELEVATOR_MOTOR = new SparkMax(6, MotorType.kBrushless);
 
-        public static final Encoder elevatorEncoder = new Encoder(8, 9);
+        public static final Encoder ELEVATOR_ENCODER = new Encoder(8, 9);
 
-        public static final DigitalInput bottomLimitSwitch = new DigitalInput(7);
-        public static final DigitalInput topLimitSwitch = new DigitalInput(6);
+        public static final DigitalInput BOTTOM_LIMIT_SWITCH = new DigitalInput(7);
+        public static final DigitalInput TOP_LIMIT_SWITCH = new DigitalInput(6);
     }
 
     public static final class ArmConstants {
@@ -62,11 +62,11 @@ public final class Constants {
         public static final int PLACE_ROTATION_AMOUNT = 225;
         public static final double CONTROL_SPEED = 0.5;
 
-        public static final SparkMax armMotor = new SparkMax(8, MotorType.kBrushless);
-        public static final Encoder armEncoder = new Encoder(0, 1);
+        public static final SparkMax ARM_MOTOR = new SparkMax(8, MotorType.kBrushless);
+        public static final Encoder ARM_ENCODER = new Encoder(0, 1);
 
-        public static final DigitalInput topLimitSwitch = new DigitalInput(2);
-        public static final DigitalInput bottomLimitSwitch = new DigitalInput(3);
+        public static final DigitalInput TOP_LIMIT_SWITCH = new DigitalInput(2);
+        public static final DigitalInput BOTTOM_LIMIT_SWITCH = new DigitalInput(3);
     }
 
     public static final class IntakeConstants {
@@ -78,22 +78,22 @@ public final class Constants {
             public static final double MAX_ACCELERATION = 1500;
         }
 
-        public static final SparkMax innerIntakeMotor = new SparkMax(7, MotorType.kBrushless);
-        public static final SparkMax outerIntakeMotor = new SparkMax(2, MotorType.kBrushless);
+        public static final SparkMax LEFT_INTAKE_MOTOR = new SparkMax(2, MotorType.kBrushless);
+        public static final SparkMax RIGHT_INTAKE_MOTOR = new SparkMax(7, MotorType.kBrushless);
 
-        public static final SparkMax leaderDeployMotor = new SparkMax(4, MotorType.kBrushless);
-        public static final SparkMax followerDeployMotor = new SparkMax(5, MotorType.kBrushless);
+        public static final SparkMax LEFT_DEPLOY_MOTOR = new SparkMax(4, MotorType.kBrushless);
+        public static final SparkMax RIGHT_DEPLOY_MOTOR = new SparkMax(5, MotorType.kBrushless);
 
         public static final double INTAKE_SPEED = 0.5;
         public static final double OUTTAKE_SPEED = 0.25;
         public static final double DEPLOY_SPEED = 0.25;
 
-        public static final int SPIKE_CURRENT = 10;
+        public static final int CURRENT_SPIKE = 10;
     }
 
     public static final class SerializerConstants {
-        public static final SparkMax serializerMotor = new SparkMax(3, MotorType.kBrushless);
-        public static final DigitalInput serializerSensor = new DigitalInput(4);
+        public static final SparkMax SERIALIZER_MOTOR = new SparkMax(3, MotorType.kBrushless);
+        public static final DigitalInput SERIALIZER_DISTANCE_SENSOR = new DigitalInput(4);
 
         public static final double CONTROL_SPEED = 0.4;
         public static final double MAX_TIMEOUT = 1.75;
@@ -120,28 +120,20 @@ public final class Constants {
             BOTTOM, PICKUP, TOP
         }
 
-        public enum ElevatorDirections {
-            UP, DOWN
-        }
-
         public enum ArmStates {
             BOTTOM, L2, TOP
-        }
-
-        public enum ArmDirections {
-            UP, DOWN
-        }
-
-        public enum StartingPosition {
-            LEFT, CENTER, RIGHT
         }
 
         public enum IntakeStates {
             IN, L1, OUT
         }
 
-        public enum IntakeDirections {
+        public enum ControlDirections {
             UP, DOWN
+        }
+
+        public enum StartingPosition {
+            LEFT, CENTER, RIGHT
         }
     }
 

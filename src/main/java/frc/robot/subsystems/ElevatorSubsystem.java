@@ -18,13 +18,13 @@ import frc.robot.subsystems.utils.ControlSubsystem;
 
 public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
     
-    private final SparkMax leaderMotor = ElevatorConstants.rightElevatorMotor;
-    private final SparkMax followerMotor = ElevatorConstants.leftElevatorMotor;
+    private final SparkMax leaderMotor = ElevatorConstants.RIGHT_ELEVATOR_MOTOR;
+    private final SparkMax followerMotor = ElevatorConstants.LEFT_ELEVATOR_MOTOR;
 
-    private final DigitalInput topLimitSwitch = ElevatorConstants.topLimitSwitch;
-    private final DigitalInput bottomLimitSwitch = ElevatorConstants.bottomLimitSwitch;
+    private final DigitalInput topLimitSwitch = ElevatorConstants.TOP_LIMIT_SWITCH;
+    private final DigitalInput bottomLimitSwitch = ElevatorConstants.BOTTOM_LIMIT_SWITCH;
 
-    private final Encoder encoder = ElevatorConstants.elevatorEncoder;
+    private final Encoder encoder = ElevatorConstants.ELEVATOR_ENCODER;
 
     private static final double[] SETPOINTS = {-500, 3750, 12550};
 
