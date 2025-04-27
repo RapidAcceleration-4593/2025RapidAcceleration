@@ -29,6 +29,8 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
     private final SparkMaxConfig encoderConfig = new SparkMaxConfig();
 
+    private double lastCurrent = 0;
+
     public IntakeSubsystem() {
         super(
             new ProfiledPIDController(
@@ -110,6 +112,22 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     private boolean shouldCoast() {
         return (getCurrentState() == IntakeStates.IN) ||
                (getCurrentState() == IntakeStates.OUT);
+    }
+
+    /**
+     * Checks if the current spike is detected on the outer intake motor.
+     * @return Whether the current spike is detected.
+     */
+    public boolean isCurrentSpikeDetected() {
+        double current = outerIntakeMotor.getOutputCurrent();
+
+        if (Math.abs(current - lastCurrent) > IntakeConstants.SPIKE_CURRENT) {
+            lastCurrent = current;
+            return true;
+        }
+
+        lastCurrent = current;
+        return false;
     }
 
     /**

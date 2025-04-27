@@ -13,7 +13,7 @@ import frc.robot.subsystems.SerializerSubsystem;
 
 public class PickupCoralCommand extends SequentialCommandGroup {
     
-    public PickupCoralCommand(ArmivatorCommands armivatorCommands, SerializerSubsystem serializerSubsystem, IntakeSubsystem intakeSubsystem) {
+    public PickupCoralCommand(ArmivatorCommands armivatorCommands, IntakeSubsystem intakeSubsystem, SerializerSubsystem serializerSubsystem) {
         addCommands(
             Commands.parallel(
                 armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM),

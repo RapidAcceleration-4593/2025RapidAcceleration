@@ -88,7 +88,7 @@ public final class Constants {
         public static final double OUTTAKE_SPEED = 0.25;
         public static final double DEPLOY_SPEED = 0.25;
 
-        public static final int STALL_CURRENT = 20;
+        public static final int SPIKE_CURRENT = 10;
     }
 
     public static final class SerializerConstants {
