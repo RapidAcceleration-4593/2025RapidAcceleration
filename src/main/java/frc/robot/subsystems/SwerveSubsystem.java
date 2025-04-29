@@ -135,7 +135,7 @@ public class SwerveSubsystem extends SubsystemBase {
                             swerveDrive.kinematics.toSwerveModuleStates(speedsRobotRelative),
                             moduleFeedForwards.linearForces());
                     } else {
-                        swerveDrive.setChassisSpeeds(speedsRobotRelative);
+                        setChassisSpeeds(speedsRobotRelative);
                     }
                 },
                 // Method that will drive the robot given ROBOT RELATIVE ChassisSpeeds. Also optionally outputs individual module feedforwards.
@@ -167,15 +167,6 @@ public class SwerveSubsystem extends SubsystemBase {
     /**
      * Use PathPlanner Path finding to go to a point on the field.
      * @param pose Target {@link Pose2d} to go to.
-     * @return PathFinding command.
-     */
-    public Command driveToPose(Pose2d pose) {
-        return driveToPose(pose, AutonConstants.MAX_VELOCITY, AutonConstants.MAX_ACCELERATION);
-    }
-
-    /**
-     * Use PathPlanner Path finding to go to a point on the field.
-     * @param pose Target {@link Pose2d} to go to.
      * @param maxVelocity Maximum velocity to use.
      * @param maxAcceleration Maximum acceleration to use.
      * @return PathFinding command.
@@ -184,7 +175,8 @@ public class SwerveSubsystem extends SubsystemBase {
         // Create the constraints to use while pathfinding.
         PathConstraints constraints = new PathConstraints(
             maxVelocity, maxAcceleration,
-            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720));
+            swerveDrive.getMaximumChassisAngularVelocity(), Units.degreesToRadians(720)
+        );
 
         // Since AutoBuilder is configured, we can use it to build pathfinding commands.
         return AutoBuilder.pathfindToPose(
@@ -228,6 +220,23 @@ public class SwerveSubsystem extends SubsystemBase {
      */
     public Pose2d getPose() {
         return swerveDrive.getPose();
+    }
+
+    /**
+     * Set chassis speeds with closed-loop velocity control.
+     *
+     * @param chassisSpeeds Chassis Speeds to set.
+     */
+    public void setChassisSpeeds(ChassisSpeeds chassisSpeeds) {
+        swerveDrive.setChassisSpeeds(chassisSpeeds);
+    }
+    
+    /**
+     * Retrieve the maximum angular chassis velocity.
+     * @return The maximum angular velocity of the chassis.
+     */
+    public double getMaximumChassisAngularVelocity() {
+        return swerveDrive.getMaximumChassisAngularVelocity();
     }
 
     /**

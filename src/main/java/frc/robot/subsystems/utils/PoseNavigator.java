@@ -94,14 +94,14 @@ public class PoseNavigator extends SubsystemBase {
      * Calculates the closest pose to drive to based on the closest AprilTag on the reef.
      * @return The closest AprilTag Pose Offset.
      */
-    public Pose2d calculateClosestReefPose() {
+    public Pose2d calculateClosestReefPose(double distance) {
         return aprilTagFieldLayout.getTagPose(getClosestReefTag())
             .map(tagPose -> {
                 Pose2d adjustedPose = tagPose.toPose2d().plus(new Transform2d(0, -0.0508, new Rotation2d()));
 
                 Rotation2d tagRotation = adjustedPose.getRotation();
                 Translation2d extrudedTranslation = adjustedPose.getTranslation()
-                    .plus(new Translation2d(DashboardAlignment.DISTANCE_AT_REEF, tagRotation));
+                    .plus(new Translation2d(distance, tagRotation));
 
                 return new Pose2d(extrudedTranslation, tagRotation.plus(Rotation2d.fromDegrees(180)));
             })
