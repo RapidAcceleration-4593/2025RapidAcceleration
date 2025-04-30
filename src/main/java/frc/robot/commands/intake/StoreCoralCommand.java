@@ -22,4 +22,9 @@ public class StoreCoralCommand extends Command {
     public void end(boolean interrupted) {
         intakeSubsystem.stopIntake();
     }
+
+    @Override
+    public boolean isFinished() {
+        return false;
+    }
 }

@@ -23,8 +23,8 @@ public class ManualIntakeCommand extends Command {
         }
 
         double speed = (direction == ControlDirections.UP)
-            ? IntakeConstants.DEPLOY_SPEED
-            : -IntakeConstants.DEPLOY_SPEED;
+            ? -IntakeConstants.DEPLOY_SPEED
+            : IntakeConstants.DEPLOY_SPEED;
 
         intakeSubsystem.setMotorSpeeds(speed);
     }

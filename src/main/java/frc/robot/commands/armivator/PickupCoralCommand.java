@@ -24,7 +24,7 @@ public class PickupCoralCommand extends SequentialCommandGroup {
                 new RunSerializerCommand(serializerSubsystem, false, true)
             ),
             Commands.parallel(
-                new SetIntakeState(intakeSubsystem, IntakeStates.IN),
+                new SetIntakeState(intakeSubsystem, IntakeStates.L1).withTimeout(1.5),
                 new KahChunkCommand(armivatorCommands)
             )
         );

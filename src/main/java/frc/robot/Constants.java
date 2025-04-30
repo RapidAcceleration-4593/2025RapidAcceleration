@@ -71,11 +71,11 @@ public final class Constants {
 
     public static final class IntakeConstants {
         public static final class IntakePIDConstants {
-            public static final PIDConstants INTAKE_PID = new PIDConstants(0.001, 0.0, 0.0);
-            public static final int TOLERANCE = 10;
+            public static final PIDConstants INTAKE_PID = new PIDConstants(0.0003, 0.0, 0.0);
+            public static final int TOLERANCE = 100;
 
-            public static final double MAX_VELOCITY = 1000;
-            public static final double MAX_ACCELERATION = 1500;
+            // public static final double MAX_VELOCITY = 1000; // 3400
+            // public static final double MAX_ACCELERATION = 800; // 800
         }
 
         public static final SparkMax LEFT_INTAKE_MOTOR = new SparkMax(2, MotorType.kBrushless);
@@ -86,9 +86,9 @@ public final class Constants {
 
         public static final double INTAKE_SPEED = 0.5;
         public static final double OUTTAKE_SPEED = 0.25;
-        public static final double DEPLOY_SPEED = 0.25;
+        public static final double DEPLOY_SPEED = 0.75;
 
-        public static final int CURRENT_SPIKE = 10;
+        public static final int CURRENT_SPIKE = 20; // 45 low, 42
     }
 
     public static final class SerializerConstants {

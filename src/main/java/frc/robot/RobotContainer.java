@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ControlDirections;
+import frc.robot.Constants.RobotStates.IntakeStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
@@ -33,10 +34,10 @@ import frc.robot.commands.drivebase.DriveToDetectedObject;
 import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.intake.ControlIntakeState;
 import frc.robot.commands.intake.IntakeL1Command;
-import frc.robot.commands.intake.ScoreL1Command;
+import frc.robot.commands.intake.RunIntakeCommand;
+import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
-import frc.robot.commands.manual.ManualIntakeCommand;
 import frc.robot.commands.manual.ToggleArmivatorManualControl;
 import frc.robot.commands.manual.ToggleIntakeManualControl;
 import frc.robot.subsystems.SwerveSubsystem;
@@ -112,12 +113,12 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(new HandleDashboardState(armivatorCommands, poseNavigator));
 
         /* --- Intake Control --- */
-        driverController.b().onTrue(new IntakeL1Command(intakeSubsystem));
-        driverController.y().onTrue(new ScoreL1Command(intakeSubsystem));
+        driverController.b().whileTrue(new IntakeL1Command(intakeSubsystem));
+        driverController.y().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
 
         /* --- Manual Control --- */
-        auxiliaryController.back().onTrue(new ToggleIntakeManualControl(intakeSubsystem));
-        auxiliaryController.start().onTrue(new ToggleArmivatorManualControl(elevatorSubsystem, armSubsystem));
+        auxiliaryController.start().onTrue(new ToggleIntakeManualControl(intakeSubsystem));
+        auxiliaryController.back().onTrue(new ToggleArmivatorManualControl(elevatorSubsystem, armSubsystem));
 
         auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ControlDirections.UP));
         auxiliaryController.a().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ControlDirections.DOWN));
@@ -125,8 +126,8 @@ public class RobotContainer {
         auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ControlDirections.UP));
         auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ControlDirections.DOWN));
 
-        auxiliaryController.povUp().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.UP));
-        auxiliaryController.povDown().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.DOWN));
+        // auxiliaryController.povUp().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.UP));
+        // auxiliaryController.povDown().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.DOWN));
 
         /* --- Unused Controls --- */
         // auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
@@ -134,9 +135,9 @@ public class RobotContainer {
         // auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
         // auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
 
-        // auxiliaryController.povUp().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.IN));
-        // auxiliaryController.povRight().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.L1));
-        // auxiliaryController.povDown().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.OUT));
+        auxiliaryController.povUp().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.IN));
+        driverController.povRight().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.L1));
+        auxiliaryController.povDown().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.OUT));
 
         // auxiliaryController.leftTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
         // auxiliaryController.rightTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, true));

@@ -6,15 +6,14 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.IntakeConstants.IntakePIDConstants;
 import frc.robot.Constants.RobotStates.IntakeStates;
-import frc.robot.subsystems.utils.ControlSubsystem;
+import frc.robot.subsystems.utils.RegularControlSubsystem;
 
-public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
+public class IntakeSubsystem extends RegularControlSubsystem<IntakeStates> {
     
     private final SparkMax leaderDeployMotor = IntakeConstants.LEFT_DEPLOY_MOTOR;
     private final SparkMax followerDeployMotor = IntakeConstants.RIGHT_DEPLOY_MOTOR;
@@ -29,18 +28,12 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
     private final SparkMaxConfig encoderConfig = new SparkMaxConfig();
 
-    private double lastCurrent = 0;
-
     public IntakeSubsystem() {
         super(
-            new ProfiledPIDController(
+            new PIDController(
                 IntakePIDConstants.INTAKE_PID.kP,
                 IntakePIDConstants.INTAKE_PID.kI,
-                IntakePIDConstants.INTAKE_PID.kD,
-                new TrapezoidProfile.Constraints(
-                    IntakePIDConstants.MAX_VELOCITY,
-                    IntakePIDConstants.MAX_ACCELERATION
-                )
+                IntakePIDConstants.INTAKE_PID.kD
             )
         );
 
@@ -59,7 +52,6 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
         followerDeployMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         controller.setTolerance(IntakePIDConstants.TOLERANCE);
-        controller.reset(0);
         resetEncoder();
     }
 
@@ -112,22 +104,6 @@ public class IntakeSubsystem extends ControlSubsystem<IntakeStates> {
     private boolean shouldCoast() {
         return (getCurrentState() == IntakeStates.IN) ||
                (getCurrentState() == IntakeStates.OUT);
-    }
-
-    /**
-     * Checks if the current spike is detected on the outer intake motor.
-     * @return Whether the current spike is detected.
-     */
-    public boolean isCurrentSpikeDetected() {
-        double current = outerIntakeMotor.getOutputCurrent();
-
-        if (Math.abs(current - lastCurrent) > IntakeConstants.CURRENT_SPIKE) {
-            lastCurrent = current;
-            return true;
-        }
-
-        lastCurrent = current;
-        return false;
     }
 
     /**
