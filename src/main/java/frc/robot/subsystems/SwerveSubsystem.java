@@ -43,7 +43,7 @@ public class SwerveSubsystem extends SubsystemBase {
     private final SwerveDrive swerveDrive;
 
     /** PhotonVision class to keep an accurate odometry. */
-    public VisionUtils visionUtils;
+    private VisionUtils visionUtils;
 
     /**
      * Initialize {@link SwerveDrive} with the directory provided.
@@ -59,7 +59,7 @@ public class SwerveSubsystem extends SubsystemBase {
                                                                                                     Meter.of(4)),
                                                                                 Rotation2d.fromDegrees(0)));
         } catch (Exception e) {
-            throw new RuntimeException(e);
+            throw new IllegalStateException(e);
         }
 
         // Heading correction should only be used while controlling the robot via angle.
@@ -101,7 +101,11 @@ public class SwerveSubsystem extends SubsystemBase {
 
     /** Setup the photon vision class. */
     public void setupPhotonVision() {
-        visionUtils = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
+        this.visionUtils = new VisionUtils(swerveDrive::getPose, swerveDrive.field);
+    }
+
+    public VisionUtils getVisionUtils() {
+        return this.visionUtils;
     }
 
     @Override
@@ -191,9 +195,7 @@ public class SwerveSubsystem extends SubsystemBase {
      * @param velocity Velocity according to the field.
      */
     public Command driveFieldOriented(Supplier<ChassisSpeeds> velocity) {
-        return run(() -> {
-            swerveDrive.driveFieldOriented(velocity.get());
-        });
+        return run(() -> swerveDrive.driveFieldOriented(velocity.get()));
     }
 
     /**

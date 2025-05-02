@@ -7,7 +7,7 @@ public class DriveToDetectedObject extends SequentialCommandGroup {
 
     public DriveToDetectedObject(SwerveSubsystem drivebase) {
         addCommands(
-            new CloseDriveToPose(drivebase, () -> drivebase.visionUtils.getDetectedObjectPose(drivebase.getPose()))
+            new CloseDriveToPose(drivebase, () -> drivebase.getVisionUtils().getDetectedObjectPose(drivebase.getPose()))
         );
     }
 }

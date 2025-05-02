@@ -12,8 +12,8 @@ import frc.robot.Constants.SerializerConstants;
 
 public class SerializerSubsystem extends SubsystemBase {
     
-    private final SparkMax motor = SerializerConstants.SERIALIZER_MOTOR;
-    private final DigitalInput sensor = SerializerConstants.SERIALIZER_DISTANCE_SENSOR;
+    private static final SparkMax motor = SerializerConstants.SERIALIZER_MOTOR;
+    private static final DigitalInput sensor = SerializerConstants.SERIALIZER_DISTANCE_SENSOR;
 
     private final SparkMaxConfig config = new SparkMaxConfig();
 

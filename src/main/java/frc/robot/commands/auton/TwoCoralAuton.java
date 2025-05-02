@@ -2,7 +2,6 @@ package frc.robot.commands.auton;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.path.PathPlannerPath;
@@ -10,13 +9,13 @@ import com.pathplanner.lib.path.PathPlannerPath;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.SerializerConstants;
 import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.Constants.RobotStates.ElevatorStates;
-import frc.robot.Robot;
 import frc.robot.commands.armivator.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
@@ -30,7 +29,7 @@ public class TwoCoralAuton extends AutonCommand {
         this.utils = utils;
         this.paths = getAutonPaths(position);
 
-        if (Robot.isSimulation()) {
+        if (RobotBase.isSimulation()) {
             addCommands(utils.resetOdometry(paths.get(0)));
         }
 
@@ -79,21 +78,6 @@ public class TwoCoralAuton extends AutonCommand {
                 utils.loadPath("RightCoral-3")
             );
         };
-
-
-        // return Map.of(
-        //     StartingPosition.LEFT, List.of(
-        //         utils.loadPath("LeftCoral-1"),
-        //         utils.loadPath("LeftCoral-2"),
-        //         utils.loadPath("LeftCoral-3")
-        //     ),
-        //     StartingPosition.CENTER, List.<PathPlannerPath>of(),
-        //     StartingPosition.RIGHT, List.of(
-        //         utils.loadPath("RightCoral-1"),
-        //         utils.loadPath("RightCoral-2"),
-        //         utils.loadPath("RightCoral-3")
-        //     )
-        // ).getOrDefault(position, List.<PathPlannerPath>of());
     } 
 
     @Override
@@ -101,7 +85,7 @@ public class TwoCoralAuton extends AutonCommand {
         return paths.stream()
             .map(PathPlannerPath::getPathPoses)
             .flatMap(Collection::stream)
-            .collect(Collectors.toList());
+            .toList();
     }
 
     @Override

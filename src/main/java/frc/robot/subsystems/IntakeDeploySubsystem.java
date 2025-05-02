@@ -15,8 +15,8 @@ import frc.robot.subsystems.utils.RegularControlSubsystem;
 
 public class IntakeDeploySubsystem extends RegularControlSubsystem<IntakeStates> {
     
-    private final SparkMax leaderDeployMotor = IntakeConstants.LEFT_DEPLOY_MOTOR;
-    private final SparkMax followerDeployMotor = IntakeConstants.RIGHT_DEPLOY_MOTOR;
+    private static final SparkMax leaderDeployMotor = IntakeConstants.LEFT_DEPLOY_MOTOR;
+    private static final SparkMax followerDeployMotor = IntakeConstants.RIGHT_DEPLOY_MOTOR;
 
     private static final double[] SETPOINTS = {0, 1300, 3200};
 
@@ -53,7 +53,7 @@ public class IntakeDeploySubsystem extends RegularControlSubsystem<IntakeStates>
             case IN -> SETPOINTS[0];
             case L1 -> SETPOINTS[1];
             case OUT -> SETPOINTS[2];
-            default -> throw new Error("Passed in an IntakeState that does not have an associated setpoint!");
+            default -> throw new IllegalArgumentException("Passed in an IntakeState that does not have an associated setpoint!");
         };
     }
 

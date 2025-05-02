@@ -58,7 +58,7 @@ public class AutonUtils {
             return PathPlannerPath.fromPathFile(pathName);
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to load path: " + pathName, e);
+            throw new IllegalStateException("Failed to load path: " + pathName, e);
         }
     }
 
@@ -72,7 +72,7 @@ public class AutonUtils {
             return RobotConfig.fromGUISettings();
         } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("Failed to retrieve RobotConfig from Deploy Settings.", e);
+            throw new IllegalStateException("Failed to retrieve RobotConfig from Deploy Settings.", e);
         }
     }
 }

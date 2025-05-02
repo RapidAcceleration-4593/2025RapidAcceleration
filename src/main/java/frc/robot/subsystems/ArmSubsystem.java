@@ -18,11 +18,11 @@ import frc.robot.subsystems.utils.ProfiledControlSubsystem;
 
 public class ArmSubsystem extends ProfiledControlSubsystem<ArmStates> {
 
-    private final SparkMax motor = ArmConstants.ARM_MOTOR;
-    private final Encoder encoder = ArmConstants.ARM_ENCODER;
+    private static final SparkMax motor = ArmConstants.ARM_MOTOR;
+    private static final Encoder encoder = ArmConstants.ARM_ENCODER;
 
-    private final DigitalInput topLimitSwitch = ArmConstants.TOP_LIMIT_SWITCH;
-    private final DigitalInput bottomLimitSwitch = ArmConstants.BOTTOM_LIMIT_SWITCH;
+    private static final DigitalInput topLimitSwitch = ArmConstants.TOP_LIMIT_SWITCH;
+    private static final DigitalInput bottomLimitSwitch = ArmConstants.BOTTOM_LIMIT_SWITCH;
 
     private static final double[] SETPOINTS = {-20, 620, 875};
 
@@ -54,7 +54,7 @@ public class ArmSubsystem extends ProfiledControlSubsystem<ArmStates> {
             case BOTTOM -> SETPOINTS[0];
             case L2 -> SETPOINTS[1];
             case TOP -> SETPOINTS[2];
-            default -> throw new Error("Passed in an ArmState that does not have an associated setpoint!");
+            default -> throw new IllegalStateException("Passed in an ArmState that does not have an associated setpoint!");
         };
     }
 

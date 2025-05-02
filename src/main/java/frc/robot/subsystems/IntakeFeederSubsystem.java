@@ -11,8 +11,8 @@ import frc.robot.Constants.IntakeConstants;
 
 public class IntakeFeederSubsystem extends SubsystemBase {
     
-    private final SparkMax innerIntakeMotor = IntakeConstants.RIGHT_INTAKE_MOTOR;
-    private final SparkMax outerIntakeMotor = IntakeConstants.LEFT_INTAKE_MOTOR;
+    private static final SparkMax innerIntakeMotor = IntakeConstants.RIGHT_INTAKE_MOTOR;
+    private static final SparkMax outerIntakeMotor = IntakeConstants.LEFT_INTAKE_MOTOR;
 
     private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
 

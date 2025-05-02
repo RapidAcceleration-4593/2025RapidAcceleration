@@ -18,13 +18,13 @@ import frc.robot.subsystems.utils.ProfiledControlSubsystem;
 
 public class ElevatorSubsystem extends ProfiledControlSubsystem<ElevatorStates> {
     
-    private final SparkMax leaderMotor = ElevatorConstants.RIGHT_ELEVATOR_MOTOR;
-    private final SparkMax followerMotor = ElevatorConstants.LEFT_ELEVATOR_MOTOR;
+    private static final SparkMax leaderMotor = ElevatorConstants.RIGHT_ELEVATOR_MOTOR;
+    private static final SparkMax followerMotor = ElevatorConstants.LEFT_ELEVATOR_MOTOR;
 
-    private final DigitalInput topLimitSwitch = ElevatorConstants.TOP_LIMIT_SWITCH;
-    private final DigitalInput bottomLimitSwitch = ElevatorConstants.BOTTOM_LIMIT_SWITCH;
+    private static final DigitalInput topLimitSwitch = ElevatorConstants.TOP_LIMIT_SWITCH;
+    private static final DigitalInput bottomLimitSwitch = ElevatorConstants.BOTTOM_LIMIT_SWITCH;
 
-    private final Encoder encoder = ElevatorConstants.ELEVATOR_ENCODER;
+    private static final Encoder encoder = ElevatorConstants.ELEVATOR_ENCODER;
 
     private static final double[] SETPOINTS = {-500, 3750, 12800};
 
@@ -61,7 +61,7 @@ public class ElevatorSubsystem extends ProfiledControlSubsystem<ElevatorStates> 
             case BOTTOM -> SETPOINTS[0];
             case PICKUP -> SETPOINTS[1];
             case TOP -> SETPOINTS[2];
-            default -> throw new Error("Passed in an ElevatorState that does not have an associated setpoint!");
+            default -> throw new IllegalStateException("Passed in an ElevatorState that does not have an associated setpoint!");
         };
     }
 

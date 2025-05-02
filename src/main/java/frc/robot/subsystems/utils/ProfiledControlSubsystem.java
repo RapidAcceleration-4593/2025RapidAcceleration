@@ -3,14 +3,14 @@ package frc.robot.subsystems.utils;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public abstract class ProfiledControlSubsystem<ControlStates extends Enum<ControlStates>> extends SubsystemBase {
+public abstract class ProfiledControlSubsystem<T extends Enum<T>> extends SubsystemBase {
     
     protected final ProfiledPIDController controller;
 
-    protected ControlStates currentState;
+    protected T currentState;
     protected boolean isManualControlEnabled = false;
 
-    public ProfiledControlSubsystem(ProfiledPIDController pidController) {
+    protected ProfiledControlSubsystem(ProfiledPIDController pidController) {
         this.controller = pidController;
     }
 
@@ -19,13 +19,13 @@ public abstract class ProfiledControlSubsystem<ControlStates extends Enum<Contro
      * @param state The state to retrieve the setpoint for.
      * @return The numerical setpoint value for the provided state.
      */
-    public abstract double getStateSetpoint(ControlStates state);
+    public abstract double getStateSetpoint(T state);
 
     /**
      * Gets the current state of the subsystem.
      * @return The current state of the subsystem.
      */
-    public abstract ControlStates getCurrentState();
+    public abstract T getCurrentState();
 
     /**
      * Controls the states of the subsystem based on the current state.
@@ -61,7 +61,7 @@ public abstract class ProfiledControlSubsystem<ControlStates extends Enum<Contro
     /** 
      * Sets the control state of the subsystem and updates the setpoint accordingly.
     */
-    public void setControlState(ControlStates state) {
+    public void setControlState(T state) {
         this.currentState = state;
         setSetpoint(getStateSetpoint(state));
     }
