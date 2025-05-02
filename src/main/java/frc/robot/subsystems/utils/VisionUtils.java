@@ -119,7 +119,7 @@ public class VisionUtils {
             double distanceToObject = PhotonUtils.calculateDistanceToTargetMeters(
                 Units.inchesToMeters(30),
                 Units.inchesToMeters(2.25),
-                Units.degreesToRadians(-25),
+                Units.degreesToRadians(-30),
                 Units.degreesToRadians(target.getPitch())
             );
 

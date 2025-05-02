@@ -21,7 +21,7 @@ public class IntakeSubsystem extends RegularControlSubsystem<IntakeStates> {
     private final SparkMax innerIntakeMotor = IntakeConstants.RIGHT_INTAKE_MOTOR;
     private final SparkMax outerIntakeMotor = IntakeConstants.LEFT_INTAKE_MOTOR;
 
-    private static final double[] SETPOINTS = {0, 1000, 3200};
+    private static final double[] SETPOINTS = {0, 1200, 3200};
 
     private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig coastConfig = new SparkMaxConfig();

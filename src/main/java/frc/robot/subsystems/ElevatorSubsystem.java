@@ -26,7 +26,7 @@ public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
 
     private final Encoder encoder = ElevatorConstants.ELEVATOR_ENCODER;
 
-    private static final double[] SETPOINTS = {-500, 3750, 12550};
+    private static final double[] SETPOINTS = {-500, 3750, 12800};
 
     private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();

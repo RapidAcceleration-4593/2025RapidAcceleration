@@ -27,9 +27,8 @@ public class IntakeL1Command extends Command {
 
     @Override
     public void end(boolean interrupted) {
-        intakeSubsystem.setControlState(IntakeStates.L1);
-        // intakeSubsystem.controlOutput();
         intakeSubsystem.stopIntake();
+        intakeSubsystem.setControlState(IntakeStates.L1);
     }
 
     @Override
