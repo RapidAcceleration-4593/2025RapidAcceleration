@@ -8,23 +8,24 @@ import frc.robot.Constants.RobotStates.IntakeStates;
 import frc.robot.commands.intake.RunIntakeCommand;
 import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.serializer.RunSerializerCommand;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeDeploySubsystem;
+import frc.robot.subsystems.IntakeFeederSubsystem;
 import frc.robot.subsystems.SerializerSubsystem;
 
 public class PickupCoralCommand extends SequentialCommandGroup {
     
-    public PickupCoralCommand(ArmivatorCommands armivatorCommands, IntakeSubsystem intakeSubsystem, SerializerSubsystem serializerSubsystem) {
+    public PickupCoralCommand(ArmivatorCommands armivatorCommands, SerializerSubsystem serializerSubsystem, IntakeDeploySubsystem deploySubsystem, IntakeFeederSubsystem feederSubsystem) {
         addCommands(
             Commands.parallel(
                 armivatorCommands.setArmivatorState(ElevatorStates.PICKUP, ArmStates.BOTTOM),
-                new SetIntakeState(intakeSubsystem, IntakeStates.OUT)
+                new SetIntakeState(deploySubsystem, IntakeStates.OUT)
             ),
             Commands.race(
-                new RunIntakeCommand(intakeSubsystem, false),
+                new RunIntakeCommand(feederSubsystem, false),
                 new RunSerializerCommand(serializerSubsystem, false, true)
             ),
             Commands.parallel(
-                new SetIntakeState(intakeSubsystem, IntakeStates.L1).withTimeout(1.5),
+                new SetIntakeState(deploySubsystem, IntakeStates.L1).withTimeout(1.5),
                 new KahChunkCommand(armivatorCommands)
             )
         );

@@ -3,32 +3,30 @@ package frc.robot.commands.intake;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStates.IntakeStates;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeDeploySubsystem;
+import frc.robot.subsystems.IntakeFeederSubsystem;
 
 public class IntakeL1Command extends Command {
     
-    private final IntakeSubsystem intakeSubsystem;
+    private final IntakeDeploySubsystem intakeDeploySubsystem;
+    private final IntakeFeederSubsystem intakeFeederSubsystem;
 
-    public IntakeL1Command(IntakeSubsystem intakeSubsystem) {
-        this.intakeSubsystem = intakeSubsystem;
-        addRequirements(intakeSubsystem);
+    public IntakeL1Command(IntakeDeploySubsystem deploySubsystem, IntakeFeederSubsystem feederSubsystem) {
+        this.intakeDeploySubsystem = deploySubsystem;
+        this.intakeFeederSubsystem = feederSubsystem;
+        addRequirements(feederSubsystem);
     }
 
     @Override
     public void initialize() {
-        intakeSubsystem.setIntakeSpeed(-IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SPEED);
-        intakeSubsystem.setControlState(IntakeStates.OUT);
-    }
-
-    @Override
-    public void execute() {
-        intakeSubsystem.controlOutput();
+        intakeFeederSubsystem.setIntakeSpeed(-IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SPEED);
+        intakeDeploySubsystem.setControlState(IntakeStates.OUT);
     }
 
     @Override
     public void end(boolean interrupted) {
-        intakeSubsystem.stopIntake();
-        intakeSubsystem.setControlState(IntakeStates.L1);
+        intakeFeederSubsystem.stopIntake();
+        intakeDeploySubsystem.setControlState(IntakeStates.L1);
     }
 
     @Override

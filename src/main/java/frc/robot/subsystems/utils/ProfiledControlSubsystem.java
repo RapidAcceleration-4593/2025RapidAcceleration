@@ -3,14 +3,14 @@ package frc.robot.subsystems.utils;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public abstract class ControlSubsystem<ControlStates extends Enum<ControlStates>> extends SubsystemBase {
+public abstract class ProfiledControlSubsystem<ControlStates extends Enum<ControlStates>> extends SubsystemBase {
     
     protected final ProfiledPIDController controller;
 
     protected ControlStates currentState;
     protected boolean isManualControlEnabled = false;
 
-    public ControlSubsystem(ProfiledPIDController pidController) {
+    public ProfiledControlSubsystem(ProfiledPIDController pidController) {
         this.controller = pidController;
     }
 

@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.ArmConstants.ArmPIDConstants;
 import frc.robot.Constants.RobotStates.ArmStates;
-import frc.robot.subsystems.utils.ControlSubsystem;
+import frc.robot.subsystems.utils.ProfiledControlSubsystem;
 
-public class ArmSubsystem extends ControlSubsystem<ArmStates> {
+public class ArmSubsystem extends ProfiledControlSubsystem<ArmStates> {
 
     private final SparkMax motor = ArmConstants.ARM_MOTOR;
     private final Encoder encoder = ArmConstants.ARM_ENCODER;

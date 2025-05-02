@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.Constants.ElevatorConstants.ElevatorPIDConstants;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.RobotStates.ElevatorStates;
-import frc.robot.subsystems.utils.ControlSubsystem;
+import frc.robot.subsystems.utils.ProfiledControlSubsystem;
 
-public class ElevatorSubsystem extends ControlSubsystem<ElevatorStates> {
+public class ElevatorSubsystem extends ProfiledControlSubsystem<ElevatorStates> {
     
     private final SparkMax leaderMotor = ElevatorConstants.RIGHT_ELEVATOR_MOTOR;
     private final SparkMax followerMotor = ElevatorConstants.LEFT_ELEVATOR_MOTOR;

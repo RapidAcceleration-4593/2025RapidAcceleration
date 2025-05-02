@@ -1,10 +1,10 @@
 package frc.robot.subsystems;
 
-import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+import com.revrobotics.spark.config.SparkMaxConfig;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,22 +13,18 @@ import frc.robot.Constants.IntakeConstants.IntakePIDConstants;
 import frc.robot.Constants.RobotStates.IntakeStates;
 import frc.robot.subsystems.utils.RegularControlSubsystem;
 
-public class IntakeSubsystem extends RegularControlSubsystem<IntakeStates> {
+public class IntakeDeploySubsystem extends RegularControlSubsystem<IntakeStates> {
     
     private final SparkMax leaderDeployMotor = IntakeConstants.LEFT_DEPLOY_MOTOR;
     private final SparkMax followerDeployMotor = IntakeConstants.RIGHT_DEPLOY_MOTOR;
 
-    private final SparkMax innerIntakeMotor = IntakeConstants.RIGHT_INTAKE_MOTOR;
-    private final SparkMax outerIntakeMotor = IntakeConstants.LEFT_INTAKE_MOTOR;
+    private static final double[] SETPOINTS = {0, 1300, 3200};
 
-    private static final double[] SETPOINTS = {0, 1200, 3200};
-
-    private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
     private final SparkMaxConfig coastConfig = new SparkMaxConfig();
     private final SparkMaxConfig followerConfig = new SparkMaxConfig();
     private final SparkMaxConfig encoderConfig = new SparkMaxConfig();
 
-    public IntakeSubsystem() {
+    public IntakeDeploySubsystem() {
         super(
             new PIDController(
                 IntakePIDConstants.INTAKE_PID.kP,
@@ -37,16 +33,12 @@ public class IntakeSubsystem extends RegularControlSubsystem<IntakeStates> {
             )
         );
 
-        brakeConfig.idleMode(IdleMode.kBrake);
         coastConfig.idleMode(IdleMode.kCoast);
         followerConfig.follow(leaderDeployMotor, true);
         encoderConfig.alternateEncoder.countsPerRevolution(1).setSparkMaxDataPortConfig();
 
         leaderDeployMotor.configure(coastConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerDeployMotor.configure(coastConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-
-        innerIntakeMotor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        outerIntakeMotor.configure(brakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
         leaderDeployMotor.configure(encoderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
         followerDeployMotor.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
@@ -121,25 +113,7 @@ public class IntakeSubsystem extends RegularControlSubsystem<IntakeStates> {
         leaderDeployMotor.stopMotor();
     }
 
-    /**
-     * Sets the speed of the intake motors.
-     * @param inner The speed of the inner intake motor.
-     * @param outer The speed of the outer intake motor.
-     */
-    public void setIntakeSpeed(double inner, double outer) {
-        innerIntakeMotor.set(-inner);
-        outerIntakeMotor.set(outer);
-    }
-
-    /**
-     * Stops the intake motors.
-     */
-    public void stopIntake() {
-        innerIntakeMotor.stopMotor();
-        outerIntakeMotor.stopMotor();
-    }
-
-    @Override
+        @Override
     public double getEncoderValue() {
         return leaderDeployMotor.getAlternateEncoder().getPosition();
     }

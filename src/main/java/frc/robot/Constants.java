@@ -84,8 +84,8 @@ public final class Constants {
         public static final SparkMax LEFT_DEPLOY_MOTOR = new SparkMax(4, MotorType.kBrushless);
         public static final SparkMax RIGHT_DEPLOY_MOTOR = new SparkMax(5, MotorType.kBrushless);
 
-        public static final double INTAKE_SPEED = 0.75;
-        public static final double OUTTAKE_SPEED = 0.4;
+        public static final double INTAKE_SPEED = 0.8;
+        public static final double OUTTAKE_SPEED = 0.3;
         public static final double DEPLOY_SPEED = 0.75;
 
         public static final int CURRENT_SPIKE = 20; // 45 low, 42

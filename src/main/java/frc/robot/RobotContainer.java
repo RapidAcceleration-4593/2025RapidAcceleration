@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ControlDirections;
-import frc.robot.Constants.RobotStates.IntakeStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
@@ -35,7 +34,6 @@ import frc.robot.commands.elevator.ControlElevatorState;
 import frc.robot.commands.intake.ControlIntakeState;
 import frc.robot.commands.intake.IntakeL1Command;
 import frc.robot.commands.intake.RunIntakeCommand;
-import frc.robot.commands.intake.SetIntakeState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleArmivatorManualControl;
@@ -43,8 +41,9 @@ import frc.robot.commands.manual.ToggleIntakeManualControl;
 import frc.robot.subsystems.SwerveSubsystem;
 import frc.robot.subsystems.utils.PoseNavigator;
 import frc.robot.subsystems.ArmSubsystem;
-import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;
+import frc.robot.subsystems.IntakeDeploySubsystem;
+import frc.robot.subsystems.IntakeFeederSubsystem;
 import frc.robot.subsystems.SerializerSubsystem;
 import swervelib.SwerveInputStream;
 
@@ -59,7 +58,8 @@ public class RobotContainer {
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     private final ArmSubsystem armSubsystem = new ArmSubsystem();
     private final SerializerSubsystem serializerSubsystem = new SerializerSubsystem();
-    private final IntakeSubsystem intakeSubsystem = new IntakeSubsystem();
+    private final IntakeDeploySubsystem intakeDeploySubsystem = new IntakeDeploySubsystem();
+    private final IntakeFeederSubsystem intakeFeederSubsystem = new IntakeFeederSubsystem();
 
     // Util(s)
     private final ArmivatorCommands armivatorCommands = new ArmivatorCommands(elevatorSubsystem, armSubsystem, serializerSubsystem);
@@ -94,7 +94,7 @@ public class RobotContainer {
         drivebase.setDefaultCommand(driveFieldOrientedAngularVelocity);
         elevatorSubsystem.setDefaultCommand(new ControlElevatorState(elevatorSubsystem));
         armSubsystem.setDefaultCommand(new ControlArmState(armSubsystem));
-        intakeSubsystem.setDefaultCommand(new ControlIntakeState(intakeSubsystem));
+        intakeDeploySubsystem.setDefaultCommand(new ControlIntakeState(intakeDeploySubsystem));
     }
 
     private void configureBindings() {
@@ -109,15 +109,15 @@ public class RobotContainer {
         /* --- Armivator Control --- */
         driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
-        driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, intakeSubsystem, serializerSubsystem));
+        driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem, intakeDeploySubsystem, intakeFeederSubsystem));
         driverController.rightBumper().onTrue(new HandleDashboardState(armivatorCommands, poseNavigator));
 
         /* --- Intake Control --- */
-        driverController.b().whileTrue(new IntakeL1Command(intakeSubsystem));
-        driverController.y().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
+        driverController.b().whileTrue(new IntakeL1Command(intakeDeploySubsystem, intakeFeederSubsystem));
+        driverController.y().whileTrue(new RunIntakeCommand(intakeFeederSubsystem, true));
 
         /* --- Manual Control --- */
-        auxiliaryController.start().onTrue(new ToggleIntakeManualControl(intakeSubsystem));
+        auxiliaryController.start().onTrue(new ToggleIntakeManualControl(intakeDeploySubsystem));
         auxiliaryController.back().onTrue(new ToggleArmivatorManualControl(elevatorSubsystem, armSubsystem));
 
         auxiliaryController.y().whileTrue(new ManualElevatorCommand(elevatorSubsystem, ControlDirections.UP));
@@ -125,27 +125,6 @@ public class RobotContainer {
 
         auxiliaryController.x().whileTrue(new ManualArmCommand(armSubsystem, ControlDirections.UP));
         auxiliaryController.b().whileTrue(new ManualArmCommand(armSubsystem, ControlDirections.DOWN));
-
-        // auxiliaryController.povUp().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.UP));
-        // auxiliaryController.povDown().whileTrue(new ManualIntakeCommand(intakeSubsystem, ControlDirections.DOWN));
-
-        /* --- Unused Controls --- */
-        // auxiliaryController.povUp().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.TOP, ArmStates.TOP));
-        // auxiliaryController.povRight().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.TOP));
-        // auxiliaryController.povLeft().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.L2));
-        // auxiliaryController.povDown().onTrue(new SetArmivatorState(elevatorSubsystem, armSubsystem, ElevatorStates.BOTTOM, ArmStates.BOTTOM));
-
-        auxiliaryController.povUp().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.IN));
-        driverController.povRight().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.L1));
-        auxiliaryController.povDown().onTrue(new SetIntakeState(intakeSubsystem, IntakeStates.OUT));
-
-        // auxiliaryController.leftTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, false));
-        // auxiliaryController.rightTrigger().whileTrue(new RunIntakeCommand(intakeSubsystem, true));
-
-        // auxiliaryController.leftBumper().whileTrue(new StoreCoralCommand(intakeSubsystem));
-
-        // auxiliaryController.rightBumper().whileTrue(new RunSerializerCommand(serializerSubsystem, false, false));
-        // auxiliaryController.rightTrigger().whileTrue(new RunSerializerCommand(serializerSubsystem, true, false));
     }
 
     /**

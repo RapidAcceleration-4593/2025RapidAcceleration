@@ -17,9 +17,9 @@ public class CloseDriveToPose extends Command {
 
     private Pose2d lastKnownPose;
 
-    private final PIDController xController = new PIDController(1.0, 0.0, 0.0);
-    private final PIDController yController = new PIDController(1.0, 0.0, 0.0);
-    private final PIDController rotationController = new PIDController(1.0, 0.0, 0.0);
+    private final PIDController xController = new PIDController(1.5, 0.0, 0.0);
+    private final PIDController yController = new PIDController(1.5, 0.0, 0.0);
+    private final PIDController rotationController = new PIDController(2.0, 0.0, 0.0);
 
     public CloseDriveToPose(SwerveSubsystem drivebase, Supplier<Optional<Pose2d>> poseSupplier) {
         this.drivebase = drivebase;

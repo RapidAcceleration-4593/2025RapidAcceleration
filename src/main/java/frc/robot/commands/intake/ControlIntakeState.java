@@ -1,20 +1,20 @@
 package frc.robot.commands.intake;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeDeploySubsystem;
 
 public class ControlIntakeState extends Command {
     
-    private final IntakeSubsystem intakeSubsystem;
+    private final IntakeDeploySubsystem intakeDeploySubsystem;
 
-    public ControlIntakeState(IntakeSubsystem subsystem) {
-        this.intakeSubsystem = subsystem;
+    public ControlIntakeState(IntakeDeploySubsystem subsystem) {
+        this.intakeDeploySubsystem = subsystem;
         addRequirements(subsystem);
     }
 
     @Override
     public void execute() {
-        intakeSubsystem.controlStates();
+        intakeDeploySubsystem.controlStates();
     }
 
     @Override

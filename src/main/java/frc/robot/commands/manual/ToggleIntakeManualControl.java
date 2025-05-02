@@ -1,20 +1,20 @@
 package frc.robot.commands.manual;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeDeploySubsystem;
 
 public class ToggleIntakeManualControl extends Command {
     
-    private final IntakeSubsystem intakeSubsystem;
+    private final IntakeDeploySubsystem intakeDeploySubsystem;
 
-    public ToggleIntakeManualControl(IntakeSubsystem subsystem) {
-        this.intakeSubsystem = subsystem;
+    public ToggleIntakeManualControl(IntakeDeploySubsystem subsystem) {
+        this.intakeDeploySubsystem = subsystem;
     }
 
     @Override
     public void initialize() {
-        intakeSubsystem.setManualControl(!intakeSubsystem.isManualControlEnabled());
-        intakeSubsystem.setSetpoint(intakeSubsystem.getEncoderValue());
+        intakeDeploySubsystem.setManualControl(!intakeDeploySubsystem.isManualControlEnabled());
+        intakeDeploySubsystem.setSetpoint(intakeDeploySubsystem.getEncoderValue());
     }
 
     @Override

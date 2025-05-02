@@ -3,22 +3,22 @@ package frc.robot.commands.manual;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStates.ControlDirections;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeDeploySubsystem;
 
 public class ManualIntakeCommand extends Command {
 
-    private final IntakeSubsystem intakeSubsystem;
+    private final IntakeDeploySubsystem intakeDeploySubsystem;
     private final ControlDirections direction;
 
-    public ManualIntakeCommand(IntakeSubsystem subsystem, ControlDirections direction) {
-        this.intakeSubsystem = subsystem;
+    public ManualIntakeCommand(IntakeDeploySubsystem subsystem, ControlDirections direction) {
+        this.intakeDeploySubsystem = subsystem;
         this.direction = direction;
-        addRequirements(intakeSubsystem);
+        addRequirements(intakeDeploySubsystem);
     }
 
     @Override
     public void execute() {
-        if (!intakeSubsystem.isManualControlEnabled()) {
+        if (!intakeDeploySubsystem.isManualControlEnabled()) {
             return;
         }
 
@@ -26,12 +26,12 @@ public class ManualIntakeCommand extends Command {
             ? -IntakeConstants.DEPLOY_SPEED
             : IntakeConstants.DEPLOY_SPEED;
 
-        intakeSubsystem.setMotorSpeeds(speed);
+            intakeDeploySubsystem.setMotorSpeeds(speed);
     }
 
     @Override
     public void end(boolean interrupted) {
-        intakeSubsystem.stopMotors();
+        intakeDeploySubsystem.stopMotors();
     }
 
     @Override
