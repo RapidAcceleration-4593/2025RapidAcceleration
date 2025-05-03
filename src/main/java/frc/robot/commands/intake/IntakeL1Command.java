@@ -19,7 +19,7 @@ public class IntakeL1Command extends Command {
         this.intakeDeploySubsystem = deploySubsystem;
         this.intakeFeederSubsystem = feederSubsystem;
         this.armivatorCommands = armivatorCommands;
-        addRequirements(feederSubsystem);
+        addRequirements(feederSubsystem, deploySubsystem);
     }
 
     @Override
@@ -27,6 +27,11 @@ public class IntakeL1Command extends Command {
         armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM);
         intakeFeederSubsystem.setIntakeSpeed(-IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SPEED);
         intakeDeploySubsystem.setControlState(IntakeStates.OUT);
+    }
+
+    @Override
+    public void execute() {
+        intakeDeploySubsystem.controlStates();
     }
 
     @Override

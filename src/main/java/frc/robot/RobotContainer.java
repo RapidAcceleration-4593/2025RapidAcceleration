@@ -114,7 +114,7 @@ public class RobotContainer {
 
         /* --- Intake Control --- */
         driverController.a().whileTrue(new IntakeL1Command(intakeDeploySubsystem, intakeFeederSubsystem, armivatorCommands));
-        driverController.a().whileTrue(new RunIntakeCommand(intakeFeederSubsystem, true));
+        driverController.b().whileTrue(new RunIntakeCommand(intakeFeederSubsystem, true));
 
         /* --- Manual Control --- */
         auxiliaryController.start().onTrue(new ToggleIntakeManualControl(intakeDeploySubsystem));

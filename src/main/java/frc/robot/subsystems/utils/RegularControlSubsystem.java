@@ -60,7 +60,7 @@ public abstract class RegularControlSubsystem<T extends Enum<T>> extends Subsyst
 
     /** 
      * Sets the control state of the subsystem and updates the setpoint accordingly.
-    */
+     */
     public void setControlState(T state) {
         this.currentState = state;
         setSetpoint(getStateSetpoint(state));

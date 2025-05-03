@@ -94,8 +94,8 @@ public class IntakeDeploySubsystem extends RegularControlSubsystem<IntakeStates>
      * @return Whether the intake deployment motors should coast to the setpoint.
      */
     private boolean shouldCoast() {
-        return (getCurrentState() == IntakeStates.IN) ||
-               (getCurrentState() == IntakeStates.OUT);
+        return (getCurrentState() == IntakeStates.IN && currentState == IntakeStates.IN) ||
+               (getCurrentState() == IntakeStates.OUT && currentState == IntakeStates.OUT);
     }
 
     /**

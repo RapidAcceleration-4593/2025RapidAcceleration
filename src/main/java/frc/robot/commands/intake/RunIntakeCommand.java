@@ -18,8 +18,8 @@ public class RunIntakeCommand extends Command {
     @Override
     public void execute() {
         intakeFeederSubsystem.setIntakeSpeed(
-            isInverted ? -IntakeConstants.OUTTAKE_SPEED : IntakeConstants.INTAKE_SPEED,
-            isInverted ? -IntakeConstants.OUTTAKE_SPEED : IntakeConstants.INTAKE_SPEED
+            isInverted ? -0.6 : IntakeConstants.INTAKE_SPEED,
+            isInverted ? -0.3 : IntakeConstants.INTAKE_SPEED
         );
     }
 
