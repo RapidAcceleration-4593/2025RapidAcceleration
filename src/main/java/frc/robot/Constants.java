@@ -73,9 +73,6 @@ public final class Constants {
         public static final class IntakePIDConstants {
             public static final PIDConstants INTAKE_PID = new PIDConstants(0.0003, 0.0, 0.0);
             public static final int TOLERANCE = 100;
-
-            // public static final double MAX_VELOCITY = 1000; // 3400
-            // public static final double MAX_ACCELERATION = 800; // 800
         }
 
         public static final SparkMax LEFT_INTAKE_MOTOR = new SparkMax(2, MotorType.kBrushless);
@@ -119,7 +116,7 @@ public final class Constants {
         }
 
         public enum ArmStates {
-            BOTTOM, L2, TOP
+            BOTTOM, LOW_ALGAE, HIGH_ALGAE, L2, TOP
         }
 
         public enum IntakeStates {

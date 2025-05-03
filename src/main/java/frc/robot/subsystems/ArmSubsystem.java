@@ -24,7 +24,7 @@ public class ArmSubsystem extends ProfiledControlSubsystem<ArmStates> {
     private static final DigitalInput topLimitSwitch = ArmConstants.TOP_LIMIT_SWITCH;
     private static final DigitalInput bottomLimitSwitch = ArmConstants.BOTTOM_LIMIT_SWITCH;
 
-    private static final double[] SETPOINTS = {-20, 620, 875};
+    private static final double[] SETPOINTS = {-20, 410, 550, 620, 875};
 
     private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
 
@@ -52,8 +52,10 @@ public class ArmSubsystem extends ProfiledControlSubsystem<ArmStates> {
     public double getStateSetpoint(ArmStates state) {
         return switch (state) {
             case BOTTOM -> SETPOINTS[0];
-            case L2 -> SETPOINTS[1];
-            case TOP -> SETPOINTS[2];
+            case LOW_ALGAE -> SETPOINTS[1];
+            case HIGH_ALGAE -> SETPOINTS[2];
+            case L2 -> SETPOINTS[3];
+            case TOP -> SETPOINTS[4];
             default -> throw new IllegalStateException("Passed in an ArmState that does not have an associated setpoint!");
         };
     }

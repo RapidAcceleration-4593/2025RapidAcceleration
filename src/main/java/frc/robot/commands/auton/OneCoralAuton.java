@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.StartingPosition;
 import frc.robot.Constants.RobotStates.ElevatorStates;
-import frc.robot.commands.armivator.ArmivatorCommands;
+import frc.robot.commands.armivator.base.ArmivatorCommands;
 import frc.robot.commands.auton.utils.AutonCommand;
 import frc.robot.commands.auton.utils.AutonUtils;
 

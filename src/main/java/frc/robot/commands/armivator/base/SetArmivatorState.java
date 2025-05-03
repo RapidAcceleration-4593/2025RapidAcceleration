@@ -1,4 +1,4 @@
-package frc.robot.commands.armivator;
+package frc.robot.commands.armivator.base;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -6,7 +6,7 @@ import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.ElevatorConstants.ElevatorTravelTime;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.ElevatorStates;
-import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.arm.base.SetArmState;
 import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ElevatorSubsystem;

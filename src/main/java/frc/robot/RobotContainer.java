@@ -16,12 +16,12 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
 import frc.robot.Constants.RobotStates.ControlDirections;
 import frc.robot.Constants.RobotStates.StartingPosition;
-import frc.robot.commands.arm.ControlArmState;
 import frc.robot.commands.arm.ScoreCommand;
-import frc.robot.commands.armivator.ArmivatorCommands;
+import frc.robot.commands.arm.base.ControlArmState;
 import frc.robot.commands.armivator.HandleDashboardState;
 import frc.robot.commands.armivator.PickupCoralCommand;
 import frc.robot.commands.armivator.RemoveAlgaeCommand;
+import frc.robot.commands.armivator.base.ArmivatorCommands;
 import frc.robot.commands.auton.MoveOutAuton;
 import frc.robot.commands.auton.NoneAuton;
 import frc.robot.commands.auton.OneCoralAuton;
@@ -31,9 +31,9 @@ import frc.robot.commands.auton.utils.AutonUtils;
 import frc.robot.commands.drivebase.DriveToDashboardPose;
 import frc.robot.commands.drivebase.DriveToDetectedObject;
 import frc.robot.commands.elevator.ControlElevatorState;
-import frc.robot.commands.intake.ControlIntakeState;
 import frc.robot.commands.intake.IntakeL1Command;
 import frc.robot.commands.intake.RunIntakeCommand;
+import frc.robot.commands.intake.base.ControlIntakeState;
 import frc.robot.commands.manual.ManualArmCommand;
 import frc.robot.commands.manual.ManualElevatorCommand;
 import frc.robot.commands.manual.ToggleArmivatorManualControl;
@@ -103,8 +103,8 @@ public class RobotContainer {
 
         /* --- Autonomous Navigation --- */
         driverController.leftTrigger().whileTrue(new DriveToDashboardPose(drivebase, poseNavigator));
-        driverController.a().whileTrue(new DriveToDetectedObject(drivebase));
-        driverController.x().onTrue(new RemoveAlgaeCommand(armivatorCommands, drivebase, poseNavigator));
+        driverController.povDown().whileTrue(new DriveToDetectedObject(drivebase));
+        driverController.x().onTrue(new RemoveAlgaeCommand(drivebase, armivatorCommands, poseNavigator));
 
         /* --- Armivator Control --- */
         driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
@@ -113,8 +113,8 @@ public class RobotContainer {
         driverController.rightBumper().onTrue(new HandleDashboardState(armivatorCommands, poseNavigator));
 
         /* --- Intake Control --- */
-        driverController.b().whileTrue(new IntakeL1Command(intakeDeploySubsystem, intakeFeederSubsystem));
-        driverController.y().whileTrue(new RunIntakeCommand(intakeFeederSubsystem, true));
+        driverController.a().whileTrue(new IntakeL1Command(intakeDeploySubsystem, intakeFeederSubsystem, armivatorCommands));
+        driverController.a().whileTrue(new RunIntakeCommand(intakeFeederSubsystem, true));
 
         /* --- Manual Control --- */
         auxiliaryController.start().onTrue(new ToggleIntakeManualControl(intakeDeploySubsystem));

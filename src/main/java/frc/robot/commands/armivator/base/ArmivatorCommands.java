@@ -1,4 +1,4 @@
-package frc.robot.commands.armivator;
+package frc.robot.commands.armivator.base;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ArmConstants;
@@ -6,7 +6,7 @@ import frc.robot.Constants.ArmConstants.ArmTravelTime;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.commands.arm.AdjustArmCommand;
-import frc.robot.commands.arm.SetArmState;
+import frc.robot.commands.arm.base.SetArmState;
 import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.commands.serializer.RunSerializerCommand;
 import frc.robot.subsystems.ArmSubsystem;
@@ -57,15 +57,6 @@ public class ArmivatorCommands {
      */
     public Command setArmState(ArmStates state) {
         return new SetArmState(arm, state);
-    }
-
-    /**
-     * Command to adjust the arm setpoint while running PID Control.
-     * @param adjustment The amount of encoder ticks to adjust the setpoint by.
-     * @return A functional command to adjust the arm setpoint.
-     */
-    public Command adjustArmSetpoint(double adjustment) {
-        return new AdjustArmCommand(arm, adjustment);
     }
 
     /**
