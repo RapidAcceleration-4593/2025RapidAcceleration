@@ -103,18 +103,20 @@ public class RobotContainer {
 
         /* --- Autonomous Navigation --- */
         driverController.leftTrigger().whileTrue(new DriveToDashboardPose(drivebase, poseNavigator));
-        driverController.povDown().whileTrue(new DriveToDetectedObject(drivebase));
+        driverController.leftTrigger().and(driverController.rightStick()).whileTrue(new DriveToDetectedObject(drivebase));
         driverController.x().onTrue(new RemoveAlgaeCommand(drivebase, armivatorCommands, poseNavigator));
 
         /* --- Armivator Control --- */
-        driverController.rightTrigger().onTrue(new ScoreCommand(armSubsystem, drivebase));
+        driverController.y().onTrue(new ScoreCommand(armSubsystem, drivebase));
 
         driverController.leftBumper().onTrue(new PickupCoralCommand(armivatorCommands, serializerSubsystem, intakeDeploySubsystem, intakeFeederSubsystem));
         driverController.rightBumper().onTrue(new HandleDashboardState(armivatorCommands, poseNavigator));
 
         /* --- Intake Control --- */
-        driverController.a().whileTrue(new IntakeL1Command(intakeDeploySubsystem, intakeFeederSubsystem, armivatorCommands));
+        driverController.rightTrigger().whileTrue(new IntakeL1Command(intakeDeploySubsystem, intakeFeederSubsystem, elevatorSubsystem, armSubsystem));
         driverController.b().whileTrue(new RunIntakeCommand(intakeFeederSubsystem, true));
+
+        driverController.povUp().whileTrue(new RunIntakeCommand(intakeFeederSubsystem, false));
 
         /* --- Manual Control --- */
         auxiliaryController.start().onTrue(new ToggleIntakeManualControl(intakeDeploySubsystem));

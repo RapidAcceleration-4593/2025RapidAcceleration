@@ -34,9 +34,8 @@ public class RemoveAlgaeCommand extends DeferredCommand {
                         armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.HIGH_ALGAE),
                         poseNavigator::isHighAlgae
                     ),
-                    new DriveToDistance(drivebase, -1.0).withTimeout(1.25)
-                ),
-                armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM)
+                    new DriveToDistance(drivebase, -1.25).withTimeout(1.25)
+                )
             ), Set.of(drivebase, poseNavigator)
         );
     }

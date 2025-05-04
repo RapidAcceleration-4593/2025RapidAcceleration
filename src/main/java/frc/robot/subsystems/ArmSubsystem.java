@@ -24,7 +24,7 @@ public class ArmSubsystem extends ProfiledControlSubsystem<ArmStates> {
     private static final DigitalInput topLimitSwitch = ArmConstants.TOP_LIMIT_SWITCH;
     private static final DigitalInput bottomLimitSwitch = ArmConstants.BOTTOM_LIMIT_SWITCH;
 
-    private static final double[] SETPOINTS = {-20, 410, 550, 620, 875};
+    private static final double[] SETPOINTS = {-20, 425, 550, 620, 875};
 
     private final SparkMaxConfig brakeConfig = new SparkMaxConfig();
 

@@ -5,7 +5,8 @@ import frc.robot.Constants.IntakeConstants;
 import frc.robot.Constants.RobotStates.ArmStates;
 import frc.robot.Constants.RobotStates.ElevatorStates;
 import frc.robot.Constants.RobotStates.IntakeStates;
-import frc.robot.commands.armivator.base.ArmivatorCommands;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ElevatorSubsystem;
 import frc.robot.subsystems.IntakeDeploySubsystem;
 import frc.robot.subsystems.IntakeFeederSubsystem;
 
@@ -13,24 +14,29 @@ public class IntakeL1Command extends Command {
     
     private final IntakeDeploySubsystem intakeDeploySubsystem;
     private final IntakeFeederSubsystem intakeFeederSubsystem;
-    private final ArmivatorCommands armivatorCommands;
+    private final ElevatorSubsystem elevatorSubsystem;
+    private final ArmSubsystem armSubsystem;
 
-    public IntakeL1Command(IntakeDeploySubsystem deploySubsystem, IntakeFeederSubsystem feederSubsystem, ArmivatorCommands armivatorCommands) {
+    public IntakeL1Command(IntakeDeploySubsystem deploySubsystem, IntakeFeederSubsystem feederSubsystem, ElevatorSubsystem elevatorSubsystem, ArmSubsystem armSubsystem) {
         this.intakeDeploySubsystem = deploySubsystem;
         this.intakeFeederSubsystem = feederSubsystem;
-        this.armivatorCommands = armivatorCommands;
+        this.elevatorSubsystem = elevatorSubsystem;
+        this.armSubsystem = armSubsystem;
         addRequirements(feederSubsystem, deploySubsystem);
     }
 
     @Override
     public void initialize() {
-        armivatorCommands.setArmivatorState(ElevatorStates.BOTTOM, ArmStates.BOTTOM);
-        intakeFeederSubsystem.setIntakeSpeed(-IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SPEED);
+        elevatorSubsystem.setControlState(ElevatorStates.PICKUP);
+        armSubsystem.setControlState(ArmStates.BOTTOM);
         intakeDeploySubsystem.setControlState(IntakeStates.OUT);
+        intakeFeederSubsystem.setIntakeSpeed(-IntakeConstants.INTAKE_SPEED, IntakeConstants.INTAKE_SPEED);
     }
 
     @Override
     public void execute() {
+        elevatorSubsystem.controlStates();
+        armSubsystem.controlStates();
         intakeDeploySubsystem.controlStates();
     }
 
