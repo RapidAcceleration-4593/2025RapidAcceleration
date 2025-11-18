@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.OperatorConstants;
+import frc.robot.Constants.RobotStates.ElevatorStates;
+import frc.robot.commands.elevator.SetElevatorState;
 import frc.robot.subsystems.ElevatorSubsystem;
 
 /**
@@ -20,9 +22,18 @@ public class RobotContainer {
     private final ElevatorSubsystem elevatorSubsystem = new ElevatorSubsystem();
     private final CommandXboxController driverController = new CommandXboxController(OperatorConstants.DRIVER_CONTROLLER_PORT);
 
-    /** The container for the robot. Contains subsystems, OI devices, and commands
+    /**
+     * The container for the robot. Contains subsystems, OI devices, and commands
+     */
+    public RobotContainer() {
+        configureBindings();
+    }
+
+    /**
+     * Configures controller bindings
+     */
     private void configureBindings() {
-    
+        driverController.a().onTrue(new SetElevatorState(elevatorSubsystem, ElevatorStates.TOP));
     }
 
     /**
